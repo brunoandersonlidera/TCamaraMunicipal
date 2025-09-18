@@ -378,34 +378,27 @@
         
         counters.forEach(counter => {
             const target = parseInt(counter.textContent);
-            const increment = target / 50;
-            let current = 0;
-            
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= target) {
-                    counter.textContent = target;
-                    clearInterval(timer);
-                } else {
-                    counter.textContent = Math.floor(current);
-                }
-            }, 30);
+            if (target && target > 0) {
+                const increment = target / 50;
+                let current = 0;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.textContent = target;
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current);
+                    }
+                }, 30);
+            }
         });
     }
 
-    // Trigger counter animation when section is visible
-    const numbersSection = document.querySelector('.py-5:has(.section-title:contains("Números"))');
-    if (numbersSection) {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    animateCounters();
-                    observer.unobserve(entry.target);
-                }
-            });
-        });
-        
-        observer.observe(numbersSection);
-    }
+    // Simple trigger for counter animation on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Delay animation slightly for better effect
+        setTimeout(animateCounters, 1000);
+    });
 </script>
 @endpush
