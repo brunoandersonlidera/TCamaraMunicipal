@@ -25,6 +25,8 @@ class User extends Authenticatable
         'email',
         'password',
         'email_verified_at',
+        'role',
+        'active',
     ];
 
     /**
@@ -47,6 +49,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'active' => 'boolean',
         ];
     }
 
@@ -111,7 +114,81 @@ class User extends Authenticatable
         return $this->hasMany(EsicSolicitacao::class, 'responsavel_id');
     }
 
-    // Scopes - Removidos temporariamente até implementar sistema de roles
+    // Métodos de Role e Permissões
+
+    /**
+     * Verifica se o usuário é administrador
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin' && $this->active;
+    }
+
+    /**
+     * Verifica se o usuário é um usuário comum
+     */
+    public function isUser(): bool
+    {
+        return $this->role === 'user' && $this->active;
+    }
+
+    /**
+     * Verifica se o usuário está ativo
+     */
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    /**
+     * Verifica se o usuário tem permissão para acessar área administrativa
+     */
+    public function canAccessAdmin(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Verifica se o usuário pode gerenciar conteúdo
+     */
+    public function canManageContent(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Verifica se o usuário pode gerenciar usuários
+     */
+    public function canManageUsers(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    // Scopes
+
+    /**
+     * Scope para filtrar apenas administradores
+     */
+    public function scopeAdmins($query)
+    {
+        return $query->where('role', 'admin');
+    }
+
+    /**
+     * Scope para filtrar apenas usuários comuns
+     */
+    public function scopeUsers($query)
+    {
+        return $query->where('role', 'user');
+    }
+
+    /**
+     * Scope para filtrar apenas usuários ativos
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('active', true);
+    }
 
     // Accessors
 

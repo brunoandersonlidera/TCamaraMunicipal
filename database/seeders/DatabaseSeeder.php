@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         
         // Executar seeders em ordem específica
         $this->call([
+            AdminUserSeeder::class,  // Primeiro criar admin padrão
             UserSeeder::class,
             VereadorSeeder::class,
         ]);
