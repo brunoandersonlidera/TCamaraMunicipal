@@ -10,6 +10,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * @method bool isAdmin()
+ * @method bool isUser()
+ * @method bool isActive()
+ * @method bool canAccessAdmin()
+ * @method bool canManageContent()
+ * @method bool canManageUsers()
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
