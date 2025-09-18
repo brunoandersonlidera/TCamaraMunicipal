@@ -25,21 +25,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
-        'status',
-        'telefone',
-        'cargo',
-        'departamento',
-        'avatar',
-        'bio',
-        'data_nascimento',
-        'cpf',
-        'rg',
-        'endereco',
-        'cidade',
-        'estado',
-        'cep',
-        'ultimo_acesso',
         'email_verified_at',
     ];
 
@@ -63,12 +48,6 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'data_nascimento' => 'date',
-            'ultimo_acesso' => 'datetime',
-            'status' => 'boolean',
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime',
-            'deleted_at' => 'datetime',
         ];
     }
 
@@ -79,11 +58,8 @@ class User extends Authenticatable
      */
     protected $dates = [
         'email_verified_at',
-        'data_nascimento',
-        'ultimo_acesso',
         'created_at',
         'updated_at',
-        'deleted_at',
     ];
 
     // Relacionamentos
