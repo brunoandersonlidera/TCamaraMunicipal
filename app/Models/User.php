@@ -112,98 +112,18 @@ class User extends Authenticatable
         return $this->hasMany(EsicSolicitacao::class, 'responsavel_id');
     }
 
-    // Scopes
-
-    /**
-     * Scope para usuários ativos
-     */
-    public function scopeAtivos($query)
-    {
-        return $query->where('status', true);
-    }
-
-    /**
-     * Scope para usuários por role
-     */
-    public function scopePorRole($query, $role)
-    {
-        return $query->where('role', $role);
-    }
-
-    /**
-     * Scope para administradores
-     */
-    public function scopeAdministradores($query)
-    {
-        return $query->where('role', 'admin');
-    }
-
-    /**
-     * Scope para editores
-     */
-    public function scopeEditores($query)
-    {
-        return $query->where('role', 'editor');
-    }
-
-    /**
-     * Scope para usuários comuns
-     */
-    public function scopeUsuarios($query)
-    {
-        return $query->where('role', 'user');
-    }
+    // Scopes - Removidos temporariamente até implementar sistema de roles
 
     // Accessors
-
-    /**
-     * Get the user's full name with title
-     */
-    public function getNomeCompletoAttribute(): string
-    {
-        $titulo = '';
-        if ($this->cargo) {
-            $titulo = $this->cargo . ' ';
-        }
-        return $titulo . $this->name;
-    }
 
     /**
      * Get the user's avatar URL
      */
     public function getAvatarUrlAttribute(): string
     {
-        if ($this->avatar) {
-            return asset('storage/avatars/' . $this->avatar);
-        }
-        
         // Gravatar como fallback
         $hash = md5(strtolower(trim($this->email)));
         return "https://www.gravatar.com/avatar/{$hash}?d=identicon&s=200";
-    }
-
-    /**
-     * Get the user's role display name
-     */
-    public function getRoleDisplayAttribute(): string
-    {
-        $roles = [
-            'admin' => 'Administrador',
-            'editor' => 'Editor',
-            'user' => 'Usuário',
-            'vereador' => 'Vereador',
-            'secretario' => 'Secretário',
-        ];
-
-        return $roles[$this->role] ?? 'Usuário';
-    }
-
-    /**
-     * Get the user's status display
-     */
-    public function getStatusDisplayAttribute(): string
-    {
-        return $this->status ? 'Ativo' : 'Inativo';
     }
 
     // Mutators
@@ -246,55 +166,7 @@ class User extends Authenticatable
         }
     }
 
-    // Métodos auxiliares
-
-    /**
-     * Verifica se o usuário é administrador
-     */
-    public function isAdmin(): bool
-    {
-        return $this->role === 'admin';
-    }
-
-    /**
-     * Verifica se o usuário é editor
-     */
-    public function isEditor(): bool
-    {
-        return $this->role === 'editor';
-    }
-
-    /**
-     * Verifica se o usuário é vereador
-     */
-    public function isVereador(): bool
-    {
-        return $this->role === 'vereador';
-    }
-
-    /**
-     * Verifica se o usuário pode editar conteúdo
-     */
-    public function canEdit(): bool
-    {
-        return in_array($this->role, ['admin', 'editor']);
-    }
-
-    /**
-     * Verifica se o usuário pode gerenciar usuários
-     */
-    public function canManageUsers(): bool
-    {
-        return $this->role === 'admin';
-    }
-
-    /**
-     * Atualiza o último acesso do usuário
-     */
-    public function updateLastAccess(): void
-    {
-        $this->update(['ultimo_acesso' => now()]);
-    }
+    // Métodos auxiliares - Removidos temporariamente até implementar sistema de roles
 
     /**
      * Get user's initials for avatar
@@ -323,11 +195,6 @@ class User extends Authenticatable
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => $id ? 'nullable|min:8' : 'required|min:8',
-            'role' => 'required|in:admin,editor,user,vereador,secretario',
-            'telefone' => 'nullable|string|max:20',
-            'cpf' => 'nullable|string|size:11|unique:users,cpf,' . $id,
-            'data_nascimento' => 'nullable|date|before:today',
-            'status' => 'boolean',
         ];
     }
 
@@ -337,15 +204,6 @@ class User extends Authenticatable
     protected static function boot()
     {
         parent::boot();
-
-        static::creating(function ($user) {
-            if (!$user->status) {
-                $user->status = true;
-            }
-            if (!$user->role) {
-                $user->role = 'user';
-            }
-        });
 
         static::updating(function ($user) {
             if ($user->isDirty('email')) {
