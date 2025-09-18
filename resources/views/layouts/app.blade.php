@@ -259,6 +259,150 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--primary-dark);
         }
+
+        /* Vereadores Section Styles */
+        .presidente-card {
+            border: 2px solid var(--primary-color);
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            transition: all 0.3s ease;
+        }
+
+        .presidente-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(30, 58, 138, 0.15);
+        }
+
+        .presidente-photo-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+
+        .presidente-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .presidente-photo-placeholder {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            border: 4px solid var(--primary-color);
+        }
+
+        .presidente-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .vereador-mini-card {
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .vereador-mini-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .vereador-mini-photo-container {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+        }
+
+        .vereador-mini-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .vereador-mini-photo-placeholder {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            border: 3px solid var(--primary-color);
+        }
+
+        .vereador-mini-card:hover .vereador-mini-photo {
+            transform: scale(1.1);
+        }
+
+        /* Responsive adjustments for vereadores section */
+        @media (max-width: 992px) {
+            .presidente-photo-container,
+            .presidente-photo,
+            .presidente-photo-placeholder {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .presidente-photo-placeholder {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .presidente-photo-container,
+            .presidente-photo,
+            .presidente-photo-placeholder {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .presidente-photo-placeholder {
+                font-size: 2rem;
+            }
+            
+            .vereador-mini-photo-container,
+            .vereador-mini-photo,
+            .vereador-mini-photo-placeholder {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .vereador-mini-photo-placeholder {
+                font-size: 1.2rem;
+            }
+        }
     </style>
 
     <!-- Bootstrap CSS -->
@@ -288,7 +432,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{{ route('vereadores.index') }}">
                             <i class="fas fa-users me-1"></i>
                             Vereadores
                         </a>

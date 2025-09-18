@@ -16,7 +16,7 @@
                     Acompanhe as atividades legislativas e participe da vida política da sua cidade.
                 </p>
                 <div class="d-flex gap-3 flex-wrap animate-fade-in-up" style="animation-delay: 0.4s;">
-                    <a href="#" class="btn btn-primary-custom">
+                    <a href="{{ route('vereadores.index') }}" class="btn btn-primary-custom">
                         <i class="fas fa-users me-2"></i>
                         Conheça os Vereadores
                     </a>
@@ -54,7 +54,7 @@
                         <p class="card-text text-muted">
                             Conheça os representantes eleitos e suas proposições
                         </p>
-                        <a href="#" class="btn btn-outline-primary">
+                        <a href="{{ route('vereadores.index') }}" class="btn btn-outline-primary">
                             <i class="fas fa-arrow-right me-1"></i>
                             Ver Vereadores
                         </a>
@@ -113,6 +113,94 @@
                             Acessar Portal
                         </a>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Vereadores -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Nossos Vereadores</h2>
+            <p class="text-muted">Conheça os representantes eleitos pelo povo</p>
+        </div>
+        
+        <div class="row g-4 align-items-center">
+            <!-- Presidente em Destaque -->
+            @if($presidente)
+            <div class="col-lg-5">
+                <div class="card card-custom h-100 presidente-card">
+                    <div class="card-body text-center p-4">
+                        <div class="position-relative mb-4">
+                            <div class="presidente-photo-container">
+                                @if($presidente->foto)
+                                    <img src="{{ $presidente->foto }}" alt="{{ $presidente->nome }}" class="presidente-photo">
+                                @else
+                                    <div class="presidente-photo-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="presidente-badge">
+                                <i class="fas fa-crown"></i>
+                                <span>PRESIDENTE</span>
+                            </div>
+                        </div>
+                        <h4 class="fw-bold text-primary mb-2">{{ $presidente->nome }}</h4>
+                        <p class="text-muted mb-3">
+                            <i class="fas fa-flag me-1"></i>
+                            {{ $presidente->partido }}
+                        </p>
+                        <p class="card-text text-muted mb-4">
+                            {{ Str::limit($presidente->biografia, 120) }}
+                        </p>
+                        <a href="{{ route('vereadores.show', $presidente->id) }}" class="btn btn-primary">
+                            <i class="fas fa-user me-2"></i>
+                            Ver Perfil Completo
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endif
+            
+            <!-- Demais Vereadores -->
+            <div class="col-lg-7">
+                <div class="row g-3">
+                    @foreach($vereadores as $vereador)
+                    <div class="col-md-6 col-sm-6">
+                        <div class="card card-custom h-100 vereador-mini-card">
+                            <div class="card-body text-center p-3">
+                                <div class="vereador-mini-photo-container mb-3">
+                                    @if($vereador->foto)
+                                        <img src="{{ $vereador->foto }}" alt="{{ $vereador->nome }}" class="vereador-mini-photo">
+                                    @else
+                                        <div class="vereador-mini-photo-placeholder">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    @endif
+                                </div>
+                                <h6 class="fw-bold mb-1">{{ $vereador->nome }}</h6>
+                                <p class="text-muted small mb-3">
+                                    <i class="fas fa-flag me-1"></i>
+                                    {{ $vereador->partido }}
+                                </p>
+                                <a href="{{ route('vereadores.show', $vereador->id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i>
+                                    Ver Perfil
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ route('vereadores.index') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-users me-2"></i>
+                        Ver Todos os Vereadores
+                    </a>
                 </div>
             </div>
         </div>

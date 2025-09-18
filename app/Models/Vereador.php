@@ -148,12 +148,20 @@ class Vereador extends Model
 
     public function isPresidente()
     {
-        return in_array('presidente', $this->comissoes ?? []);
+        $comissoes = $this->comissoes ?? [];
+        if (is_string($comissoes)) {
+            $comissoes = json_decode($comissoes, true) ?? [];
+        }
+        return in_array('presidente', $comissoes);
     }
 
     public function isVicePresidente()
     {
-        return in_array('vice-presidente', $this->comissoes ?? []);
+        $comissoes = $this->comissoes ?? [];
+        if (is_string($comissoes)) {
+            $comissoes = json_decode($comissoes, true) ?? [];
+        }
+        return in_array('vice-presidente', $comissoes);
     }
 
     // Validações customizadas

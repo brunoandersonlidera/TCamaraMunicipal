@@ -14,7 +14,7 @@ class VereadorSeeder extends Seeder
      */
     public function run(): void
     {
-        // Vereador Carlos Eduardo Pereira
+        // Vereador Carlos Eduardo Pereira - PRESIDENTE
         Vereador::updateOrCreate(
             ['email' => 'carlos.pereira@camara.gov.br'],
             [
@@ -22,11 +22,12 @@ class VereadorSeeder extends Seeder
                 'nome_parlamentar' => 'Vereador Carlos Pereira',
                 'partido' => 'PSDB',
                 'telefone' => '11966666666',
-                'biografia' => 'Formado em Administração Pública, Carlos Eduardo Pereira tem 15 anos de experiência em gestão municipal. Durante seu mandato, tem focado em projetos de educação, saúde pública e desenvolvimento urbano sustentável.',
+                'biografia' => 'Formado em Administração Pública, Carlos Eduardo Pereira tem 15 anos de experiência em gestão municipal. Durante seu mandato, tem focado em projetos de educação, saúde pública e desenvolvimento urbano sustentável. Atualmente exerce a função de Presidente da Câmara Municipal.',
                 'status' => 'ativo',
                 'inicio_mandato' => '2021-01-01',
                 'fim_mandato' => '2024-12-31',
                 'legislatura' => 2021,
+                'comissoes' => json_encode(['presidente', 'comissao-educacao']),
                 'redes_sociais' => json_encode([
                     'facebook' => 'https://facebook.com/vereadorcarlospereira',
                     'instagram' => '@vereadorcarlospereira',
@@ -49,6 +50,7 @@ class VereadorSeeder extends Seeder
                 'inicio_mandato' => '2021-01-01',
                 'fim_mandato' => '2024-12-31',
                 'legislatura' => 2021,
+                'comissoes' => json_encode(['comissao-direitos-humanos', 'comissao-saude']),
                 'redes_sociais' => json_encode([
                     'facebook' => 'https://facebook.com/vereadoraanapaula',
                     'instagram' => '@vereadoraanapaula',
@@ -71,6 +73,7 @@ class VereadorSeeder extends Seeder
                 'inicio_mandato' => '2021-01-01',
                 'fim_mandato' => '2024-12-31',
                 'legislatura' => 2021,
+                'comissoes' => json_encode(['comissao-obras', 'comissao-financas']),
                 'redes_sociais' => json_encode([
                     'facebook' => 'https://facebook.com/vereadorrobertomendes',
                     'instagram' => '@robertomendes_vereador'
