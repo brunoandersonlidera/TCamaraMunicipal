@@ -15,68 +15,84 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Usuário Administrador Principal
-        User::create([
-            'name' => 'Administrador do Sistema',
-            'email' => 'admin@camara.gov.br',
-            'password' => Hash::make('admin123'),
-            'email_verified_at' => now(),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@camara.gov.br'],
+            [
+                'name' => 'Administrador do Sistema',
+                'password' => Hash::make('admin123'),
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Secretário da Câmara
-        User::create([
-            'name' => 'João Silva Santos',
-            'email' => 'secretario@camara.gov.br',
-            'password' => Hash::make('secretario123'),
-            'email_verified_at' => now(),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'secretario@camara.gov.br'],
+            [
+                'name' => 'João Silva Santos',
+                'password' => Hash::make('secretario123'),
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Editor de Conteúdo
-        User::create([
-            'name' => 'Maria Oliveira Costa',
-            'email' => 'editor@camara.gov.br',
-            'password' => Hash::make('editor123'),
-            'email_verified_at' => now(),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'editor@camara.gov.br'],
+            [
+                'name' => 'Maria Oliveira Costa',
+                'password' => Hash::make('editor123'),
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Vereador Exemplo 1
-        User::create([
-            'name' => 'Carlos Eduardo Pereira',
-            'email' => 'carlos.pereira@camara.gov.br',
-            'password' => Hash::make('vereador123'),
-            'email_verified_at' => now(),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'carlos.pereira@camara.gov.br'],
+            [
+                'name' => 'Carlos Eduardo Pereira',
+                'password' => Hash::make('vereador123'),
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Vereador Exemplo 2
-        User::create([
-            'name' => 'Ana Paula Rodrigues',
-            'email' => 'ana.rodrigues@camara.gov.br',
-            'password' => Hash::make('vereador123'),
-            'email_verified_at' => now(),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'ana.rodrigues@camara.gov.br'],
+            [
+                'name' => 'Ana Paula Rodrigues',
+                'password' => Hash::make('vereador123'),
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Usuário Comum (Cidadão)
-        User::create([
-            'name' => 'José da Silva',
-            'email' => 'jose.silva@email.com',
-            'password' => Hash::make('usuario123'),
-            'email_verified_at' => now(),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'jose.silva@email.com'],
+            [
+                'name' => 'José da Silva',
+                'password' => Hash::make('usuario123'),
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Usuário para testes de e-SIC
-        User::create([
-            'name' => 'Pedro Santos Oliveira',
-            'email' => 'pedro.santos@email.com',
-            'password' => Hash::make('usuario123'),
-            'email_verified_at' => now(),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'pedro.santos@email.com'],
+            [
+                'name' => 'Pedro Santos Oliveira',
+                'password' => Hash::make('usuario123'),
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Responsável por e-SIC
-        User::create([
-            'name' => 'Fernanda Lima Costa',
-            'email' => 'esic@camara.gov.br',
-            'password' => Hash::make('esic123'),
-            'email_verified_at' => now(),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'esic@camara.gov.br'],
+            [
+                'name' => 'Fernanda Lima Costa',
+                'password' => Hash::make('esic123'),
+                'email_verified_at' => now(),
+            ]
+        );
 
         $this->command->info('Usuários criados com sucesso!');
         $this->command->info('Credenciais de acesso:');
