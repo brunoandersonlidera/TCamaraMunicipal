@@ -54,6 +54,65 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('admin.dashboard');
     
+    // Vereadores - CRUD Administrativo
+    Route::resource('vereadores', App\Http\Controllers\Admin\VereadorController::class, [
+        'as' => 'admin'
+    ]);
+    Route::patch('/vereadores/{vereador}/toggle-status', [App\Http\Controllers\Admin\VereadorController::class, 'toggleStatus'])
+         ->name('admin.vereadores.toggle-status');
+    
+    // Rotas para Notícias
+    Route::resource('noticias', App\Http\Controllers\Admin\NoticiaController::class, [
+        'as' => 'admin'
+    ]);
+    Route::patch('noticias/{noticia}/toggle-publicacao', [App\Http\Controllers\Admin\NoticiaController::class, 'togglePublicacao'])
+        ->name('admin.noticias.toggle-publicacao');
+    Route::patch('noticias/{noticia}/toggle-destaque', [App\Http\Controllers\Admin\NoticiaController::class, 'toggleDestaque'])
+        ->name('admin.noticias.toggle-destaque');
+
+    // Rotas para Usuários
+    Route::resource('users', App\Http\Controllers\Admin\UserController::class, [
+        'as' => 'admin'
+    ]);
+    Route::patch('users/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])
+        ->name('admin.users.toggle-status');
+    Route::post('users/{user}/reset-password', [App\Http\Controllers\Admin\UserController::class, 'resetPassword'])
+        ->name('admin.users.reset-password');
+    Route::get('users/{user}/impersonate', [App\Http\Controllers\Admin\UserController::class, 'impersonate'])
+        ->name('admin.users.impersonate');
+    
+    // Rotas administrativas para sessões
+    Route::resource('sessoes', App\Http\Controllers\Admin\SessaoController::class, [
+        'as' => 'admin'
+    ]);
+    Route::patch('sessoes/{sessao}/toggle-status', [App\Http\Controllers\Admin\SessaoController::class, 'toggleStatus'])->name('admin.sessoes.toggle-status');
+    Route::get('sessoes/{sessao}/download/{tipo}', [App\Http\Controllers\Admin\SessaoController::class, 'download'])->name('admin.sessoes.download');
+
+    // Rotas administrativas para projetos de lei
+    Route::resource('projetos-lei', App\Http\Controllers\Admin\ProjetoLeiController::class, [
+        'as' => 'admin'
+    ]);
+    Route::patch('projetos-lei/{projetoLei}/toggle-status', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'toggleStatus'])->name('admin.projetos-lei.toggle-status');
+    Route::get('projetos-lei/{projetoLei}/download', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'download'])->name('admin.projetos-lei.download');
+
+    // Rotas administrativas para documentos
+    Route::resource('documentos', App\Http\Controllers\Admin\DocumentoController::class, [
+        'as' => 'admin'
+    ]);
+    Route::patch('documentos/{documento}/toggle-status', [App\Http\Controllers\Admin\DocumentoController::class, 'toggleStatus'])->name('admin.documentos.toggle-status');
+    Route::patch('documentos/{documento}/toggle-destaque', [App\Http\Controllers\Admin\DocumentoController::class, 'toggleDestaque'])->name('admin.documentos.toggle-destaque');
+    Route::get('documentos/{documento}/download', [App\Http\Controllers\Admin\DocumentoController::class, 'download'])->name('admin.documentos.download');
+
+    // Rotas administrativas para solicitações e-SIC
+    Route::resource('solicitacoes', App\Http\Controllers\Admin\SolicitacaoController::class, [
+        'as' => 'admin'
+    ]);
+    Route::patch('solicitacoes/{solicitacao}/toggle-status', [App\Http\Controllers\Admin\SolicitacaoController::class, 'toggleStatus'])->name('admin.solicitacoes.toggle-status');
+    Route::patch('solicitacoes/{solicitacao}/toggle-arquivo', [App\Http\Controllers\Admin\SolicitacaoController::class, 'toggleArquivo'])->name('admin.solicitacoes.toggle-arquivo');
+    Route::patch('solicitacoes/{solicitacao}/marcar-visualizada', [App\Http\Controllers\Admin\SolicitacaoController::class, 'marcarVisualizada'])->name('admin.solicitacoes.marcar-visualizada');
+    Route::get('solicitacoes/{solicitacao}/download', [App\Http\Controllers\Admin\SolicitacaoController::class, 'download'])->name('admin.solicitacoes.download');
+    Route::get('solicitacoes/{solicitacao}/download-resposta', [App\Http\Controllers\Admin\SolicitacaoController::class, 'downloadResposta'])->name('admin.solicitacoes.download-resposta');
+    
     // Futuras rotas administrativas podem ser adicionadas aqui
     // Route::resource('users', UserController::class);
     // Route::resource('noticias', NoticiaController::class);
