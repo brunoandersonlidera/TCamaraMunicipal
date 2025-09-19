@@ -302,7 +302,7 @@
                 <div class="card card-custom p-4">
                     <div class="card-body">
                         <i class="fas fa-users text-primary mb-3" style="font-size: 3rem;"></i>
-                        <h3 class="fw-bold text-primary">{{ $vereadores ?? '9' }}</h3>
+                        <h3 class="fw-bold text-primary">{{ $totalVereadores ?? '9' }}</h3>
                         <p class="text-muted mb-0">Vereadores Ativos</p>
                     </div>
                 </div>

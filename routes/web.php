@@ -26,8 +26,14 @@ Route::get('/', function () {
             return $vereador->id === $presidente->id;
         });
     }
+    
+    // Dados para a seção "Números da Câmara"
+    $totalVereadores = $vereadores->count() + ($presidente ? 1 : 0);
+    $projetos = 45; // Valor padrão até implementar tabela de projetos
+    $sessoes = 24;  // Valor padrão até implementar tabela de sessões
+    $leis = 12;     // Valor padrão até implementar tabela de leis
         
-    return view('welcome', compact('presidente', 'vereadores'));
+    return view('welcome', compact('presidente', 'vereadores', 'totalVereadores', 'projetos', 'sessoes', 'leis'));
 })->name('home');
 
 // Rotas de Autenticação
