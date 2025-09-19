@@ -93,7 +93,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         'as' => 'admin'
     ]);
     Route::patch('projetos-lei/{projetoLei}/toggle-status', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'toggleStatus'])->name('admin.projetos-lei.toggle-status');
-    Route::get('projetos-lei/{projetoLei}/download', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'download'])->name('admin.projetos-lei.download');
+    Route::get('projetos-lei/{projetoLei}/download/{tipo}', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'download'])->name('admin.projetos-lei.download');
 
     // Rotas administrativas para documentos
     Route::resource('documentos', App\Http\Controllers\Admin\DocumentoController::class, [
@@ -105,7 +105,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     // Rotas administrativas para solicitações e-SIC
     Route::resource('solicitacoes', App\Http\Controllers\Admin\SolicitacaoController::class, [
-        'as' => 'admin'
+        'as' => 'admin',
+        'parameters' => ['solicitacoes' => 'solicitacao']
     ]);
     Route::patch('solicitacoes/{solicitacao}/toggle-status', [App\Http\Controllers\Admin\SolicitacaoController::class, 'toggleStatus'])->name('admin.solicitacoes.toggle-status');
     Route::patch('solicitacoes/{solicitacao}/toggle-arquivo', [App\Http\Controllers\Admin\SolicitacaoController::class, 'toggleArquivo'])->name('admin.solicitacoes.toggle-arquivo');

@@ -29,6 +29,8 @@ class EsicSolicitacao extends Model
         'subcategoria',
         'forma_recebimento',
         'status',
+        'arquivada',
+        'arquivada_em',
         'prioridade',
         'data_solicitacao',
         'data_limite_resposta',
@@ -59,10 +61,12 @@ class EsicSolicitacao extends Model
         'data_resposta' => 'datetime',
         'data_recurso_primeira' => 'datetime',
         'data_recurso_segunda' => 'datetime',
+        'arquivada_em' => 'datetime',
         'anexos' => 'array',
         'metadata' => 'array',
         'tags' => 'array',
         'anonima' => 'boolean',
+        'arquivada' => 'boolean',
         'recurso_primeira_instancia' => 'boolean',
         'recurso_segunda_instancia' => 'boolean'
     ];
@@ -73,6 +77,7 @@ class EsicSolicitacao extends Model
         'data_resposta',
         'data_recurso_primeira',
         'data_recurso_segunda',
+        'arquivada_em',
         'deleted_at'
     ];
 

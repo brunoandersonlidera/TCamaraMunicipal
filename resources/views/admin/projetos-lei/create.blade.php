@@ -102,11 +102,11 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="data_apresentacao" class="form-label">Data de Apresentação <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control @error('data_apresentacao') is-invalid @enderror" 
-                                           id="data_apresentacao" name="data_apresentacao" 
-                                           value="{{ old('data_apresentacao', date('Y-m-d')) }}" required>
-                                    @error('data_apresentacao')
+                                    <label for="data_protocolo" class="form-label">Data de Protocolo <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control @error('data_protocolo') is-invalid @enderror"
+                                       id="data_protocolo" name="data_protocolo"
+                                       value="{{ old('data_protocolo', date('Y-m-d')) }}" required>
+                                @error('data_protocolo')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>

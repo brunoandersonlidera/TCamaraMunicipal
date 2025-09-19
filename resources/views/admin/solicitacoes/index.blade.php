@@ -257,7 +257,8 @@
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button type="button" class="btn btn-outline-danger" 
-                                                onclick="confirmDelete({{ $solicitacao->id }})" title="Excluir">
+                                                data-solicitacao-id="{{ $solicitacao->id }}"
+                                                onclick="confirmDelete(this.dataset.solicitacaoId)" title="Excluir">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -317,7 +318,8 @@
                                 <i class="fas fa-edit me-1"></i>Editar
                             </a>
                             <button type="button" class="btn btn-outline-danger btn-sm" 
-                                    onclick="confirmDelete({{ $solicitacao->id }})">
+                                    data-solicitacao-id="{{ $solicitacao->id }}"
+                                    onclick="confirmDelete(this.dataset.solicitacaoId)">
                                 <i class="fas fa-trash me-1"></i>Excluir
                             </button>
                         </div>
@@ -417,6 +419,12 @@ function toggleView(view) {
     const cardsView = document.getElementById('cardsView');
     const btnTable = document.getElementById('btnTable');
     const btnCards = document.getElementById('btnCards');
+
+    // Verificar se os elementos existem antes de manipulá-los
+    if (!tableView || !cardsView || !btnTable || !btnCards) {
+        console.warn('Elementos de visualização não encontrados');
+        return;
+    }
 
     if (view === 'table') {
         tableView.style.display = 'block';

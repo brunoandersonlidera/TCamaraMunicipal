@@ -181,14 +181,14 @@
                                         </a>
                                         
                                         @if($sessao->arquivo_pauta)
-                                            <a href="{{ route('admin.sessoes.download-pauta', $sessao) }}" 
+                                            <a href="{{ route('admin.sessoes.download', ['sessao' => $sessao, 'tipo' => 'pauta']) }}" 
                                                class="btn btn-sm btn-outline-info" title="Download Pauta">
                                                 <i class="fas fa-download"></i>
                                             </a>
                                         @endif
                                         
                                         @if($sessao->arquivo_ata)
-                                            <a href="{{ route('admin.sessoes.download-ata', $sessao) }}" 
+                                            <a href="{{ route('admin.sessoes.download', ['sessao' => $sessao, 'tipo' => 'ata']) }}" 
                                                class="btn btn-sm btn-outline-success" title="Download Ata">
                                                 <i class="fas fa-file-download"></i>
                                             </a>

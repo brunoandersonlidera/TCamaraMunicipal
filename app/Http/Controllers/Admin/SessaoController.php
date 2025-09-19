@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Sessao;
 use App\Models\Vereador;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -123,7 +124,7 @@ class SessaoController extends Controller
             $validated['arquivo_pauta'] = $request->file('arquivo_pauta')->store('sessoes/pautas', 'public');
         }
 
-        $validated['user_id'] = auth()->id();
+        $validated['user_id'] = Auth::id();
 
         $sessao = Sessao::create($validated);
 

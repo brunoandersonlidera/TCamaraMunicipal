@@ -22,7 +22,7 @@ class ProjetoLei extends Model
         'justificativa',
         'texto_integral',
         'status',
-        'data_apresentacao',
+        'data_protocolo',
         'data_aprovacao',
         'data_publicacao',
         'autor_id',
@@ -39,7 +39,7 @@ class ProjetoLei extends Model
     ];
 
     protected $casts = [
-        'data_apresentacao' => 'date',
+        'data_protocolo' => 'date',
         'data_aprovacao' => 'date',
         'data_publicacao' => 'date',
         'lei_data_sancao' => 'date',
@@ -50,7 +50,7 @@ class ProjetoLei extends Model
     ];
 
     protected $dates = [
-        'data_apresentacao',
+        'data_protocolo',
         'data_aprovacao',
         'data_publicacao',
         'lei_data_sancao',
@@ -155,10 +155,10 @@ class ProjetoLei extends Model
         );
     }
 
-    protected function dataApresentacaoFormatada(): Attribute
+    protected function dataProtocoloFormatada(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->data_apresentacao?->format('d/m/Y'),
+            get: fn () => $this->data_protocolo?->format('d/m/Y'),
         );
     }
 
@@ -225,8 +225,8 @@ class ProjetoLei extends Model
     protected function tempoTramitacao(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->data_apresentacao 
-                ? $this->data_apresentacao->diffInDays(now()) 
+            get: fn () => $this->data_protocolo 
+                ? $this->data_protocolo->diffInDays(now()) 
                 : null,
         );
     }
@@ -396,8 +396,8 @@ class ProjetoLei extends Model
             'justificativa' => 'nullable|string|max:5000',
             'texto_integral' => 'nullable|string',
             'status' => 'required|in:apresentado,tramitando,aprovado,rejeitado,arquivado,sancionado,vetado,promulgado',
-            'data_apresentacao' => 'required|date',
-            'data_aprovacao' => 'nullable|date|after_or_equal:data_apresentacao',
+            'data_protocolo' => 'required|date',
+            'data_aprovacao' => 'nullable|date|after_or_equal:data_protocolo',
             'data_publicacao' => 'nullable|date|after_or_equal:data_aprovacao',
             'autor_id' => 'required|exists:vereadores,id',
             'relator_id' => 'nullable|exists:vereadores,id',
@@ -427,10 +427,10 @@ class ProjetoLei extends Model
             'justificativa.max' => 'A justificativa não pode exceder 5000 caracteres.',
             'status.required' => 'O status é obrigatório.',
             'status.in' => 'O status deve ser: apresentado, tramitando, aprovado, rejeitado, arquivado, sancionado, vetado ou promulgado.',
-            'data_apresentacao.required' => 'A data de apresentação é obrigatória.',
-            'data_apresentacao.date' => 'A data de apresentação deve ser uma data válida.',
+            'data_protocolo.required' => 'A data de protocolo é obrigatória.',
+            'data_protocolo.date' => 'A data de protocolo deve ser uma data válida.',
             'data_aprovacao.date' => 'A data de aprovação deve ser uma data válida.',
-            'data_aprovacao.after_or_equal' => 'A data de aprovação deve ser posterior ou igual à data de apresentação.',
+            'data_aprovacao.after_or_equal' => 'A data de aprovação deve ser posterior ou igual à data de protocolo.',
             'data_publicacao.date' => 'A data de publicação deve ser uma data válida.',
             'data_publicacao.after_or_equal' => 'A data de publicação deve ser posterior ou igual à data de aprovação.',
             'autor_id.required' => 'O autor é obrigatório.',

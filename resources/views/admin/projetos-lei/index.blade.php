@@ -179,8 +179,8 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div>{{ $projeto->data_apresentacao->format('d/m/Y') }}</div>
-                                    <small class="text-muted">{{ $projeto->data_apresentacao->diffForHumans() }}</small>
+                                    <div>{{ $projeto->data_protocolo->format('d/m/Y') }}</div>
+                                    <small class="text-muted">{{ $projeto->data_protocolo->diffForHumans() }}</small>
                                 </td>
                                 <td>
                                     <span class="badge bg-{{ $projeto->status === 'aprovado' ? 'success' : ($projeto->status === 'rejeitado' ? 'danger' : ($projeto->status === 'tramitando' ? 'warning' : 'secondary')) }}">
@@ -242,7 +242,7 @@
                                     @endif
                                     <small class="text-muted">{{ $projeto->autor->nome }}</small>
                                 </div>
-                                <small class="text-muted">{{ $projeto->data_apresentacao->format('d/m/Y') }}</small>
+                                <small class="text-muted">{{ $projeto->data_protocolo->format('d/m/Y') }}</small>
                             </div>
                             <div class="card-footer">
                                 <div class="btn-group btn-group-sm w-100">
@@ -371,6 +371,12 @@ function toggleView(view) {
     const cardsView = document.getElementById('cardsView');
     const tableBtn = document.getElementById('viewTable');
     const cardsBtn = document.getElementById('viewCards');
+    
+    // Verificar se os elementos existem antes de manipulá-los
+    if (!tableView || !cardsView || !tableBtn || !cardsBtn) {
+        console.warn('Elementos de visualização não encontrados');
+        return;
+    }
     
     if (view === 'table') {
         tableView.style.display = 'block';

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Noticia;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -96,7 +97,7 @@ class NoticiaController extends Controller
         $validated['slug'] = $this->generateUniqueSlug($validated['titulo']);
         
         // Definir autor
-        $validated['autor_id'] = auth()->id();
+        $validated['autor_id'] = Auth::id();
         
         // Upload da imagem de destaque
         if ($request->hasFile('imagem_destaque')) {

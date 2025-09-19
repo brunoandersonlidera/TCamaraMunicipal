@@ -40,7 +40,7 @@ class ProjetoLeiController extends Controller
         }
 
         if ($request->filled('ano')) {
-            $query->whereYear('data_apresentacao', $request->ano);
+            $query->whereYear('data_protocolo', $request->ano);
         }
 
         if ($request->filled('autor_id')) {
@@ -51,8 +51,8 @@ class ProjetoLeiController extends Controller
         $query->orderBy('numero', 'desc');
 
         $projetos = $query->paginate(15)->withQueryString();
-        $vereadores = Vereador::where('ativo', true)->orderBy('nome')->get();
-        $anos = ProjetoLei::selectRaw('YEAR(data_apresentacao) as ano')
+        $vereadores = Vereador::where('status', 'ativo')->orderBy('nome')->get();
+        $anos = ProjetoLei::selectRaw('YEAR(data_protocolo) as ano')
                           ->distinct()
                           ->orderBy('ano', 'desc')
                           ->pluck('ano');
@@ -65,7 +65,7 @@ class ProjetoLeiController extends Controller
      */
     public function create()
     {
-        $vereadores = Vereador::where('ativo', true)->orderBy('nome')->get();
+        $vereadores = Vereador::where('status', 'ativo')->orderBy('nome')->get();
         $proximoNumero = $this->getProximoNumero();
         
         return view('admin.projetos-lei.create', compact('vereadores', 'proximoNumero'));
@@ -87,7 +87,7 @@ class ProjetoLeiController extends Controller
             'autor_id' => 'required|exists:vereadores,id',
             'coautores' => 'nullable|array',
             'coautores.*' => 'exists:vereadores,id',
-            'data_apresentacao' => 'required|date',
+            'data_protocolo' => 'required|date',
             'data_publicacao' => 'nullable|date',
             'data_aprovacao' => 'nullable|date',
             'status' => 'required|in:tramitando,aprovado,rejeitado,retirado,arquivado',
@@ -143,7 +143,7 @@ class ProjetoLeiController extends Controller
     public function edit(ProjetoLei $projetoLei)
     {
         $projetoLei->load(['autor', 'vereadores']);
-        $vereadores = Vereador::where('ativo', true)->orderBy('nome')->get();
+        $vereadores = Vereador::where('status', 'ativo')->orderBy('nome')->get();
         
         return view('admin.projetos-lei.edit', compact('projetoLei', 'vereadores'));
     }
@@ -164,7 +164,7 @@ class ProjetoLeiController extends Controller
             'autor_id' => 'required|exists:vereadores,id',
             'coautores' => 'nullable|array',
             'coautores.*' => 'exists:vereadores,id',
-            'data_apresentacao' => 'required|date',
+            'data_protocolo' => 'required|date',
             'data_publicacao' => 'nullable|date',
             'data_aprovacao' => 'nullable|date',
             'status' => 'required|in:tramitando,aprovado,rejeitado,retirado,arquivado',
@@ -290,7 +290,7 @@ class ProjetoLeiController extends Controller
     private function getProximoNumero()
     {
         $ano = date('Y');
-        $ultimoNumero = ProjetoLei::whereYear('data_apresentacao', $ano)
+        $ultimoNumero = ProjetoLei::whereYear('data_protocolo', $ano)
                                   ->max('numero');
         
         if (!$ultimoNumero) {

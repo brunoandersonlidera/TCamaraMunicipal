@@ -73,7 +73,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Data de Apresentação:</label>
-                                <p class="mb-0">{{ $projeto->data_apresentacao->format('d/m/Y') }}</p>
+                                <p class="mb-0">{{ $projeto->data_protocolo->format('d/m/Y') }}</p>
                             </div>
                         </div>
                         <div class="col-md-6">

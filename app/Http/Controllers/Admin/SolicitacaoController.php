@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Solicitacao;
+use App\Models\EsicSolicitacao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -15,7 +15,7 @@ class SolicitacaoController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Solicitacao::query();
+        $query = EsicSolicitacao::query();
 
         // Filtros
         if ($request->filled('busca')) {
@@ -53,11 +53,11 @@ class SolicitacaoController extends Controller
 
         // Estatísticas
         $estatisticas = [
-            'total' => Solicitacao::count(),
-            'pendentes' => Solicitacao::where('status', 'pendente')->count(),
-            'em_andamento' => Solicitacao::where('status', 'em_andamento')->count(),
-            'respondidas' => Solicitacao::where('status', 'respondida')->count(),
-            'arquivadas' => Solicitacao::where('status', 'arquivada')->count(),
+            'total' => EsicSolicitacao::count(),
+            'pendentes' => EsicSolicitacao::where('status', 'pendente')->count(),
+            'em_andamento' => EsicSolicitacao::where('status', 'em_andamento')->count(),
+            'respondidas' => EsicSolicitacao::where('status', 'respondida')->count(),
+            'arquivadas' => EsicSolicitacao::where('status', 'arquivada')->count(),
         ];
 
         // Tipos de solicitação
@@ -89,7 +89,7 @@ class SolicitacaoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Solicitacao $solicitacao)
+    public function show(EsicSolicitacao $solicitacao)
     {
         // Marcar como visualizada se ainda não foi
         if (!$solicitacao->visualizada_em) {
@@ -111,7 +111,7 @@ class SolicitacaoController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Solicitacao $solicitacao)
+    public function edit(EsicSolicitacao $solicitacao)
     {
         $tipos = [
             'informacao' => 'Solicitação de Informação',
@@ -135,7 +135,7 @@ class SolicitacaoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Solicitacao $solicitacao)
+    public function update(Request $request, EsicSolicitacao $solicitacao)
     {
         $validator = Validator::make($request->all(), [
             'status' => 'required|in:pendente,em_andamento,respondida,arquivada',
@@ -195,7 +195,7 @@ class SolicitacaoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Solicitacao $solicitacao)
+    public function destroy(EsicSolicitacao $solicitacao)
     {
         // Remover arquivos se existirem
         if ($solicitacao->arquivo_resposta) {
@@ -211,7 +211,7 @@ class SolicitacaoController extends Controller
     /**
      * Alterar status da solicitação
      */
-    public function updateStatus(Request $request, Solicitacao $solicitacao)
+    public function updateStatus(Request $request, EsicSolicitacao $solicitacao)
     {
         $validator = Validator::make($request->all(), [
             'status' => 'required|in:pendente,em_andamento,respondida,arquivada',
@@ -241,7 +241,7 @@ class SolicitacaoController extends Controller
     /**
      * Responder solicitação
      */
-    public function responder(Request $request, Solicitacao $solicitacao)
+    public function responder(Request $request, EsicSolicitacao $solicitacao)
     {
         $validator = Validator::make($request->all(), [
             'resposta' => 'required|string|max:5000',
@@ -289,9 +289,24 @@ class SolicitacaoController extends Controller
     }
 
     /**
+     * Download do arquivo da solicitação
+     */
+    public function download(EsicSolicitacao $solicitacao)
+    {
+        if (!$solicitacao->arquivo_solicitacao || !Storage::disk('public')->exists($solicitacao->arquivo_solicitacao)) {
+            abort(404, 'Arquivo não encontrado.');
+        }
+
+        return Storage::disk('public')->download(
+            $solicitacao->arquivo_solicitacao,
+            $solicitacao->nome_arquivo_solicitacao ?? 'solicitacao.pdf'
+        );
+    }
+
+    /**
      * Download do arquivo de resposta
      */
-    public function downloadResposta(Solicitacao $solicitacao)
+    public function downloadResposta(EsicSolicitacao $solicitacao)
     {
         if (!$solicitacao->arquivo_resposta || !Storage::disk('public')->exists($solicitacao->arquivo_resposta)) {
             abort(404, 'Arquivo não encontrado.');
@@ -306,7 +321,7 @@ class SolicitacaoController extends Controller
     /**
      * Arquivar solicitação
      */
-    public function arquivar(Solicitacao $solicitacao)
+    public function arquivar(EsicSolicitacao $solicitacao)
     {
         $solicitacao->update([
             'status' => 'arquivada',
@@ -320,7 +335,7 @@ class SolicitacaoController extends Controller
     /**
      * Desarquivar solicitação
      */
-    public function desarquivar(Solicitacao $solicitacao)
+    public function desarquivar(EsicSolicitacao $solicitacao)
     {
         $solicitacao->update([
             'status' => 'pendente',
@@ -337,18 +352,18 @@ class SolicitacaoController extends Controller
     public function estatisticas()
     {
         $estatisticas = [
-            'total' => Solicitacao::count(),
-            'pendentes' => Solicitacao::where('status', 'pendente')->count(),
-            'em_andamento' => Solicitacao::where('status', 'em_andamento')->count(),
-            'respondidas' => Solicitacao::where('status', 'respondida')->count(),
-            'arquivadas' => Solicitacao::where('status', 'arquivada')->count(),
-            'nao_visualizadas' => Solicitacao::whereNull('visualizada_em')->count(),
+            'total' => EsicSolicitacao::count(),
+            'pendentes' => EsicSolicitacao::where('status', 'pendente')->count(),
+            'em_andamento' => EsicSolicitacao::where('status', 'em_andamento')->count(),
+            'respondidas' => EsicSolicitacao::where('status', 'respondida')->count(),
+            'arquivadas' => EsicSolicitacao::where('status', 'arquivada')->count(),
+            'nao_visualizadas' => EsicSolicitacao::whereNull('visualizada_em')->count(),
             'tempo_medio_resposta' => $this->calcularTempoMedioResposta(),
-            'por_tipo' => Solicitacao::selectRaw('tipo, COUNT(*) as total')
+            'por_tipo' => EsicSolicitacao::selectRaw('tipo, COUNT(*) as total')
                 ->groupBy('tipo')
                 ->pluck('total', 'tipo')
                 ->toArray(),
-            'por_mes' => Solicitacao::selectRaw('YEAR(created_at) as ano, MONTH(created_at) as mes, COUNT(*) as total')
+            'por_mes' => EsicSolicitacao::selectRaw('YEAR(created_at) as ano, MONTH(created_at) as mes, COUNT(*) as total')
                 ->groupBy('ano', 'mes')
                 ->orderBy('ano', 'desc')
                 ->orderBy('mes', 'desc')
@@ -365,7 +380,7 @@ class SolicitacaoController extends Controller
      */
     private function calcularTempoMedioResposta()
     {
-        $solicitacoesRespondidas = Solicitacao::whereNotNull('respondida_em')->get();
+        $solicitacoesRespondidas = EsicSolicitacao::whereNotNull('respondida_em')->get();
         
         if ($solicitacoesRespondidas->isEmpty()) {
             return 0;
@@ -376,5 +391,56 @@ class SolicitacaoController extends Controller
         });
 
         return round($totalDias / $solicitacoesRespondidas->count(), 1);
+    }
+
+    /**
+     * Alternar status da solicitação
+     */
+    public function toggleStatus(Request $request, EsicSolicitacao $solicitacao)
+    {
+        $request->validate([
+            'status' => 'required|in:pendente,em_andamento,respondida,arquivada'
+        ]);
+
+        $solicitacao->update([
+            'status' => $request->status
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status atualizado com sucesso!'
+        ]);
+    }
+
+    /**
+     * Alternar arquivo da solicitação
+     */
+    public function toggleArquivo(EsicSolicitacao $solicitacao)
+    {
+        $solicitacao->update([
+            'arquivada' => !$solicitacao->arquivada
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $solicitacao->arquivada ? 'Solicitação arquivada!' : 'Solicitação desarquivada!'
+        ]);
+    }
+
+    /**
+     * Marcar solicitação como visualizada
+     */
+    public function marcarVisualizada(EsicSolicitacao $solicitacao)
+    {
+        if (!$solicitacao->visualizada_em) {
+            $solicitacao->update([
+                'visualizada_em' => now()
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Solicitação marcada como visualizada!'
+        ]);
     }
 }

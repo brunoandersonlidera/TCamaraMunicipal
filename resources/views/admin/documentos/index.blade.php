@@ -210,8 +210,9 @@
                                             <i class="fas fa-download"></i>
                                         </a>
                                         @endif
-                                        <button type="button" class="btn btn-outline-danger" 
-                                                onclick="confirmDelete({{ $documento->id }}, '{{ $documento->titulo }}')" 
+                                        <button type="button" class="btn btn-outline-danger delete-btn" 
+                                                data-id="{{ $documento->id }}" 
+                                                data-nome="{{ $documento->titulo }}"
                                                 title="Excluir">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -278,8 +279,9 @@
                                     </a></li>
                                     @endif
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="#" 
-                                           onclick="confirmDelete({{ $documento->id }}, '{{ $documento->titulo }}')">
+                                    <li><a class="dropdown-item text-danger delete-btn" href="#" 
+                                           data-id="{{ $documento->id }}" 
+                                           data-nome="{{ $documento->titulo }}">
                                         <i class="fas fa-trash me-2"></i>Excluir
                                     </a></li>
                                 </ul>
@@ -457,6 +459,17 @@ document.addEventListener('DOMContentLoaded', function() {
     selects.forEach(select => {
         select.addEventListener('change', function() {
             document.getElementById('filtrosForm').submit();
+        });
+    });
+
+    // Event listeners para botões de delete
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const id = this.getAttribute('data-id');
+            const nome = this.getAttribute('data-nome');
+            confirmDelete(id, nome);
         });
     });
 });

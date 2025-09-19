@@ -262,7 +262,7 @@
                 </div>
                 
                 <div class="nav-item">
-                    <a href="{{ route('admin.projetos.index') }}" class="nav-link {{ request()->routeIs('admin.projetos.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.projetos-lei.index') }}" class="nav-link {{ request()->routeIs('admin.projetos-lei.*') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
                         Projetos de Lei
                     </a>
@@ -281,7 +281,7 @@
                 <div class="nav-section-title">Transparência</div>
                 
                 <div class="nav-item">
-                    <a href="{{ route('admin.esic.index') }}" class="nav-link {{ request()->routeIs('admin.esic.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.solicitacoes.index') }}" class="nav-link {{ request()->routeIs('admin.solicitacoes.*') ? 'active' : '' }}">
                         <i class="fas fa-question-circle"></i>
                         Solicitações e-SIC
                     </a>

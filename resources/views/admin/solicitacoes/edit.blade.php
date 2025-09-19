@@ -135,7 +135,9 @@
 
         <!-- Formulário de Resposta -->
         <div class="col-lg-8">
-            <form action="{{ route('admin.solicitacoes.update', $solicitacao) }}" method="POST" enctype="multipart/form-data" id="formResposta">
+            <form action="{{ route('admin.solicitacoes.update', $solicitacao) }}" method="POST" enctype="multipart/form-data" id="formResposta" 
+                  data-status="{{ $solicitacao->status }}" 
+                  data-arquivada="{{ $solicitacao->arquivada ? 'true' : 'false' }}">
                 @csrf
                 @method('PUT')
 
@@ -363,6 +365,13 @@
 
 @push('scripts')
 <script>
+// Dados do PHP para JavaScript
+const form = document.getElementById('formResposta');
+const solicitacaoData = {
+    status: form.dataset.status,
+    arquivada: form.dataset.arquivada === 'true'
+};
+
 // Controle do formulário
 document.getElementById('formResposta').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -406,8 +415,8 @@ function limparFormulario() {
         document.getElementById('resposta').value = '';
         document.getElementById('observacoes_internas').value = '';
         document.getElementById('arquivo_resposta').value = '';
-        document.getElementById('status').value = '{{ $solicitacao->status }}';
-        document.getElementById('arquivada').checked = {{ $solicitacao->arquivada ? 'true' : 'false' }};
+        document.getElementById('status').value = solicitacaoData.status;
+        document.getElementById('arquivada').checked = solicitacaoData.arquivada;
         document.getElementById('notificar_solicitante').checked = true;
     }
 }

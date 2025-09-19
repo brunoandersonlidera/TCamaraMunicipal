@@ -484,9 +484,9 @@
 @endpush
 
 @push('scripts')
+@if(!$solicitacao->visualizada_em)
 <script>
 // Marcar como visualizada ao carregar a página
-@if(!$solicitacao->visualizada_em)
 fetch('{{ route("admin.solicitacoes.marcar-visualizada", $solicitacao) }}', {
     method: 'PATCH',
     headers: {
@@ -494,7 +494,9 @@ fetch('{{ route("admin.solicitacoes.marcar-visualizada", $solicitacao) }}', {
         'Content-Type': 'application/json'
     }
 });
+</script>
 @endif
+<script>
 
 // Alterar status
 function toggleStatus() {
