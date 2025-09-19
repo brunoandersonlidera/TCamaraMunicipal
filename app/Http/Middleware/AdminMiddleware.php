@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\User;
 
 class AdminMiddleware
 {
@@ -22,7 +23,9 @@ class AdminMiddleware
         }
 
         // Verifica se o usuário é administrador
-        if (!Auth::user()->isAdmin()) {
+        /** @var User $user */
+        $user = Auth::user();
+        if (!$user->isAdmin()) {
             abort(403, 'Acesso negado. Você não tem permissão para acessar esta área.');
         }
 

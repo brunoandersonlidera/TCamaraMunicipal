@@ -34,6 +34,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
+            /** @var User $user */
             $user = Auth::user();
             
             // Verifica se o usuário está ativo
@@ -75,6 +76,7 @@ class AuthController extends Controller
      */
     public function dashboard()
     {
+        /** @var User $user */
         $user = Auth::user();
         
         // Estatísticas básicas
