@@ -164,3 +164,24 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Route::resource('users', UserController::class);
     // Route::resource('noticias', NoticiaController::class);
 });
+
+// Rotas para servir arquivos CSS e JS
+Route::get('/css/{file}', function ($file) {
+    $path = public_path('css/' . $file);
+    if (file_exists($path)) {
+        return response()->file($path, [
+            'Content-Type' => 'text/css'
+        ]);
+    }
+    abort(404);
+})->where('file', '.*\.css');
+
+Route::get('/js/{file}', function ($file) {
+    $path = public_path('js/' . $file);
+    if (file_exists($path)) {
+        return response()->file($path, [
+            'Content-Type' => 'application/javascript'
+        ]);
+    }
+    abort(404);
+})->where('file', '.*\.js');
