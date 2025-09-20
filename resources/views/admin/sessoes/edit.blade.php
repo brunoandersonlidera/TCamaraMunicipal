@@ -44,13 +44,13 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label for="numero" class="form-label">Número da Sessão <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control @error('numero') is-invalid @enderror" 
-                                           id="numero" name="numero" value="{{ old('numero', $sessao->numero) }}" min="1" required>
-                                    @error('numero')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                    <div class="mb-3">
+                        <label for="numero_sessao" class="form-label">Número da Sessão <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control @error('numero_sessao') is-invalid @enderror" 
+                               id="numero_sessao" name="numero_sessao" value="{{ old('numero_sessao', $sessao->numero_sessao) }}" min="1" required>
+                        @error('numero_sessao')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -61,7 +61,6 @@
                                         <option value="ordinaria" {{ old('tipo', $sessao->tipo) === 'ordinaria' ? 'selected' : '' }}>Ordinária</option>
                                         <option value="extraordinaria" {{ old('tipo', $sessao->tipo) === 'extraordinaria' ? 'selected' : '' }}>Extraordinária</option>
                                         <option value="solene" {{ old('tipo', $sessao->tipo) === 'solene' ? 'selected' : '' }}>Solene</option>
-                                        <option value="especial" {{ old('tipo', $sessao->tipo) === 'especial' ? 'selected' : '' }}>Especial</option>
                                     </select>
                                     @error('tipo')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -91,21 +90,7 @@
                         </div>
                         
                         <div class="row">
-                            <div class="col-md-8">
-                                <div class="mb-3">
-                                    <label for="titulo" class="form-label">Título <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('titulo') is-invalid @enderror" 
-                                           id="titulo" name="titulo" value="{{ old('titulo', $sessao->titulo) }}" 
-                                           placeholder="Ex: Sessão Ordinária para discussão do orçamento municipal" required>
-                                    @error('titulo')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <div class="form-text">
-                                        <span id="tituloCount">0</span>/255 caracteres
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
+                            <div class="col-md-12">
                                 <div class="mb-3">
                                     <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
                                     <select class="form-select @error('status') is-invalid @enderror" id="status" name="status" required>
@@ -130,18 +115,40 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="data_hora" class="form-label">Data e Hora <span class="text-danger">*</span></label>
-                                    <input type="datetime-local" class="form-control @error('data_hora') is-invalid @enderror" 
-                                           id="data_hora" name="data_hora" 
-                                           value="{{ old('data_hora', $sessao->data_hora ? $sessao->data_hora->format('Y-m-d\TH:i') : '') }}" required>
-                                    @error('data_hora')
+                                    <label for="data_sessao" class="form-label">Data da Sessão <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control @error('data_sessao') is-invalid @enderror" 
+                                           id="data_sessao" name="data_sessao" 
+                                           value="{{ old('data_sessao', $sessao->data_sessao ? \Carbon\Carbon::parse($sessao->data_sessao)->format('Y-m-d') : '') }}" required>
+                                    @error('data_sessao')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="hora_inicio" class="form-label">Hora de Início <span class="text-danger">*</span></label>
+                                    <input type="time" class="form-control @error('hora_inicio') is-invalid @enderror" 
+                                           id="hora_inicio" name="hora_inicio" 
+                                           value="{{ old('hora_inicio', $sessao->hora_inicio ? \Carbon\Carbon::parse($sessao->hora_inicio)->format('H:i') : '') }}" required>
+                                    @error('hora_inicio')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="hora_fim" class="form-label">Hora de Fim</label>
+                                    <input type="time" class="form-control @error('hora_fim') is-invalid @enderror" 
+                                           id="hora_fim" name="hora_fim" 
+                                           value="{{ old('hora_fim', $sessao->hora_fim ? \Carbon\Carbon::parse($sessao->hora_fim)->format('H:i') : '') }}">
+                                    @error('hora_fim')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-2">
                                 <div class="mb-3">
                                     <label for="local" class="form-label">Local <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control @error('local') is-invalid @enderror" 
@@ -259,6 +266,83 @@
                     </div>
                 </div>
 
+                <!-- Mesa Diretora -->
+                <div class="admin-card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Mesa Diretora</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="presidente_id" class="form-label">Presidente da Sessão</label>
+                                    <select class="form-select @error('presidente_id') is-invalid @enderror" id="presidente_id" name="presidente_id">
+                                        <option value="">Selecione o presidente</option>
+                                        @foreach($vereadores as $vereador)
+                                            <option value="{{ $vereador->id }}" {{ old('presidente_id', $sessao->presidente_id) == $vereador->id ? 'selected' : '' }}>
+                                                {{ $vereador->nome }} - {{ $vereador->partido }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('presidente_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="secretario_id" class="form-label">Secretário da Sessão</label>
+                                    <select class="form-select @error('secretario_id') is-invalid @enderror" id="secretario_id" name="secretario_id">
+                                        <option value="">Selecione o secretário</option>
+                                        @foreach($vereadores as $vereador)
+                                            <option value="{{ $vereador->id }}" {{ old('secretario_id', $sessao->secretario_id) == $vereador->id ? 'selected' : '' }}>
+                                                {{ $vereador->nome }} - {{ $vereador->partido }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('secretario_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projetos de Lei -->
+                <div class="admin-card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-balance-scale me-2"></i>Projetos de Lei</h5>
+                    </div>
+                    <div class="card-body">
+                        @if($projetosLei && $projetosLei->count() > 0)
+                            <div class="row">
+                                @foreach($projetosLei as $projeto)
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="projeto_{{ $projeto->id }}" 
+                                               name="projetos_lei[]" 
+                                               value="{{ $projeto->id }}"
+                                               {{ in_array($projeto->id, old('projetos_lei', $sessao->projetosLei->pluck('id')->toArray())) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="projeto_{{ $projeto->id }}">
+                                            <strong>{{ $projeto->numero }}/{{ $projeto->ano }}</strong>
+                                            <small class="text-muted d-block">{{ Str::limit($projeto->ementa, 60) }}</small>
+                                            <small class="text-muted">{{ $projeto->autor }}</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center text-muted">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Nenhum projeto de lei disponível.
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
                 <!-- Vereadores Presentes -->
                 <div class="admin-card mb-4">
                     <div class="card-header">
@@ -313,27 +397,137 @@
                         <h5 class="mb-0"><i class="fas fa-video me-2"></i>Transmissão</h5>
                     </div>
                     <div class="card-body">
+                        <div class="mb-3">
+                            <label for="transmissao_online" class="form-label">Link de Transmissão Online</label>
+                            <input type="url" class="form-control @error('transmissao_online') is-invalid @enderror" 
+                                   id="transmissao_online" name="transmissao_online" 
+                                   value="{{ old('transmissao_online', $sessao->transmissao_online) }}"
+                                   placeholder="https://youtube.com/watch?v=... ou outro link de transmissão">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Insira o link do YouTube, Facebook Live ou outra plataforma de transmissão
+                            </div>
+                            @error('transmissao_online')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vídeo Gravado -->
+                <div class="admin-card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-play-circle me-2"></i>Vídeo Gravado</h5>
+                    </div>
+                    <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="transmissao_url" class="form-label">URL de Transmissão</label>
-                                    <input type="url" class="form-control @error('transmissao_url') is-invalid @enderror" 
-                                           id="transmissao_url" name="transmissao_url" value="{{ old('transmissao_url', $sessao->transmissao_url) }}" 
-                                           placeholder="https://exemplo.com/transmissao">
-                                    @error('transmissao_url')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                            <div class="col-md-12">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" 
+                                           id="video_disponivel" name="video_disponivel" value="1"
+                                           {{ old('video_disponivel', $sessao->video_disponivel) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="video_disponivel">
+                                        <strong>Vídeo disponível</strong>
+                                        <small class="text-muted d-block">Marque se há vídeo gravado desta sessão</small>
+                                    </label>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="youtube_url" class="form-label">URL do YouTube</label>
-                                    <input type="url" class="form-control @error('youtube_url') is-invalid @enderror" 
-                                           id="youtube_url" name="youtube_url" value="{{ old('youtube_url', $sessao->youtube_url) }}" 
-                                           placeholder="https://youtube.com/watch?v=...">
-                                    @error('youtube_url')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                        </div>
+                        
+                        <div id="video-fields" class="{{ old('video_disponivel', $sessao->video_disponivel) ? '' : 'd-none' }}">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label for="video_url" class="form-label">URL do Vídeo <span class="text-danger">*</span></label>
+                                        <input type="url" class="form-control @error('video_url') is-invalid @enderror" 
+                                               id="video_url" name="video_url" 
+                                               value="{{ old('video_url', $sessao->video_url) }}"
+                                               placeholder="https://youtube.com/watch?v=... ou outro link">
+                                        @error('video_url')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="plataforma_video" class="form-label">Plataforma</label>
+                                        <select class="form-select @error('plataforma_video') is-invalid @enderror" 
+                                                id="plataforma_video" name="plataforma_video">
+                                            <option value="">Detectar automaticamente</option>
+                                            <option value="youtube" {{ old('plataforma_video', $sessao->plataforma_video) === 'youtube' ? 'selected' : '' }}>
+                                                YouTube
+                                            </option>
+                                            <option value="vimeo" {{ old('plataforma_video', $sessao->plataforma_video) === 'vimeo' ? 'selected' : '' }}>
+                                                Vimeo
+                                            </option>
+                                            <option value="facebook" {{ old('plataforma_video', $sessao->plataforma_video) === 'facebook' ? 'selected' : '' }}>
+                                                Facebook
+                                            </option>
+                                        </select>
+                                        @error('plataforma_video')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="thumbnail_url" class="form-label">URL da Thumbnail</label>
+                                        <input type="url" class="form-control @error('thumbnail_url') is-invalid @enderror" 
+                                               id="thumbnail_url" name="thumbnail_url" 
+                                               value="{{ old('thumbnail_url', $sessao->thumbnail_url) }}"
+                                               placeholder="https://exemplo.com/thumbnail.jpg">
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Deixe em branco para usar thumbnail automática (YouTube)
+                                        </div>
+                                        @error('thumbnail_url')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="duracao_video" class="form-label">Duração (segundos)</label>
+                                        <input type="number" class="form-control @error('duracao_video') is-invalid @enderror" 
+                                               id="duracao_video" name="duracao_video" min="1"
+                                               value="{{ old('duracao_video', $sessao->duracao_video) }}"
+                                               placeholder="3600">
+                                        <div class="form-text">
+                                            <i class="fas fa-clock me-1"></i>
+                                            Ex: 3600 = 1 hora
+                                        </div>
+                                        @error('duracao_video')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="data_gravacao" class="form-label">Data da Gravação</label>
+                                        <input type="date" class="form-control @error('data_gravacao') is-invalid @enderror" 
+                                               id="data_gravacao" name="data_gravacao" 
+                                               value="{{ old('data_gravacao', $sessao->data_gravacao ? $sessao->data_gravacao->format('Y-m-d') : '') }}">
+                                        @error('data_gravacao')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="descricao_video" class="form-label">Descrição do Vídeo</label>
+                                        <textarea class="form-control @error('descricao_video') is-invalid @enderror" 
+                                                  id="descricao_video" name="descricao_video" rows="3" 
+                                                  placeholder="Descrição adicional sobre o vídeo...">{{ old('descricao_video', $sessao->descricao_video) }}</textarea>
+                                        @error('descricao_video')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -423,6 +617,27 @@ document.addEventListener('DOMContentLoaded', function() {
     
     tituloInput.addEventListener('input', updateTituloCount);
     updateTituloCount(); // Inicializar contador
+
+    // Controle de exibição dos campos de vídeo
+    const videoDisponivelCheckbox = document.getElementById('video_disponivel');
+    const videoFields = document.getElementById('video-fields');
+    
+    if (videoDisponivelCheckbox && videoFields) {
+        videoDisponivelCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                videoFields.style.display = 'block';
+            } else {
+                videoFields.style.display = 'none';
+                // Limpar campos quando desmarcar
+                document.getElementById('video_url').value = '';
+                document.getElementById('plataforma_video').value = '';
+                document.getElementById('thumbnail_url').value = '';
+                document.getElementById('duracao_video').value = '';
+                document.getElementById('data_gravacao').value = '';
+                document.getElementById('descricao_video').value = '';
+            }
+        });
+    }
 });
 
 function selectAllVereadores() {

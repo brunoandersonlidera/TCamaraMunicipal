@@ -403,12 +403,122 @@
                 font-size: 1.2rem;
             }
         }
+
+        /* Sessões Gravadas Styles */
+        .sessao-gravada-card {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sessao-gravada-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .sessao-thumbnail {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .sessao-thumbnail-placeholder {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .sessao-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sessao-gravada-card:hover .sessao-overlay {
+            opacity: 1;
+        }
+
+        .sessao-gravada-card:hover .sessao-thumbnail {
+            transform: scale(1.05);
+        }
+
+        .play-button {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .play-button:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .sessao-duration {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .sessao-platform {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.9);
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .sessao-thumbnail,
+            .sessao-thumbnail-placeholder {
+                height: 150px;
+            }
+            
+            .sessao-thumbnail-placeholder {
+                font-size: 2rem;
+            }
+            
+            .play-button {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
     </style>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    @stack('styles')
 </head>
 <body>
     <!-- Navigation -->
@@ -444,7 +554,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{{ route('sessoes.index') }}">
                             <i class="fas fa-calendar-alt me-1"></i>
                             Sessões
                         </a>

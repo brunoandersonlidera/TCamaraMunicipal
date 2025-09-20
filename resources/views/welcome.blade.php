@@ -207,6 +207,218 @@
     </div>
 </section>
 
+<!-- TV Câmara -->
+@if($sessoesGravadas->count() > 0 || $sessaoDestaque)
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">TV Câmara</h2>
+            <p class="text-muted">Acompanhe as sessões da Câmara Municipal</p>
+        </div>
+        
+        <!-- Sessão em Destaque -->
+        @if($sessaoDestaque)
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="card card-custom sessao-destaque-card">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h5 class="mb-0">
+                                <i class="fas fa-star me-2"></i>
+                                @if($sessaoDestaque->status === 'em_andamento')
+                                    <span class="badge bg-danger me-2">AO VIVO</span>
+                                @elseif($sessaoDestaque->status === 'agendada')
+                                    <span class="badge bg-warning me-2">PRÓXIMA</span>
+                                @else
+                                    <span class="badge bg-success me-2">ÚLTIMA</span>
+                                @endif
+                                {{ $sessaoDestaque->tipo }} Nº {{ $sessaoDestaque->numero_sessao }}
+                            </h5>
+                            <small>
+                                <i class="fas fa-calendar me-1"></i>
+                                {{ $sessaoDestaque->dataFormatada }}
+                                @if($sessaoDestaque->hora_inicio)
+                                    às {{ $sessaoDestaque->horaInicioFormatada }}
+                                @endif
+                            </small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <div class="position-relative">
+                                    @if($sessaoDestaque->getThumbnailUrl())
+                                        <img src="{{ $sessaoDestaque->getThumbnailUrl() }}" alt="Sessão {{ $sessaoDestaque->numero_sessao }}" class="img-fluid rounded sessao-thumbnail-destaque">
+                                    @else
+                                        <div class="sessao-thumbnail-placeholder-destaque">
+                                            <i class="fas fa-play-circle"></i>
+                                        </div>
+                                    @endif
+                                    
+                                    <div class="sessao-overlay-destaque">
+                                        <div class="play-button-destaque">
+                                            <i class="fas fa-play"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    @if($sessaoDestaque->plataforma_video)
+                                    <div class="sessao-platform-destaque">
+                                        @switch($sessaoDestaque->plataforma_video)
+                                            @case('youtube')
+                                                <i class="fab fa-youtube text-danger"></i>
+                                                @break
+                                            @case('vimeo')
+                                                <i class="fab fa-vimeo text-info"></i>
+                                                @break
+                                            @case('facebook')
+                                                <i class="fab fa-facebook text-primary"></i>
+                                                @break
+                                            @default
+                                                <i class="fas fa-video"></i>
+                                        @endswitch
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                @if($sessaoDestaque->descricao_video)
+                                <p class="text-muted mb-3">{{ $sessaoDestaque->descricao_video }}</p>
+                                @endif
+                                
+                                @if($sessaoDestaque->pauta && is_array($sessaoDestaque->pauta))
+                                <h6 class="fw-bold mb-2">Pauta:</h6>
+                                <ul class="list-unstyled">
+                                    @foreach(array_slice($sessaoDestaque->pauta, 0, 3) as $item)
+                                    <li class="mb-1">
+                                        <i class="fas fa-chevron-right text-primary me-2"></i>
+                                        {{ $item }}
+                                    </li>
+                                    @endforeach
+                                    @if(count($sessaoDestaque->pauta) > 3)
+                                    <li class="text-muted">
+                                        <i class="fas fa-ellipsis-h me-2"></i>
+                                        e mais {{ count($sessaoDestaque->pauta) - 3 }} itens...
+                                    </li>
+                                    @endif
+                                </ul>
+                                @endif
+                                
+                                <div class="mt-3">
+                                    @if($sessaoDestaque->status === 'em_andamento' && $sessaoDestaque->transmissao_online)
+                                        <a href="{{ $sessaoDestaque->transmissao_online }}" class="btn btn-danger btn-lg me-2" target="_blank">
+                                            <i class="fas fa-broadcast-tower me-2"></i>
+                                            Assistir AO VIVO
+                                        </a>
+                                    @elseif($sessaoDestaque->video_url)
+                                        <a href="{{ route('sessoes.show', $sessaoDestaque) }}" class="btn btn-primary btn-lg me-2">
+                                            <i class="fas fa-play me-2"></i>
+                                            Assistir Sessão
+                                        </a>
+                                    @endif
+                                    <a href="{{ route('sessoes.show', $sessaoDestaque) }}" class="btn btn-outline-primary">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Ver Detalhes
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+        
+        <!-- Últimas Sessões -->
+        @if($sessoesGravadas->count() > 0)
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="fw-bold mb-3">Últimas Sessões</h4>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            @foreach($sessoesGravadas as $sessao)
+            <div class="col-lg-3 col-md-6">
+                <div class="card card-custom h-100 sessao-gravada-card">
+                    <div class="position-relative">
+                        @if($sessao->getThumbnailUrl())
+                            <img src="{{ $sessao->getThumbnailUrl() }}" alt="Sessão {{ $sessao->numero_sessao }}" class="card-img-top sessao-thumbnail">
+                        @else
+                            <div class="sessao-thumbnail-placeholder">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                        @endif
+                        
+                        <div class="sessao-overlay">
+                            <div class="play-button">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                        
+                        @if($sessao->getDuracaoFormatada())
+                        <div class="sessao-duration">
+                            {{ $sessao->getDuracaoFormatada() }}
+                        </div>
+                        @endif
+                        
+                        <div class="sessao-platform">
+                            @switch($sessao->plataforma_video)
+                                @case('youtube')
+                                    <i class="fab fa-youtube text-danger"></i>
+                                    @break
+                                @case('vimeo')
+                                    <i class="fab fa-vimeo text-info"></i>
+                                    @break
+                                @case('facebook')
+                                    <i class="fab fa-facebook text-primary"></i>
+                                    @break
+                                @default
+                                    <i class="fas fa-video"></i>
+                            @endswitch
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <h6 class="card-title fw-bold">
+                            {{ $sessao->tipo }} Nº {{ $sessao->numero_sessao }}
+                        </h6>
+                        <p class="card-text text-muted small mb-2">
+                            <i class="fas fa-calendar me-1"></i>
+                            {{ $sessao->dataFormatada }}
+                            @if($sessao->hora_inicio)
+                                às {{ $sessao->horaInicioFormatada }}
+                            @endif
+                        </p>
+                        @if($sessao->descricao_video)
+                        <p class="card-text text-muted small">
+                            {{ Str::limit($sessao->descricao_video, 80) }}
+                        </p>
+                        @endif
+                        <a href="{{ route('sessoes.show', $sessao) }}" class="btn btn-sm btn-primary w-100">
+                            <i class="fas fa-play me-1"></i>
+                            Assistir Sessão
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @endif
+        
+        <div class="text-center mt-4">
+            <a href="{{ route('tv-camara') }}" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-tv me-2"></i>
+                TV Câmara
+            </a>
+            <a href="{{ route('sessoes.index') }}" class="btn btn-outline-primary">
+                <i class="fas fa-video me-2"></i>
+                Ver Todas as Sessões
+            </a>
+        </div>
+    </div>
+</section>
+@endif
+
 <!-- Últimas Notícias -->
 <section class="py-5 bg-light">
     <div class="container">

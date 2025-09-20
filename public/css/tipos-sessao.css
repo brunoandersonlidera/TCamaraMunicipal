@@ -1,0 +1,92 @@
+/* Estilos para Tipos de Sessão */
+
+/* Badge básico para tipos de sessão */
+.tipo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: white;
+    text-decoration: none;
+    border: none;
+}
+
+.tipo-badge i {
+    font-size: 0.875rem;
+}
+
+/* Preview de cor */
+.color-preview {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #dee2e6;
+    margin-right: 0.5rem;
+}
+
+/* Badge de preview */
+.badge-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: white;
+    text-decoration: none;
+    border: none;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.badge-preview i {
+    font-size: 1rem;
+}
+
+/* Badge de preview grande */
+.badge-preview-large {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: white;
+    text-decoration: none;
+    border: none;
+    min-width: 150px;
+    justify-content: center;
+}
+
+.badge-preview-large i {
+    font-size: 1.25rem;
+}
+
+/* Hover effects */
+.tipo-badge:hover,
+.badge-preview:hover,
+.badge-preview-large:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .badge-preview,
+    .badge-preview-large {
+        min-width: auto;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .badge-preview-large {
+        font-size: 1rem;
+    }
+}

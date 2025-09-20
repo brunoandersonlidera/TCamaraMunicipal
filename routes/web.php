@@ -2,9 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VereadorController;
+use App\Http\Controllers\SessaoController;
 use App\Http\Controllers\AuthController;
 use App\Models\Vereador;
 use App\Models\User;
+use App\Models\Sessao;
 
 Route::get('/', function () {
     // Buscar presidente e vereadores para a página inicial
@@ -27,13 +29,31 @@ Route::get('/', function () {
         });
     }
     
+    // Buscar sessões gravadas recentes para a página inicial
+    $sessoesGravadas = Sessao::recentes(4)->get();
+    
+    // Buscar sessão ao vivo atual
+    $sessaoAoVivo = Sessao::aoVivo()->first();
+    
+    // Buscar sessão em destaque (próxima, atual ou última)
+    $sessaoDestaque = Sessao::where('status', 'em_andamento')->first() ?? // Sessão em andamento
+                     Sessao::where('status', 'agendada')
+                           ->where('data_sessao', '>=', now()->toDateString())
+                           ->orderBy('data_sessao', 'asc')
+                           ->orderBy('hora_inicio', 'asc')
+                           ->first() ?? // Próxima sessão agendada
+                     Sessao::where('status', 'finalizada')
+                           ->orderBy('data_sessao', 'desc')
+                           ->orderBy('hora_inicio', 'desc')
+                           ->first(); // Última sessão finalizada
+    
     // Dados para a seção "Números da Câmara"
     $totalVereadores = $vereadores->count() + ($presidente ? 1 : 0);
     $projetos = 45; // Valor padrão até implementar tabela de projetos
-    $sessoes = 24;  // Valor padrão até implementar tabela de sessões
+    $sessoes = Sessao::realizadas()->count();
     $leis = 12;     // Valor padrão até implementar tabela de leis
         
-    return view('welcome', compact('presidente', 'vereadores', 'totalVereadores', 'projetos', 'sessoes', 'leis'));
+    return view('welcome', compact('presidente', 'vereadores', 'totalVereadores', 'projetos', 'sessoes', 'leis', 'sessoesGravadas', 'sessaoAoVivo', 'sessaoDestaque'));
 })->name('home');
 
 // Rotas de Autenticação
@@ -55,6 +75,19 @@ Route::middleware('guest')->group(function () {
 
 // Logout (disponível para usuários autenticados)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+// Rotas dos vereadores (públicas)
+Route::get('/vereadores', [VereadorController::class, 'index'])->name('vereadores.index');
+Route::get('/vereadores/{id}', [VereadorController::class, 'show'])->name('vereadores.show');
+
+// Rotas das sessões (públicas)
+Route::get('/sessoes', [SessaoController::class, 'index'])->name('sessoes.index');
+Route::get('/tv-camara', [SessaoController::class, 'tvCamara'])->name('tv-camara');
+Route::get('/sessoes/{sessao}', [SessaoController::class, 'show'])->name('sessoes.show');
+Route::get('/sessoes/{sessao}/ata/download', [SessaoController::class, 'downloadAta'])->name('sessoes.download-ata');
+Route::get('/sessoes/{sessao}/pauta/download', [SessaoController::class, 'downloadPauta'])->name('sessoes.download-pauta');
+Route::get('/sessoes/calendario', [SessaoController::class, 'calendario'])->name('sessoes.calendario');
+Route::get('/ao-vivo', [SessaoController::class, 'aoVivo'])->name('sessoes.ao-vivo');
 
 // Rotas Administrativas (protegidas por middleware admin)
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
@@ -87,12 +120,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('users/{user}/impersonate', [App\Http\Controllers\Admin\UserController::class, 'impersonate'])
         ->name('admin.users.impersonate');
     
+    // Rotas administrativas para tipos de sessão
+    Route::resource('tipos-sessao', App\Http\Controllers\Admin\TipoSessaoController::class, [
+        'as' => 'admin'
+    ]);
+
     // Rotas administrativas para sessões
     Route::resource('sessoes', App\Http\Controllers\Admin\SessaoController::class, [
         'as' => 'admin'
     ]);
     Route::patch('sessoes/{sessao}/toggle-status', [App\Http\Controllers\Admin\SessaoController::class, 'toggleStatus'])->name('admin.sessoes.toggle-status');
     Route::get('sessoes/{sessao}/download/{tipo}', [App\Http\Controllers\Admin\SessaoController::class, 'download'])->name('admin.sessoes.download');
+    Route::get('sessoes/{sessao}/ata/download', [App\Http\Controllers\Admin\SessaoController::class, 'downloadAta'])->name('admin.sessoes.download-ata');
+    Route::get('sessoes/{sessao}/pauta/download', [App\Http\Controllers\Admin\SessaoController::class, 'downloadPauta'])->name('admin.sessoes.download-pauta');
 
     // Rotas administrativas para projetos de lei
     Route::resource('projetos-lei', App\Http\Controllers\Admin\ProjetoLeiController::class, [
@@ -124,7 +164,3 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Route::resource('users', UserController::class);
     // Route::resource('noticias', NoticiaController::class);
 });
-
-// Rotas dos vereadores (públicas)
-Route::get('/vereadores', [VereadorController::class, 'index'])->name('vereadores.index');
-Route::get('/vereadores/{id}', [VereadorController::class, 'show'])->name('vereadores.show');

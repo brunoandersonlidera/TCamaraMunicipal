@@ -1,0 +1,166 @@
+/* Video Player Component Styles */
+.video-player-container {
+    position: relative;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    /* CSS Custom Properties para valores dinâmicos */
+    width: var(--video-width, 100%);
+}
+
+.video-player-container iframe {
+    border-radius: 8px;
+}
+
+.video-player-dynamic {
+    position: relative;
+    width: 100%;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    /* CSS Custom Properties para altura dinâmica */
+    height: var(--video-height, 315px);
+}
+
+.video-player-dynamic iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 8px;
+}
+
+.video-thumbnail-dynamic {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    /* Altura dinâmica via CSS custom property */
+    height: var(--video-height, 315px);
+}
+
+.play-overlay-dynamic {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.play-overlay-dynamic:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.video-link-dynamic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    /* Altura dinâmica via CSS custom property */
+    height: var(--video-height, 315px);
+}
+
+.no-video-dynamic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    /* Altura dinâmica via CSS custom property */
+    height: var(--video-height, 315px);
+}
+
+.video-thumbnail {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.video-info {
+    padding: 1rem;
+    background: #fff;
+    border-radius: 0 0 8px 8px;
+}
+
+.video-meta span {
+    display: inline-block;
+    margin-right: 1rem;
+}
+
+.video-meta i {
+    color: #6c757d;
+}
+
+.no-video {
+    border-radius: 8px;
+}
+
+/* Classes específicas para diferentes tamanhos */
+.video-player-small {
+    --video-width: 300px;
+    --video-height: 200px;
+}
+
+.video-player-medium {
+    --video-width: 500px;
+    --video-height: 315px;
+}
+
+.video-player-large {
+    --video-width: 800px;
+    --video-height: 450px;
+}
+
+.video-player-full {
+    --video-width: 100%;
+    --video-height: 500px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .video-player-container {
+        margin-bottom: 0.5rem;
+        --video-width: 100% !important;
+        --video-height: 250px !important;
+    }
+    
+    .video-info {
+        padding: 0.75rem;
+    }
+    
+    .play-overlay-dynamic {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .play-overlay-dynamic i {
+        font-size: 1.5rem !important;
+    }
+    
+    .video-info .col-md-4 {
+        text-align: left !important;
+        margin-top: 10px;
+    }
+    
+    .video-meta span {
+        display: block;
+        margin-bottom: 5px;
+    }
+}

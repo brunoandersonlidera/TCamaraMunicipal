@@ -16,6 +16,7 @@ class Sessao extends Model
     protected $fillable = [
         'numero_sessao',
         'tipo',
+        'tipo_sessao_id',
         'data_sessao',
         'hora_inicio',
         'hora_fim',
@@ -30,8 +31,16 @@ class Sessao extends Model
         'link_gravacao',
         'observacoes',
         'legislatura',
-        'presidente_sessao_id',
-        'secretario_sessao_id'
+        'presidente_id',
+        'secretario_id',
+        // Novos campos para vídeo gravado
+        'video_url',
+        'plataforma_video',
+        'thumbnail_url',
+        'duracao_video',
+        'descricao_video',
+        'video_disponivel',
+        'data_gravacao'
     ];
 
     protected $casts = [
@@ -43,7 +52,9 @@ class Sessao extends Model
         'presencas' => 'array',
         'votacoes' => 'array',
         'transmissao_online' => 'boolean',
-        'gravacao_disponivel' => 'boolean'
+        'gravacao_disponivel' => 'boolean',
+        'video_disponivel' => 'boolean',
+        'data_gravacao' => 'datetime'
     ];
 
     protected $dates = [
@@ -52,14 +63,19 @@ class Sessao extends Model
     ];
 
     // Relacionamentos
+    public function tipoSessao()
+    {
+        return $this->belongsTo(TipoSessao::class, 'tipo_sessao_id');
+    }
+
     public function presidenteSessao()
     {
-        return $this->belongsTo(Vereador::class, 'presidente_sessao_id');
+        return $this->belongsTo(Vereador::class, 'presidente_id');
     }
 
     public function secretarioSessao()
     {
-        return $this->belongsTo(Vereador::class, 'secretario_sessao_id');
+        return $this->belongsTo(Vereador::class, 'secretario_id');
     }
 
     public function projetosLei()
@@ -94,7 +110,7 @@ class Sessao extends Model
 
     public function scopeRealizadas($query)
     {
-        return $query->where('status', 'realizada');
+        return $query->where('status', 'finalizada');
     }
 
     public function scopeAgendadas($query)
@@ -130,6 +146,32 @@ class Sessao extends Model
     public function scopeComGravacao($query)
     {
         return $query->where('gravacao_disponivel', true);
+    }
+
+    public function scopeComVideo($query)
+    {
+        return $query->where('video_disponivel', true)
+                    ->whereNotNull('video_url');
+    }
+
+    public function scopeAoVivo($query)
+    {
+        return $query->where('status', 'em_andamento')
+                    ->where('transmissao_online', true)
+                    ->whereNotNull('link_transmissao');
+    }
+
+    public function scopePlataforma($query, $plataforma)
+    {
+        return $query->where('plataforma_video', $plataforma);
+    }
+
+    public function scopeRecentes($query, $limite = 4)
+    {
+        return $query->where('status', 'finalizada')
+                    ->where('video_disponivel', true)
+                    ->orderBy('data_sessao', 'desc')
+                    ->limit($limite);
     }
 
     // Accessors
@@ -259,6 +301,94 @@ class Sessao extends Model
     public function temGravacao()
     {
         return $this->gravacao_disponivel && !empty($this->link_gravacao);
+    }
+
+    public function temVideo()
+    {
+        return $this->video_disponivel && !empty($this->video_url);
+    }
+
+    public function getVideoId()
+    {
+        if (!$this->video_url) return null;
+
+        switch ($this->plataforma_video) {
+            case 'youtube':
+                if (str_contains($this->video_url, 'youtube.com/watch?v=')) {
+                    $videoId = substr($this->video_url, strpos($this->video_url, 'v=') + 2);
+                    return substr($videoId, 0, strpos($videoId, '&') ?: strlen($videoId));
+                } elseif (str_contains($this->video_url, 'youtu.be/')) {
+                    return substr($this->video_url, strrpos($this->video_url, '/') + 1);
+                }
+                break;
+            case 'vimeo':
+                if (preg_match('/vimeo\.com\/(\d+)/', $this->video_url, $matches)) {
+                    return $matches[1];
+                }
+                break;
+            case 'facebook':
+                if (preg_match('/facebook\.com\/.*\/videos\/(\d+)/', $this->video_url, $matches)) {
+                    return $matches[1];
+                }
+                break;
+        }
+
+        return null;
+    }
+
+    public function getEmbedUrl()
+    {
+        $videoId = $this->getVideoId();
+        if (!$videoId) return null;
+
+        switch ($this->plataforma_video) {
+            case 'youtube':
+                return "https://www.youtube.com/embed/{$videoId}";
+            case 'vimeo':
+                return "https://player.vimeo.com/video/{$videoId}";
+            case 'facebook':
+                return "https://www.facebook.com/plugins/video.php?href=" . urlencode($this->video_url);
+            default:
+                return $this->video_url;
+        }
+    }
+
+    public function getThumbnailUrl()
+    {
+        if ($this->thumbnail_url) {
+            return $this->thumbnail_url;
+        }
+
+        $videoId = $this->getVideoId();
+        if (!$videoId) return null;
+
+        switch ($this->plataforma_video) {
+            case 'youtube':
+                return "https://img.youtube.com/vi/{$videoId}/maxresdefault.jpg";
+            case 'vimeo':
+                // Para Vimeo, seria necessário fazer uma chamada à API
+                return null;
+            case 'facebook':
+                // Facebook não fornece thumbnails diretas
+                return null;
+            default:
+                return null;
+        }
+    }
+
+    public function getDuracaoFormatada()
+    {
+        if (!$this->duracao_video) return null;
+
+        $horas = floor($this->duracao_video / 3600);
+        $minutos = floor(($this->duracao_video % 3600) / 60);
+        $segundos = $this->duracao_video % 60;
+
+        if ($horas > 0) {
+            return sprintf('%02d:%02d:%02d', $horas, $minutos, $segundos);
+        } else {
+            return sprintf('%02d:%02d', $minutos, $segundos);
+        }
     }
 
     public function podeSerEditada()

@@ -1,0 +1,220 @@
+@extends('layouts.admin')
+
+@section('title', 'Editar Tipo de Sessão')
+
+@section('content')
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">Editar Tipo de Sessão</h3>
+                    <div>
+                        <a href="{{ route('admin.tipos-sessao.show', $tipoSessao) }}" class="btn btn-info">
+                            <i class="fas fa-eye"></i> Visualizar
+                        </a>
+                        <a href="{{ route('admin.tipos-sessao.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Voltar
+                        </a>
+                    </div>
+                </div>
+
+                <form action="{{ route('admin.tipos-sessao.update', $tipoSessao) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="nome">Nome <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control @error('nome') is-invalid @enderror" 
+                                           id="nome" 
+                                           name="nome" 
+                                           value="{{ old('nome', $tipoSessao->nome) }}" 
+                                           required>
+                                    @error('nome')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="cor">Cor <span class="text-danger">*</span></label>
+                                    <input type="color" 
+                                           class="form-control @error('cor') is-invalid @enderror" 
+                                           id="cor" 
+                                           name="cor" 
+                                           value="{{ old('cor', $tipoSessao->cor) }}" 
+                                           required>
+                                    @error('cor')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="ordem">Ordem <span class="text-danger">*</span></label>
+                                    <input type="number" 
+                                           class="form-control @error('ordem') is-invalid @enderror" 
+                                           id="ordem" 
+                                           name="ordem" 
+                                           value="{{ old('ordem', $tipoSessao->ordem) }}" 
+                                           min="0" 
+                                           required>
+                                    @error('ordem')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="icone">Ícone <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i id="icone-preview" class="{{ $tipoSessao->icone }}"></i>
+                                            </span>
+                                        </div>
+                                        <input type="text" 
+                                               class="form-control @error('icone') is-invalid @enderror" 
+                                               id="icone" 
+                                               name="icone" 
+                                               value="{{ old('icone', $tipoSessao->icone) }}" 
+                                               placeholder="Ex: fas fa-gavel"
+                                               required>
+                                        @error('icone')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Use classes do Font Awesome. Ex: fas fa-gavel, fas fa-users, fas fa-calendar
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <div class="form-check">
+                                        <input type="checkbox" 
+                                               class="form-check-input" 
+                                               id="ativo" 
+                                               name="ativo" 
+                                               value="1" 
+                                               {{ old('ativo', $tipoSessao->ativo) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="ativo">
+                                            Tipo ativo
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="descricao">Descrição</label>
+                            <textarea class="form-control @error('descricao') is-invalid @enderror" 
+                                      id="descricao" 
+                                      name="descricao" 
+                                      rows="3" 
+                                      placeholder="Descrição opcional do tipo de sessão">{{ old('descricao', $tipoSessao->descricao) }}</textarea>
+                            @error('descricao')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Preview -->
+                        <div class="form-group">
+                            <label>Preview</label>
+                            <div class="card" style="max-width: 300px;">
+                                <div class="card-body text-center">
+                                    <span id="badge-preview" class="badge badge-preview" data-cor="{{ $tipoSessao->cor }}">
+                                        <i id="badge-icon" class="{{ $tipoSessao->icone }}"></i>
+                                        <span id="badge-text">{{ $tipoSessao->nome }}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informações adicionais -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Slug</label>
+                                    <input type="text" class="form-control" value="{{ $tipoSessao->slug }}" readonly>
+                                    <small class="form-text text-muted">Gerado automaticamente a partir do nome</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Sessões Vinculadas</label>
+                                    <input type="text" class="form-control" value="{{ $tipoSessao->sessoes()->count() }} sessões" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Atualizar
+                        </button>
+                        <a href="{{ route('admin.tipos-sessao.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const nomeInput = document.getElementById('nome');
+    const corInput = document.getElementById('cor');
+    const iconeInput = document.getElementById('icone');
+    const iconePreview = document.getElementById('icone-preview');
+    const badgePreview = document.getElementById('badge-preview');
+    const badgeIcon = document.getElementById('badge-icon');
+    const badgeText = document.getElementById('badge-text');
+
+    function updatePreview() {
+        const nome = nomeInput.value || 'Tipo de Sessão';
+        const cor = corInput.value;
+        const icone = iconeInput.value || 'fas fa-gavel';
+
+        // Atualizar preview do ícone
+        iconePreview.className = icone;
+
+        // Atualizar preview do badge
+        badgePreview.style.backgroundColor = cor;
+        badgeIcon.className = icone;
+        badgeText.textContent = nome;
+    }
+
+    // Event listeners
+    nomeInput.addEventListener('input', updatePreview);
+    corInput.addEventListener('input', updatePreview);
+    iconeInput.addEventListener('input', updatePreview);
+
+    // Atualizar preview inicial
+    updatePreview();
+});
+</script>
+@endpush
+
+@push('styles')
+<style>
+.badge-preview {
+    color: white !important;
+    font-size: 14px;
+}
+</style>
+@endpush

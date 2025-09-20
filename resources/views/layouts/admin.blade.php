@@ -17,6 +17,10 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/tipos-sessao.css') }}">
+    
     <style>
         :root {
             --sidebar-width: 280px;
@@ -262,6 +266,13 @@
                 </div>
                 
                 <div class="nav-item">
+                    <a href="{{ route('admin.tipos-sessao.index') }}" class="nav-link {{ request()->routeIs('admin.tipos-sessao.*') ? 'active' : '' }}">
+                        <i class="fas fa-tags"></i>
+                        Tipos de Sessão
+                    </a>
+                </div>
+                
+                <div class="nav-item">
                     <a href="{{ route('admin.projetos-lei.index') }}" class="nav-link {{ request()->routeIs('admin.projetos-lei.*') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
                         Projetos de Lei
@@ -401,6 +412,9 @@
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ asset('js/tipos-sessao.js') }}"></script>
     
     <script>
         function toggleSidebar() {
