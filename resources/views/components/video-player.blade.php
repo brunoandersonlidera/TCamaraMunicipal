@@ -38,7 +38,7 @@
                     width="100%" 
                     height="100%" 
                     src="{{ $embedUrl }}?autoplay={{ $autoplayParam }}&controls={{ $controls ? '1' : '0' }}&rel=0&modestbranding=1"
-                    title="Sessão {{ $sessao->numero_sessao }} - {{ $sessao->tipoFormatado() }}"
+                    title="Sessão {{ $sessao->numero_sessao }} - {{ $sessao->tipo_formatado }}"
                     frameborder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                     allowfullscreen
@@ -56,7 +56,7 @@
                     frameborder="0" 
                     allow="autoplay; fullscreen; picture-in-picture" 
                     allowfullscreen
-                    title="Sessão {{ $sessao->numero_sessao }} - {{ $sessao->tipoFormatado() }}"
+                    title="Sessão {{ $sessao->numero_sessao }} - {{ $sessao->tipo_formatado }}"
                     loading="lazy">
                 </iframe>
             </div>
@@ -73,7 +73,7 @@
                     frameborder="0" 
                     allowfullscreen="true" 
                     allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                    title="Sessão {{ $sessao->numero_sessao }} - {{ $sessao->tipoFormatado() }}"
+                    title="Sessão {{ $sessao->numero_sessao }} - {{ $sessao->tipo_formatado }}"
                     loading="lazy">
                 </iframe>
             </div>
@@ -104,7 +104,7 @@
                 <div class="col-md-8">
                     <h6 class="mb-1">
                         <i class="fas fa-video me-2 text-primary"></i>
-                        Sessão {{ $sessao->numero_sessao }} - {{ $sessao->tipoFormatado() }}
+                        Sessão {{ $sessao->numero_sessao }} - {{ $sessao->tipo_formatado }}
                     </h6>
                     @if($sessao->descricao_video)
                         <p class="text-muted mb-1 small">{{ $sessao->descricao_video }}</p>
