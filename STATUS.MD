@@ -97,16 +97,11 @@
 - Sistema de Enquetes para participação cidadã
 ## 🎯 RECOMENDAÇÕES DE DESENVOLVIMENTO
 ### Próximos Passos Sugeridos:
-1. 1.
-   Implementar Sessões Plenárias (base para outros módulos)
-2. 2.
-   Desenvolver Portal da Transparência (obrigatório por lei)
-3. 3.
-   Finalizar sistema E-SIC (compliance legal)
-4. 4.
-   Criar CMS de Notícias (engajamento público)
-5. 5.
-   Implementar busca e filtros (usabilidade)
+1. 1.   Implementar Sessões Plenárias (base para outros módulos)
+2. 2.   Desenvolver Portal da Transparência (obrigatório por lei)
+3. 3.   Finalizar sistema E-SIC (compliance legal)
+4. 4.   Criar CMS de Notícias (engajamento público)
+5. 5.   Implementar busca e filtros (usabilidade)
 ### Estimativa de Desenvolvimento:
 - Sessões : 2-3 semanas
 - Transparência : 3-4 semanas
