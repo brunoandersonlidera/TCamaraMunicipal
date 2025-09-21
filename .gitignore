@@ -22,5 +22,5 @@ yarn-error.log
 /.vscode
 /.zed
 
-# Arquivo administrativo com credenciais sensíveis (removido para versionamento)
-# admin_users.php
+# Arquivo administrativo com credenciais sensíveis
+admin_users.php
