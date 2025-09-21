@@ -19,203 +19,8 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
     <link rel="stylesheet" href="{{ asset('css/tipos-sessao.css') }}">
-    
-    <style>
-        :root {
-            --sidebar-width: 280px;
-            --header-height: 70px;
-            --primary-color: #2563eb;
-            --primary-dark: #1d4ed8;
-            --sidebar-bg: #1e293b;
-            --sidebar-hover: #334155;
-            --text-muted: #64748b;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            overflow-x: hidden;
-        }
-        
-        /* Sidebar */
-        .admin-sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: var(--sidebar-width);
-            height: 100vh;
-            background: var(--sidebar-bg);
-            z-index: 1000;
-            transition: transform 0.3s ease;
-            overflow-y: auto;
-        }
-        
-        .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #334155;
-        }
-        
-        .sidebar-brand {
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-        
-        .sidebar-nav {
-            padding: 1rem 0;
-        }
-        
-        .nav-section {
-            margin-bottom: 2rem;
-        }
-        
-        .nav-section-title {
-            color: #94a3b8;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 0 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .nav-item {
-            margin-bottom: 0.25rem;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1.5rem;
-            color: #cbd5e1;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-        }
-        
-        .nav-link:hover {
-            background: var(--sidebar-hover);
-            color: white;
-        }
-        
-        .nav-link.active {
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        .nav-link i {
-            width: 20px;
-            margin-right: 0.75rem;
-            font-size: 1rem;
-        }
-        
-        /* Main Content */
-        .admin-main {
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
-        }
-        
-        .admin-header {
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
-            padding: 0 2rem;
-            height: var(--header-height);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .admin-content {
-            padding: 2rem;
-        }
-        
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .admin-sidebar {
-                transform: translateX(-100%);
-            }
-            
-            .admin-sidebar.show {
-                transform: translateX(0);
-            }
-            
-            .admin-main {
-                margin-left: 0;
-            }
-            
-            .mobile-menu-btn {
-                display: block !important;
-            }
-        }
-        
-        .mobile-menu-btn {
-            display: none;
-        }
-        
-        /* Cards */
-        .admin-card {
-            background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            border: 1px solid #e2e8f0;
-        }
-        
-        /* Buttons */
-        .btn-primary {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            border-color: var(--primary-dark);
-        }
-        
-        /* Tables */
-        .table-responsive {
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-        
-        .table th {
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
-            font-weight: 600;
-            color: #374151;
-        }
-        
-        /* Alerts */
-        .alert {
-            border: none;
-            border-radius: 0.5rem;
-        }
-        
-        /* Breadcrumb */
-        .breadcrumb {
-            background: none;
-            padding: 0;
-            margin-bottom: 1.5rem;
-        }
-        
-        .breadcrumb-item + .breadcrumb-item::before {
-            content: "›";
-            color: var(--text-muted);
-        }
-    </style>
     
     @stack('styles')
 </head>
@@ -295,6 +100,39 @@
                     <a href="{{ route('admin.solicitacoes.index') }}" class="nav-link {{ request()->routeIs('admin.solicitacoes.*') ? 'active' : '' }}">
                         <i class="fas fa-question-circle"></i>
                         Solicitações e-SIC
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.esic-usuarios.index') }}" class="nav-link {{ request()->routeIs('admin.esic-usuarios.*') ? 'active' : '' }}">
+                        <i class="fas fa-users-cog"></i>
+                        Usuários E-SIC
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.cartas-servico.index') }}" class="nav-link {{ request()->routeIs('admin.cartas-servico.*') ? 'active' : '' }}">
+                        <i class="fas fa-file-contract"></i>
+                        Carta de Serviços
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Ouvidoria -->
+            <div class="nav-section">
+                <div class="nav-section-title">Ouvidoria</div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.ouvidoria-manifestacoes.index') }}" class="nav-link {{ request()->routeIs('admin.ouvidoria-manifestacoes.*') ? 'active' : '' }}">
+                        <i class="fas fa-comments"></i>
+                        Manifestações
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.ouvidores.index') }}" class="nav-link {{ request()->routeIs('admin.ouvidores.*') ? 'active' : '' }}">
+                        <i class="fas fa-user-tie"></i>
+                        Ouvidores
                     </a>
                 </div>
             </div>
@@ -415,25 +253,8 @@
     
     <!-- Custom JS -->
     <script src="{{ asset('js/tipos-sessao.js') }}"></script>
-    
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('adminSidebar');
-            sidebar.classList.toggle('show');
-        }
-        
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('adminSidebar');
-            const menuBtn = document.querySelector('.mobile-menu-btn');
-            
-            if (window.innerWidth <= 768 && 
-                !sidebar.contains(event.target) && 
-                !menuBtn.contains(event.target)) {
-                sidebar.classList.remove('show');
-            }
-        });
-    </script>
+    <script src="{{ asset('js/admin-events.js') }}"></script>
+    <script src="{{ asset('js/admin-layout.js') }}"></script>
     
     @stack('scripts')
 </body>

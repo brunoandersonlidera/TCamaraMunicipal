@@ -2,6 +2,10 @@
 
 @section('title', 'Vereadores - Câmara Municipal')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/public-styles.css') }}">
+@endpush
+
 @section('content')
 <!-- Hero Section -->
 <section class="hero-section">
@@ -110,61 +114,3 @@
     </div>
 </section>
 @endsection
-
-@push('styles')
-<style>
-    .vereador-card {
-        transition: all 0.3s ease;
-    }
-
-    .vereador-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-
-    .vereador-photo-container {
-        position: relative;
-        width: 120px;
-        height: 120px;
-        margin: 0 auto;
-    }
-
-    .vereador-photo {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid var(--primary-color);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-
-    .vereador-photo-placeholder {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 2.5rem;
-        border: 3px solid var(--primary-color);
-    }
-
-    .presidente-badge-small {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background: linear-gradient(135deg, #fbbf24, #f59e0b);
-        color: white;
-        padding: 4px 8px;
-        border-radius: 15px;
-        font-size: 0.65rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 3px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-</style>
-@endpush

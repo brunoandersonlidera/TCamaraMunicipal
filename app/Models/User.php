@@ -33,8 +33,15 @@ class User extends Authenticatable
         'email',
         'password',
         'email_verified_at',
+        'email_verification_token',
         'role',
         'active',
+        'terms_accepted_at',
+        'privacy_accepted_at',
+        'phone',
+        'birth_date',
+        'address',
+        'last_login_at',
     ];
 
     /**
@@ -45,6 +52,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'email_verification_token',
     ];
 
     /**
@@ -56,8 +64,12 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'terms_accepted_at' => 'datetime',
+            'privacy_accepted_at' => 'datetime',
             'password' => 'hashed',
             'active' => 'boolean',
+            'birth_date' => 'date',
+            'last_login_at' => 'datetime',
         ];
     }
 
@@ -68,6 +80,8 @@ class User extends Authenticatable
      */
     protected $dates = [
         'email_verified_at',
+        'terms_accepted_at',
+        'privacy_accepted_at',
         'created_at',
         'updated_at',
     ];

@@ -152,37 +152,5 @@
 @endsection
 
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const nomeInput = document.getElementById('nome');
-    const corInput = document.getElementById('cor');
-    const iconeInput = document.getElementById('icone');
-    const iconePreview = document.getElementById('icone-preview');
-    const badgePreview = document.getElementById('badge-preview');
-    const badgeIcon = document.getElementById('badge-icon');
-    const badgeText = document.getElementById('badge-text');
-
-    function updatePreview() {
-        const nome = nomeInput.value || 'Novo Tipo';
-        const cor = corInput.value;
-        const icone = iconeInput.value || 'fas fa-gavel';
-
-        // Atualizar preview do ícone
-        iconePreview.className = icone;
-
-        // Atualizar preview do badge
-        badgePreview.style.backgroundColor = cor;
-        badgeIcon.className = icone;
-        badgeText.textContent = nome;
-    }
-
-    // Event listeners
-    nomeInput.addEventListener('input', updatePreview);
-    corInput.addEventListener('input', updatePreview);
-    iconeInput.addEventListener('input', updatePreview);
-
-    // Atualizar preview inicial
-    updatePreview();
-});
-</script>
+<script src="{{ asset('js/tipos-sessao.js') }}"></script>
 @endpush

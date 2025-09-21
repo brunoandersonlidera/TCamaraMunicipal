@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,  // Primeiro criar admin padrão
             UserSeeder::class,
             VereadorSeeder::class,
+            MenuSeeder::class,       // Criar menus do sistema
         ]);
 
         $this->command->info('✅ Banco de dados populado com sucesso!');
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('📋 Resumo dos dados criados:');
         $this->command->info('👥 Usuários: 8 usuários com diferentes roles');
         $this->command->info('🏛️ Vereadores: 3 vereadores com perfis completos');
+        $this->command->info('📋 Menus: Sistema completo de navegação (header e footer)');
         $this->command->info('');
         $this->command->info('🔑 Credenciais de acesso:');
         $this->command->info('🔧 Admin: admin@camara.gov.br / admin123');

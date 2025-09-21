@@ -357,46 +357,5 @@
 @endpush
 
 @push('scripts')
-<script>
-function confirmDelete(projetoId) {
-    const deleteForm = document.getElementById('deleteForm');
-    deleteForm.action = `/admin/projetos-lei/${projetoId}`;
-    
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-    deleteModal.show();
-}
-
-function toggleView(view) {
-    const tableView = document.getElementById('tableView');
-    const cardsView = document.getElementById('cardsView');
-    const tableBtn = document.getElementById('viewTable');
-    const cardsBtn = document.getElementById('viewCards');
-    
-    // Verificar se os elementos existem antes de manipulá-los
-    if (!tableView || !cardsView || !tableBtn || !cardsBtn) {
-        console.warn('Elementos de visualização não encontrados');
-        return;
-    }
-    
-    if (view === 'table') {
-        tableView.style.display = 'block';
-        cardsView.style.display = 'none';
-        tableBtn.classList.add('active');
-        cardsBtn.classList.remove('active');
-        localStorage.setItem('projetos_view', 'table');
-    } else {
-        tableView.style.display = 'none';
-        cardsView.style.display = 'block';
-        tableBtn.classList.remove('active');
-        cardsBtn.classList.add('active');
-        localStorage.setItem('projetos_view', 'cards');
-    }
-}
-
-// Restaurar visualização salva
-document.addEventListener('DOMContentLoaded', function() {
-    const savedView = localStorage.getItem('projetos_view') || 'table';
-    toggleView(savedView);
-});
-</script>
+<script src="{{ asset('js/projetos-lei.js') }}"></script>
 @endpush

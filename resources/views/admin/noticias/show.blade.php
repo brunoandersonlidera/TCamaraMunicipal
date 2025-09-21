@@ -303,41 +303,5 @@
 @endsection
 
 @push('styles')
-<style>
-.content-body {
-    line-height: 1.8;
-    font-size: 1.1rem;
-}
-
-.content-body p {
-    margin-bottom: 1.5rem;
-}
-
-code {
-    font-size: 0.8rem;
-    padding: 0.2rem 0.4rem;
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 0.25rem;
-}
-
-.badge {
-    font-size: 0.75em;
-}
-
-.img-fluid {
-    max-height: 400px;
-    width: 100%;
-    object-fit: cover;
-}
-
-.row .col-sm-4 {
-    font-weight: 600;
-    color: #495057;
-}
-
-.border-end {
-    border-right: 1px solid #dee2e6 !important;
-}
-</style>
+<link href="{{ asset('css/admin-styles.css') }}" rel="stylesheet">
 @endpush

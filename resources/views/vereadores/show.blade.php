@@ -2,6 +2,10 @@
 
 @section('title', $vereador->nome . ' - Vereadores - Câmara Municipal')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/public-styles.css') }}">
+@endpush
+
 @section('content')
 <!-- Hero Section -->
 <section class="hero-section">
@@ -192,106 +196,3 @@
     </div>
 </section>
 @endsection
-
-@push('styles')
-<style>
-    .vereador-profile-photo-container {
-        position: relative;
-        width: 200px;
-        height: 200px;
-        margin: 0 auto;
-    }
-
-    .vereador-profile-photo {
-        width: 200px;
-        height: 200px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 5px solid white;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-
-    .vereador-profile-photo-placeholder {
-        width: 200px;
-        height: 200px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 4rem;
-        border: 5px solid white;
-        backdrop-filter: blur(10px);
-    }
-
-    .presidente-badge-profile {
-        position: absolute;
-        top: -15px;
-        right: -15px;
-        background: linear-gradient(135deg, #fbbf24, #f59e0b);
-        color: white;
-        padding: 10px 15px;
-        border-radius: 25px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        animation: pulse 2s infinite;
-    }
-
-    .contact-item .contact-icon {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 15px;
-        font-size: 0.9rem;
-    }
-
-    .proposicao-item {
-        border-left: 4px solid var(--primary-color);
-        transition: all 0.3s ease;
-    }
-
-    .proposicao-item:hover {
-        background-color: #e3f2fd !important;
-        transform: translateX(5px);
-    }
-
-    .comissao-item .badge {
-        transition: all 0.3s ease;
-    }
-
-    .comissao-item .badge:hover {
-        transform: scale(1.02);
-        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    }
-
-    @media (max-width: 768px) {
-        .vereador-profile-photo-container,
-        .vereador-profile-photo,
-        .vereador-profile-photo-placeholder {
-            width: 150px;
-            height: 150px;
-        }
-        
-        .vereador-profile-photo-placeholder {
-            font-size: 3rem;
-        }
-        
-        .presidente-badge-profile {
-            top: -10px;
-            right: -10px;
-            padding: 8px 12px;
-            font-size: 0.7rem;
-        }
-    }
-</style>
-@endpush
