@@ -8,6 +8,16 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeSmoothScrolling();
     initializeScrollAnimations();
     initializeNavbarScroll();
+    initializeDropdowns();
+    
+    // Reinicializar dropdowns no redimensionamento da janela
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            initializeDropdowns();
+        }, 250);
+    });
 });
 
 /**
@@ -77,4 +87,85 @@ function initializeNavbarScroll() {
             }
         }
     });
+}
+
+/**
+ * Initialize Bootstrap dropdowns with hover functionality
+ */
+function initializeDropdowns() {
+    const dropdowns = document.querySelectorAll('.navbar-nav .dropdown');
+    
+    dropdowns.forEach(dropdown => {
+        const dropdownToggle = dropdown.querySelector('.dropdown-toggle');
+        const dropdownMenu = dropdown.querySelector('.dropdown-menu');
+        let hoverTimeout;
+        
+        // Desabilitar o comportamento padrão de clique do Bootstrap
+        if (dropdownToggle) {
+            dropdownToggle.removeAttribute('data-bs-toggle');
+            dropdownToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                return false;
+            });
+        }
+        
+        // Implementar hover para mostrar dropdown
+        dropdown.addEventListener('mouseenter', function() {
+            clearTimeout(hoverTimeout);
+            
+            // Fechar outros dropdowns abertos
+            dropdowns.forEach(otherDropdown => {
+                if (otherDropdown !== dropdown) {
+                    otherDropdown.classList.remove('show');
+                    const otherMenu = otherDropdown.querySelector('.dropdown-menu');
+                    if (otherMenu) {
+                        otherMenu.classList.remove('show');
+                    }
+                }
+            });
+            
+            // Mostrar dropdown atual
+            dropdown.classList.add('show');
+            if (dropdownMenu) {
+                dropdownMenu.classList.add('show');
+            }
+        });
+        
+        // Implementar hover para esconder dropdown com delay
+        dropdown.addEventListener('mouseleave', function() {
+            hoverTimeout = setTimeout(() => {
+                dropdown.classList.remove('show');
+                if (dropdownMenu) {
+                    dropdownMenu.classList.remove('show');
+                }
+            }, 150); // Pequeno delay para melhor UX
+        });
+        
+        // Manter dropdown aberto quando hover sobre o menu
+        if (dropdownMenu) {
+            dropdownMenu.addEventListener('mouseenter', function() {
+                clearTimeout(hoverTimeout);
+            });
+            
+            dropdownMenu.addEventListener('mouseleave', function() {
+                hoverTimeout = setTimeout(() => {
+                    dropdown.classList.remove('show');
+                    dropdownMenu.classList.remove('show');
+                }, 150);
+            });
+        }
+    });
+    
+    // Para dispositivos móveis, manter comportamento de clique
+    if (window.innerWidth <= 991.98) {
+        dropdowns.forEach(dropdown => {
+            const dropdownToggle = dropdown.querySelector('.dropdown-toggle');
+            if (dropdownToggle) {
+                dropdownToggle.setAttribute('data-bs-toggle', 'dropdown');
+                dropdownToggle.removeEventListener('click', function(e) {
+                    e.preventDefault();
+                });
+            }
+        });
+    }
 }

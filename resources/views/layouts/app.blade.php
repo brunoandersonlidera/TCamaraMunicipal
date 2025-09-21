@@ -45,7 +45,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     @php
-                        $menusHeader = \App\Models\Menu::header()->ativos()->ordenados()->get();
+                        $menusHeader = \App\Models\Menu::header()->ativos()->principais()->ordenados()->get();
                     @endphp
                     
                     @foreach($menusHeader as $menu)
@@ -54,7 +54,8 @@
                         @endif
                     @endforeach
                 </ul>
-                    
+                
+                <ul class="navbar-nav">
                     @auth
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -81,19 +82,6 @@
                                 </form>
                             </li>
                         </ul>
-                    </li>
-                    @else
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('login') }}">
-                            <i class="fas fa-sign-in-alt me-1"></i>
-                            Entrar
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('register') }}">
-                            <i class="fas fa-user-plus me-1"></i>
-                            Cadastrar
-                        </a>
                     </li>
                     @endauth
                 </ul>
@@ -175,13 +163,10 @@
     </footer>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JS -->
-    <script src="{{ asset('js/app-layout.js') }}"></script>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        
+        <!-- Custom JS -->
+        <script src="{{ asset('js/app-layout.js') }}"></script>
     
 
     

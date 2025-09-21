@@ -147,6 +147,13 @@
                         Usuários
                     </a>
                 </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.menus.index') }}" class="nav-link {{ request()->routeIs('admin.menus.*') ? 'active' : '' }}">
+                        <i class="fas fa-bars"></i>
+                        Menus
+                    </a>
+                </div>
             </div>
             
             <!-- Site -->

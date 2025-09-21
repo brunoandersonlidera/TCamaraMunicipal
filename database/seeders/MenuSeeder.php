@@ -91,7 +91,18 @@ class MenuSeeder extends Seeder
             'ativo' => true,
         ]);
 
-        // 3. Vereadores
+        // 3. Legislativo (Dropdown) - Agrupando Vereadores, Projetos e Sessões
+        $menuLegislativo = Menu::create([
+            'titulo' => 'Legislativo',
+            'slug' => 'legislativo',
+            'tipo' => 'dropdown',
+            'icone' => 'fas fa-university',
+            'posicao' => 'header',
+            'ordem' => 3,
+            'ativo' => true,
+        ]);
+
+        // Submenus do "Legislativo"
         Menu::create([
             'titulo' => 'Vereadores',
             'slug' => 'vereadores',
@@ -99,23 +110,23 @@ class MenuSeeder extends Seeder
             'rota' => 'vereadores.index',
             'icone' => 'fas fa-users',
             'posicao' => 'header',
-            'ordem' => 3,
+            'parent_id' => $menuLegislativo->id,
+            'ordem' => 1,
             'ativo' => true,
         ]);
 
-        // 4. Projetos de Lei
         Menu::create([
             'titulo' => 'Projetos de Lei',
             'slug' => 'projetos-lei',
             'tipo' => 'link',
             'url' => '#',
-            'icone' => 'fas fa-gavel',
+            'icone' => 'fas fa-file-alt',
             'posicao' => 'header',
-            'ordem' => 4,
+            'parent_id' => $menuLegislativo->id,
+            'ordem' => 2,
             'ativo' => true,
         ]);
 
-        // 5. Sessões
         Menu::create([
             'titulo' => 'Sessões',
             'slug' => 'sessoes',
@@ -123,30 +134,19 @@ class MenuSeeder extends Seeder
             'rota' => 'sessoes.index',
             'icone' => 'fas fa-calendar-alt',
             'posicao' => 'header',
-            'ordem' => 5,
+            'parent_id' => $menuLegislativo->id,
+            'ordem' => 3,
             'ativo' => true,
         ]);
 
-        // 6. Ouvidoria
-        Menu::create([
-            'titulo' => 'Ouvidoria',
-            'slug' => 'ouvidoria',
-            'tipo' => 'link',
-            'rota' => 'ouvidoria.index',
-            'icone' => 'fas fa-comments',
-            'posicao' => 'header',
-            'ordem' => 6,
-            'ativo' => true,
-        ]);
-
-        // 7. Transparência (Dropdown)
+        // 4. Transparência (Dropdown)
         $transparencia = Menu::create([
             'titulo' => 'Transparência',
             'slug' => 'transparencia',
             'tipo' => 'dropdown',
             'icone' => 'fas fa-eye',
             'posicao' => 'header',
-            'ordem' => 7,
+            'ordem' => 4,
             'ativo' => true,
         ]);
 
@@ -199,18 +199,60 @@ class MenuSeeder extends Seeder
             'ativo' => true,
         ]);
 
+        Menu::create([
+            'titulo' => 'Ouvidoria',
+            'slug' => 'ouvidoria',
+            'tipo' => 'link',
+            'rota' => 'ouvidoria.index',
+            'icone' => 'fas fa-comments',
+            'posicao' => 'header',
+            'parent_id' => $transparencia->id,
+            'ordem' => 5,
+            'ativo' => true,
+        ]);
 
-
-        // 8. Contato
+        // 5. Contato
         Menu::create([
             'titulo' => 'Contato',
             'slug' => 'contato',
             'tipo' => 'link',
-            'url' => '#',
+            'rota' => 'contato.index',
             'icone' => 'fas fa-envelope',
             'posicao' => 'header',
-            'ordem' => 8,
+            'ordem' => 5,
             'ativo' => true,
+        ]);
+
+        // 6. Entrar (Login)
+        Menu::create([
+            'titulo' => 'Entrar',
+            'slug' => 'entrar',
+            'tipo' => 'link',
+            'rota' => 'login',
+            'icone' => 'fas fa-sign-in-alt',
+            'posicao' => 'header',
+            'ordem' => 6,
+            'ativo' => true,
+            'configuracoes' => json_encode([
+                'visibilidade' => 'guest_only',
+                'classe_css' => 'nav-link-auth'
+            ]),
+        ]);
+
+        // 7. Cadastrar (Register)
+        Menu::create([
+            'titulo' => 'Cadastrar',
+            'slug' => 'cadastrar',
+            'tipo' => 'link',
+            'rota' => 'register',
+            'icone' => 'fas fa-user-plus',
+            'posicao' => 'header',
+            'ordem' => 7,
+            'ativo' => true,
+            'configuracoes' => json_encode([
+                'visibilidade' => 'guest_only',
+                'classe_css' => 'nav-link-auth'
+            ]),
         ]);
     }
 

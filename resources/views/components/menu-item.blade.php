@@ -33,7 +33,14 @@
         </li>
     @else
         <li class="nav-item">
-            <a class="nav-link" href="{{ $menu->getUrlCompleta() }}" 
+            @php
+                $configuracoes = $menu->configuracoes;
+                if (is_string($configuracoes)) {
+                    $configuracoes = json_decode($configuracoes, true);
+                }
+                $classeCSS = isset($configuracoes['classe_css']) ? $configuracoes['classe_css'] : '';
+            @endphp
+            <a class="nav-link {{ $classeCSS }}" href="{{ $menu->getUrlCompleta() }}" 
                @if($menu->nova_aba) target="_blank" @endif>
                 @if($menu->icone)
                     <i class="{{ $menu->icone }} me-1"></i>

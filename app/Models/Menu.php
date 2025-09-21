@@ -120,6 +120,27 @@ class Menu extends Model
             return false;
         }
 
+        // Verificar configurações de visibilidade
+        $configuracoes = $this->configuracoes;
+        if (is_string($configuracoes)) {
+            $configuracoes = json_decode($configuracoes, true);
+        }
+
+        // Se tem configuração de visibilidade
+        if (isset($configuracoes['visibilidade'])) {
+            switch ($configuracoes['visibilidade']) {
+                case 'guest_only':
+                    // Só exibe para usuários não autenticados
+                    return !auth()->check();
+                case 'auth_only':
+                    // Só exibe para usuários autenticados
+                    return auth()->check();
+                case 'admin_only':
+                    // Só exibe para administradores
+                    return auth()->check() && auth()->user()->is_admin;
+            }
+        }
+
         if ($this->permissao && auth()->check()) {
             return auth()->user()->can($this->permissao);
         }
