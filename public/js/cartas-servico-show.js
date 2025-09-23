@@ -226,6 +226,10 @@ function initScrollSpy() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             const id = entry.target.getAttribute('id');
+            
+            // Verifica se o ID não está vazio antes de usar no querySelector
+            if (!id || id.trim() === '') return;
+            
             const navLink = document.querySelector(`.nav-link[href="#${id}"]`);
             
             if (entry.isIntersecting) {

@@ -2,6 +2,15 @@
 
 @section('title', 'Câmara Municipal - Início')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/public-styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
+@endpush
+
+@push('scripts')
+    <script src="{{ asset('js/welcome.js') }}"></script>
+@endpush
+
 @section('content')
 <!-- Hero Section -->
 <section class="hero-section">
@@ -43,79 +52,68 @@
             <p class="text-muted">Encontre rapidamente o que você precisa</p>
         </div>
         
-        <div class="row g-4">
-            <div class="col-lg-3 col-md-6">
-                <div class="card card-custom h-100 text-center p-4">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <i class="fas fa-users text-primary" style="font-size: 3rem;"></i>
-                        </div>
-                        <h5 class="card-title">Vereadores</h5>
-                        <p class="card-text text-muted">
-                            Conheça os representantes eleitos e suas proposições
-                        </p>
-                        <a href="{{ route('vereadores.index') }}" class="btn btn-outline-primary">
-                            <i class="fas fa-arrow-right me-1"></i>
-                            Ver Vereadores
+        @if($acessosRapidos->count() > 0)
+            <div class="row g-3 justify-content-center">
+                @foreach($acessosRapidos as $acesso)
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                        <a href="{{ $acesso->getUrlFormatada() }}" 
+                           class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
+                           target="{{ $acesso->getTarget() }}"
+                           data-bg-color="{{ $acesso->cor_botao ?? '#007bff' }}"
+                           data-text-color="{{ $acesso->cor_fonte ?? '#ffffff' }}">
+                            <i class="{{ $acesso->icone ?? 'fas fa-link' }} mb-2 acesso-rapido-icon"></i>
+                            <span class="fw-bold text-center acesso-rapido-title">{{ $acesso->nome }}</span>
+                            @if($acesso->descricao)
+                                <small class="text-center mt-1 opacity-75 acesso-rapido-desc">{{ Str::limit($acesso->descricao, 30) }}</small>
+                            @endif
                         </a>
                     </div>
+                @endforeach
+            </div>
+        @else
+            <!-- Fallback para quando não há acessos rápidos cadastrados -->
+            <div class="row g-3 justify-content-center">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                    <a href="{{ route('vereadores.index') }}" 
+                       class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
+                       style="background-color: #007bff; color: white; border: 2px solid #007bff;">
+                        <i class="fas fa-users mb-2" style="font-size: 2.5rem;"></i>
+                        <span class="fw-bold text-center" style="font-size: 0.9rem; line-height: 1.2;">Vereadores</span>
+                        <small class="text-center mt-1 opacity-75" style="font-size: 0.75rem;">Representantes eleitos</small>
+                    </a>
+                </div>
+                
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                    <a href="#" 
+                       class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
+                       style="background-color: #28a745; color: white; border: 2px solid #28a745;">
+                        <i class="fas fa-gavel mb-2" style="font-size: 2.5rem;"></i>
+                        <span class="fw-bold text-center" style="font-size: 0.9rem; line-height: 1.2;">Projetos de Lei</span>
+                        <small class="text-center mt-1 opacity-75" style="font-size: 0.75rem;">Em tramitação</small>
+                    </a>
+                </div>
+                
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                    <a href="#" 
+                       class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
+                       style="background-color: #dc3545; color: white; border: 2px solid #dc3545;">
+                        <i class="fas fa-calendar-alt mb-2" style="font-size: 2.5rem;"></i>
+                        <span class="fw-bold text-center" style="font-size: 0.9rem; line-height: 1.2;">Sessões</span>
+                        <small class="text-center mt-1 opacity-75" style="font-size: 0.75rem;">Calendário e atas</small>
+                    </a>
+                </div>
+                
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                    <a href="#" 
+                       class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
+                       style="background-color: #6f42c1; color: white; border: 2px solid #6f42c1;">
+                        <i class="fas fa-eye mb-2" style="font-size: 2.5rem;"></i>
+                        <span class="fw-bold text-center" style="font-size: 0.9rem; line-height: 1.2;">Transparência</span>
+                        <small class="text-center mt-1 opacity-75" style="font-size: 0.75rem;">Portal da transparência</small>
+                    </a>
                 </div>
             </div>
-            
-            <div class="col-lg-3 col-md-6">
-                <div class="card card-custom h-100 text-center p-4">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <i class="fas fa-gavel text-primary" style="font-size: 3rem;"></i>
-                        </div>
-                        <h5 class="card-title">Projetos de Lei</h5>
-                        <p class="card-text text-muted">
-                            Acompanhe os projetos em tramitação na Câmara
-                        </p>
-                        <a href="#" class="btn btn-outline-primary">
-                            <i class="fas fa-arrow-right me-1"></i>
-                            Ver Projetos
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6">
-                <div class="card card-custom h-100 text-center p-4">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <i class="fas fa-calendar-alt text-primary" style="font-size: 3rem;"></i>
-                        </div>
-                        <h5 class="card-title">Sessões</h5>
-                        <p class="card-text text-muted">
-                            Calendário e atas das sessões plenárias
-                        </p>
-                        <a href="#" class="btn btn-outline-primary">
-                            <i class="fas fa-arrow-right me-1"></i>
-                            Ver Sessões
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6">
-                <div class="card card-custom h-100 text-center p-4">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <i class="fas fa-eye text-primary" style="font-size: 3rem;"></i>
-                        </div>
-                        <h5 class="card-title">Transparência</h5>
-                        <p class="card-text text-muted">
-                            Portal da transparência e acesso à informação
-                        </p>
-                        <a href="#" class="btn btn-outline-primary">
-                            <i class="fas fa-arrow-right me-1"></i>
-                            Acessar Portal
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @endif
     </div>
 </section>
 
@@ -637,6 +635,25 @@
                                 <small class="text-muted">Integração com Google Maps</small>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Widget de Clima -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <h3 class="fw-bold mb-3 text-primary text-center">Previsão do Tempo</h3>
+                <div class="d-flex justify-content-center">
+                    <div style="width: 100%; max-width: 100%; overflow: hidden;">
+                        <a class="weatherwidget-io" href="https://forecast7.com/pt/-23d55-46d64/sao-paulo/" data-label_1="SÃO PAULO" data-label_2="BRASIL" data-mode="Forecast" data-theme="pure" data-accent="#007bff" data-textcolor="#333333" data-suncolor="#FFA500" data-cloudcolor="#d4edda" data-cloudanimate="true" data-days="5">SÃO PAULO BRASIL</a>
+                        <script>
+                        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+                        </script>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,59 @@
 /* ===== ESTILOS PARA PÁGINAS PÚBLICAS ===== */
 
+/* Botões de Acesso Rápido */
+.btn-acesso-rapido {
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    min-height: 120px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-acesso-rapido:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    text-decoration: none;
+}
+
+.btn-acesso-rapido:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.btn-acesso-rapido::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.btn-acesso-rapido:hover::before {
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .btn-acesso-rapido {
+        min-height: 100px;
+    }
+    
+    .btn-acesso-rapido i {
+        font-size: 2rem !important;
+    }
+    
+    .btn-acesso-rapido span {
+        font-size: 0.8rem !important;
+    }
+    
+    .btn-acesso-rapido small {
+        font-size: 0.7rem !important;
+    }
+}
+
 /* Cartas de Serviço */
 .hero-section {
     background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
@@ -144,6 +198,8 @@
     flex: 1;
     text-align: center;
 }
+
+
 
 .btn-view:hover {
     transform: translateY(-2px);

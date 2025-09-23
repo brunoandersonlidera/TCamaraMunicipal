@@ -468,4 +468,44 @@ class Sessao extends Model
             'link_gravacao.url' => 'O link de gravação deve ser uma URL válida.'
         ];
     }
+
+    // Métodos de busca
+    public static function search($query)
+    {
+        return self::where(function ($q) use ($query) {
+                $q->where('tipo', 'LIKE', "%{$query}%")
+                  ->orWhere('observacoes', 'LIKE', "%{$query}%")
+                  ->orWhere('legislatura', 'LIKE', "%{$query}%")
+                  ->orWhere('descricao_video', 'LIKE', "%{$query}%")
+                  ->orWhereRaw("CONCAT(numero_sessao, '/', YEAR(data_sessao)) LIKE ?", ["%{$query}%"]);
+            })
+            ->orderBy('data_sessao', 'desc');
+    }
+
+    public function getSearchableContent()
+    {
+        return [
+            'numero_ano' => $this->numero_sessao . '/' . $this->data_sessao->year,
+            'tipo' => $this->tipo,
+            'status' => $this->status,
+            'legislatura' => $this->legislatura,
+            'observacoes' => $this->observacoes,
+            'descricao_video' => $this->descricao_video,
+        ];
+    }
+
+    public function getSearchUrl()
+    {
+        return route('sessoes.show', $this->id);
+    }
+
+    public function getSearchType()
+    {
+        return 'Sessão';
+    }
+
+    public function getSearchDate()
+    {
+        return $this->data_sessao;
+    }
 }

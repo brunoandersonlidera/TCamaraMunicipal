@@ -321,7 +321,7 @@
                                 Serviços Relacionados
                             </h5>
                             <div class="related-services">
-                                <a href="{{ route('esic.index') }}" class="related-service-item">
+                                <a href="{{ route('esic.public') }}" class="related-service-item">
                                     <i class="fas fa-info-circle"></i>
                                     <span>E-SIC - Acesso à Informação</span>
                                 </a>

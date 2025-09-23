@@ -321,7 +321,7 @@ class MenuSeeder extends Seeder
             'titulo' => 'e-SIC',
             'slug' => 'footer-esic',
             'tipo' => 'link',
-            'rota' => 'esic.index',
+            'rota' => 'esic.public',
             'posicao' => 'footer',
             'ordem' => 12,
             'ativo' => true,

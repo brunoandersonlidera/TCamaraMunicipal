@@ -240,6 +240,46 @@ class Noticia extends Model
         ];
     }
 
+    // Métodos de busca
+    public static function search($query)
+    {
+        return self::where('status', 'publicada')
+            ->where(function ($q) use ($query) {
+                $q->where('titulo', 'LIKE', "%{$query}%")
+                  ->orWhere('resumo', 'LIKE', "%{$query}%")
+                  ->orWhere('conteudo', 'LIKE', "%{$query}%")
+                  ->orWhere('categoria', 'LIKE', "%{$query}%")
+                  ->orWhere('meta_keywords', 'LIKE', "%{$query}%");
+            })
+            ->orderBy('data_publicacao', 'desc');
+    }
+
+    public function getSearchableContent()
+    {
+        return [
+            'titulo' => $this->titulo,
+            'resumo' => $this->resumo,
+            'conteudo' => strip_tags($this->conteudo),
+            'categoria' => $this->categoria,
+            'tags' => is_array($this->tags) ? implode(' ', $this->tags) : '',
+        ];
+    }
+
+    public function getSearchUrl()
+    {
+        return route('noticias.show', $this->slug);
+    }
+
+    public function getSearchType()
+    {
+        return 'Notícia';
+    }
+
+    public function getSearchDate()
+    {
+        return $this->data_publicacao;
+    }
+
     // Boot method para auto-gerar slug
     protected static function boot()
     {

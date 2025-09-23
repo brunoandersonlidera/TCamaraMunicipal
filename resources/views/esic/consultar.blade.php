@@ -564,7 +564,7 @@
 
                 <!-- Ações -->
                 <div class="text-center mt-4">
-                    <a href="{{ route('esic.index') }}" class="btn btn-secondary me-3">
+                    <a href="{{ route('esic.public') }}" class="btn btn-secondary me-3">
                         <i class="fas fa-arrow-left me-2"></i>Nova Consulta
                     </a>
                     
@@ -587,7 +587,7 @@
                 </div>
                 
                 <div class="text-center">
-                    <a href="{{ route('esic.index') }}" class="btn btn-primary">
+                    <a href="{{ route('esic.public') }}" class="btn btn-primary">
                         <i class="fas fa-plus me-2"></i>Fazer Nova Solicitação
                     </a>
                 </div>
@@ -604,7 +604,7 @@
                 </div>
                 
                 <div class="text-center">
-                    <a href="{{ route('esic.index') }}" class="btn btn-primary">
+                    <a href="{{ route('esic.public') }}" class="btn btn-primary">
                         <i class="fas fa-plus me-2"></i>Fazer Nova Solicitação
                     </a>
                 </div>

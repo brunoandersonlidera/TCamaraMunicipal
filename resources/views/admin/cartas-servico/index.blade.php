@@ -57,19 +57,19 @@
         <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Filtros</h5>
         
         <form method="GET" action="{{ route('admin.cartas-servico.index') }}" id="filterForm">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label for="search" class="form-label">Buscar</label>
-                    <div class="search-box">
-                        <input type="text" class="form-control" id="search" name="search" 
+            <div class="filters-inline-row">
+                <div class="filter-group-inline">
+                    <label for="search" class="form-label-small">Buscar</label>
+                    <div class="search-box-small">
+                        <input type="text" class="form-control form-control-sm" id="search" name="search" 
                                value="{{ request('search') }}" placeholder="Nome do serviço, descrição...">
                         <i class="fas fa-search"></i>
                     </div>
                 </div>
                 
-                <div class="filter-group">
-                    <label for="categoria" class="form-label">Categoria</label>
-                    <select class="form-select" id="categoria" name="categoria">
+                <div class="filter-group-inline">
+                    <label for="categoria" class="form-label-small">Categoria</label>
+                    <select class="form-select form-select-sm" id="categoria" name="categoria">
                         <option value="">Todas as categorias</option>
                         <option value="legislativo" {{ request('categoria') == 'legislativo' ? 'selected' : '' }}>Legislativo</option>
                         <option value="administrativo" {{ request('categoria') == 'administrativo' ? 'selected' : '' }}>Administrativo</option>
@@ -79,9 +79,9 @@
                     </select>
                 </div>
                 
-                <div class="filter-group">
-                    <label for="status" class="form-label">Status</label>
-                    <select class="form-select" id="status" name="status">
+                <div class="filter-group-inline">
+                    <label for="status" class="form-label-small">Status</label>
+                    <select class="form-select form-select-sm" id="status" name="status">
                         <option value="">Todos os status</option>
                         <option value="ativo" {{ request('status') == 'ativo' ? 'selected' : '' }}>Ativo</option>
                         <option value="inativo" {{ request('status') == 'inativo' ? 'selected' : '' }}>Inativo</option>
@@ -89,13 +89,13 @@
                     </select>
                 </div>
                 
-                <div class="filter-group">
-                    <label class="form-label">&nbsp;</label>
+                <div class="filter-group-inline filter-actions">
+                    <label class="form-label-small">&nbsp;</label>
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary btn-sm">
                             <i class="fas fa-search me-1"></i>Filtrar
                         </button>
-                        <a href="{{ route('admin.cartas-servico.index') }}" class="btn btn-outline-secondary">
+                        <a href="{{ route('admin.cartas-servico.index') }}" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-times me-1"></i>Limpar
                         </a>
                     </div>

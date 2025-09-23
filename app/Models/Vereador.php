@@ -208,4 +208,44 @@ class Vereador extends Model
             'status.in' => 'O status deve ser: ativo, inativo, licenciado ou afastado.'
         ];
     }
+
+    // Métodos de busca
+    public static function search($query)
+    {
+        return self::where('status', 'ativo')
+            ->where(function ($q) use ($query) {
+                $q->where('nome', 'LIKE', "%{$query}%")
+                  ->orWhere('nome_parlamentar', 'LIKE', "%{$query}%")
+                  ->orWhere('partido', 'LIKE', "%{$query}%")
+                  ->orWhere('profissao', 'LIKE', "%{$query}%")
+                  ->orWhere('biografia', 'LIKE', "%{$query}%");
+            })
+            ->orderBy('nome');
+    }
+
+    public function getSearchableContent()
+    {
+        return [
+            'nome' => $this->nome,
+            'nome_parlamentar' => $this->nome_parlamentar,
+            'partido' => $this->partido,
+            'profissao' => $this->profissao,
+            'biografia' => strip_tags($this->biografia),
+        ];
+    }
+
+    public function getSearchUrl()
+    {
+        return route('vereadores.show', $this->id);
+    }
+
+    public function getSearchType()
+    {
+        return 'Vereador';
+    }
+
+    public function getSearchDate()
+    {
+        return $this->inicio_mandato;
+    }
 }

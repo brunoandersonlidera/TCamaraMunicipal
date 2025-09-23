@@ -1,0 +1,178 @@
+/* Portal da Transparência - Estilos */
+
+/* Header do Portal */
+.portal-header {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+/* Cards de Estatísticas */
+.stats-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stats-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* Menu de Navegação Rápida */
+.nav-quick-access .btn {
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    padding: 1.5rem;
+    min-height: 120px;
+}
+
+.nav-quick-access .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.nav-quick-access .btn i {
+    transition: transform 0.3s ease;
+}
+
+.nav-quick-access .btn:hover i {
+    transform: scale(1.1);
+}
+
+/* Gráfico Container */
+.chart-container {
+    position: relative;
+    height: 400px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Licitações Recentes */
+.licitacoes-recentes .list-group-item {
+    border: none;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.licitacoes-recentes .list-group-item:hover {
+    border-left-color: #007bff;
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.badge-status {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+}
+
+/* Informações Legais */
+.info-legal {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    border-left: 5px solid #28a745;
+}
+
+.info-legal .card-header {
+    background: transparent;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .portal-header h1 {
+        font-size: 2rem;
+    }
+    
+    .stats-card {
+        margin-bottom: 1rem;
+    }
+    
+    .nav-quick-access .btn {
+        min-height: 100px;
+        padding: 1rem;
+    }
+    
+    .chart-container {
+        height: 300px;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .portal-header {
+        padding: 2rem 1rem;
+    }
+    
+    .portal-header h1 {
+        font-size: 1.75rem;
+    }
+    
+    .stats-icon {
+        font-size: 2.5rem;
+    }
+    
+    .nav-quick-access .btn {
+        min-height: 80px;
+        padding: 0.75rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+        padding: 10px;
+    }
+}
+
+/* Animações */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Cores personalizadas */
+.text-receita {
+    color: #28a745 !important;
+}
+
+.text-despesa {
+    color: #dc3545 !important;
+}
+
+.text-licitacao {
+    color: #17a2b8 !important;
+}
+
+.text-servidor {
+    color: #ffc107 !important;
+}
+
+/* Botões personalizados */
+.btn-transparencia {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-transparencia:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+}

@@ -13,3 +13,305 @@
     --text-muted: #6b7280;
     --border-color: #e5e7eb;
 }
+
+/* Timeline de Movimentações */
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e5e7eb;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -25px;
+    top: 5px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-marker i {
+    font-size: 8px;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 15px;
+    margin-left: 10px;
+}
+
+.timeline-content h6 {
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.timeline-content .text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* Botão e-SIC Fixo */
+.btn-esic-container {
+    position: fixed;
+    top: 80px; /* Abaixo da navbar */
+    right: 20px; /* Lado direito */
+    z-index: 1000;
+}
+
+.btn-esic {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: linear-gradient(135deg, #00a651 0%, #00d463 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 25px;
+    width: 320px;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 166, 81, 0.3);
+}
+
+.btn-esic:hover {
+    background: linear-gradient(135deg, #008a44 0%, #00c157 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 166, 81, 0.4);
+    text-decoration: none;
+    color: white;
+}
+
+/* Balão */
+.balloon {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    background-color: #fec20c; /* amarelo */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #00a651; /* verde do "i" */
+    flex-shrink: 0;
+}
+
+.balloon::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 15px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid #fec20c; /* mesma cor do balão */
+}
+
+/* Texto ao lado */
+.text {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.text h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+}
+
+.text p {
+    margin: 2px 0 0;
+    font-size: 11px;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
+
+/* Responsividade para o botão e-SIC */
+@media (max-width: 768px) {
+    .btn-esic-container {
+        position: fixed;
+        top: 80px;
+        right: 10px;
+        left: auto;
+    }
+    
+    .btn-esic {
+        width: 280px;
+        padding: 10px 20px;
+        gap: 12px;
+    }
+    
+    .text h1 {
+        font-size: 20px;
+    }
+    
+    .text p {
+        font-size: 10px;
+    }
+    
+    .balloon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-esic-container {
+        right: 5px;
+    }
+    
+    .btn-esic {
+        width: 240px;
+        padding: 8px 15px;
+        gap: 10px;
+    }
+    
+    .text h1 {
+        font-size: 18px;
+    }
+    
+    .text p {
+        font-size: 9px;
+    }
+    
+    .balloon {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
+}
+
+/* Estilos para Acesso Rápido Dinâmico */
+.acesso-rapido-dinamico {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.acesso-rapido-dinamico::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.6s;
+}
+
+.acesso-rapido-dinamico:hover::before {
+    left: 100%;
+}
+
+.acesso-rapido-dinamico:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    border-color: rgba(255,255,255,0.3);
+}
+
+.acesso-rapido-dinamico .card-body {
+    position: relative;
+    z-index: 1;
+}
+
+.acesso-rapido-dinamico .icon-container {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    font-size: 24px;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.acesso-rapido-dinamico:hover .icon-container {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.acesso-rapido-dinamico h5 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.acesso-rapido-dinamico p {
+    color: rgba(255,255,255,0.9);
+    font-size: 14px;
+    line-height: 1.4;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Responsividade para acesso rápido */
+@media (max-width: 768px) {
+    .acesso-rapido-dinamico .icon-container {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+    
+    .acesso-rapido-dinamico h5 {
+        font-size: 16px;
+    }
+    
+    .acesso-rapido-dinamico p {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 576px) {
+    .acesso-rapido-dinamico .icon-container {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+    
+    .acesso-rapido-dinamico h5 {
+        font-size: 15px;
+    }
+    
+    .acesso-rapido-dinamico p {
+        font-size: 12px;
+    }
+}

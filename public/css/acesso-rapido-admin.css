@@ -1,0 +1,130 @@
+/* Estilos para página de administração de Acesso Rápido */
+
+/* Ícones de acesso */
+.acesso-icon {
+    font-size: 1.5rem;
+}
+
+/* Handle de arrastar */
+.drag-handle {
+    cursor: move !important;
+}
+
+/* Ícone do estado vazio */
+.empty-state-icon {
+    font-size: 4rem;
+}
+
+/* Preview de cores */
+.color-preview {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.color-preview:hover {
+    transform: scale(1.1);
+    border-color: #007bff;
+}
+
+/* Tabela sortable */
+#sortable-table tr {
+    cursor: move;
+    transition: background-color 0.2s ease;
+}
+
+#sortable-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+#sortable-table tr.sortable-ghost {
+    opacity: 0.4;
+}
+
+#sortable-table tr.sortable-chosen {
+    background-color: #e3f2fd;
+}
+
+/* Handle de arrastar */
+.fa-grip-vertical {
+    cursor: move !important;
+    color: #6c757d;
+    transition: color 0.2s ease;
+}
+
+.fa-grip-vertical:hover {
+    color: #007bff;
+}
+
+/* Cabeçalho da tabela */
+.table th {
+    border-top: none;
+    background-color: #343a40;
+    color: white;
+    font-weight: 600;
+}
+
+/* Ícones na tabela */
+.table td i {
+    transition: color 0.2s ease;
+}
+
+/* Badges de ordem */
+.badge {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+}
+
+/* Botões de ação */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Estado vazio */
+.text-center.py-5 i {
+    opacity: 0.5;
+    margin-bottom: 1rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .color-preview {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .btn-sm {
+        padding: 0.125rem 0.25rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Animações para feedback visual */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.table tr.updated {
+    animation: pulse 0.5s ease-in-out;
+}
+
+/* Melhorias de acessibilidade */
+.table tr:focus-within {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Estilos para formulários inline */
+form[style*="display: inline"] {
+    display: inline-block !important;
+}

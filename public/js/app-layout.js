@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeScrollAnimations();
     initializeNavbarScroll();
     initializeDropdowns();
+    initializeMobileAccordion();
     
     // Reinicializar dropdowns no redimensionamento da janela
     let resizeTimeout;
@@ -16,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             initializeDropdowns();
+            initializeMobileAccordion();
         }, 250);
     });
 });
@@ -165,6 +167,125 @@ function initializeDropdowns() {
                 dropdownToggle.removeEventListener('click', function(e) {
                     e.preventDefault();
                 });
+            }
+        });
+    }
+}
+
+/**
+ * Inicializar funcionalidade do acordeão mobile
+ */
+function initializeMobileAccordion() {
+    // Só executar em dispositivos móveis
+    if (window.innerWidth > 991.98) {
+        return;
+    }
+    
+    const accordionButtons = document.querySelectorAll('.mobile-accordion-button');
+    
+    accordionButtons.forEach(button => {
+        // Remover listeners existentes para evitar duplicação
+        button.removeEventListener('click', handleAccordionClick);
+        
+        // Adicionar listener para clique
+        button.addEventListener('click', handleAccordionClick);
+        
+        // Melhorar acessibilidade com teclado
+        button.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleAccordionClick.call(this, e);
+            }
+        });
+    });
+    
+    // Fechar outros acordeões quando um for aberto (comportamento de acordeão)
+    function handleAccordionClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const button = this;
+        const targetId = button.getAttribute('data-bs-target');
+        const targetCollapse = document.querySelector(targetId);
+        const isExpanded = button.getAttribute('aria-expanded') === 'true';
+        
+        // Fechar todos os outros acordeões
+        const allButtons = document.querySelectorAll('.mobile-accordion-button');
+        const allCollapses = document.querySelectorAll('.mobile-accordion-collapse');
+        
+        allButtons.forEach(btn => {
+            if (btn !== button) {
+                btn.setAttribute('aria-expanded', 'false');
+                btn.classList.remove('active');
+            }
+        });
+        
+        allCollapses.forEach(collapse => {
+            if (collapse !== targetCollapse) {
+                collapse.classList.remove('show');
+            }
+        });
+        
+        // Toggle do acordeão atual
+        if (isExpanded) {
+            // Fechar
+            button.setAttribute('aria-expanded', 'false');
+            button.classList.remove('active');
+            targetCollapse.classList.remove('show');
+        } else {
+            // Abrir
+            button.setAttribute('aria-expanded', 'true');
+            button.classList.add('active');
+            targetCollapse.classList.add('show');
+        }
+        
+        // Adicionar animação suave
+        if (targetCollapse) {
+            targetCollapse.style.transition = 'all 0.3s ease';
+        }
+    }
+    
+    // Fechar acordeão quando clicar fora
+    document.addEventListener('click', function(e) {
+        const isAccordionClick = e.target.closest('.mobile-accordion-item');
+        
+        if (!isAccordionClick) {
+            // Fechar todos os acordeões
+            const allButtons = document.querySelectorAll('.mobile-accordion-button');
+            const allCollapses = document.querySelectorAll('.mobile-accordion-collapse');
+            
+            allButtons.forEach(btn => {
+                btn.setAttribute('aria-expanded', 'false');
+                btn.classList.remove('active');
+            });
+            
+            allCollapses.forEach(collapse => {
+                collapse.classList.remove('show');
+            });
+        }
+    });
+    
+    // Fechar acordeão quando o menu principal for fechado
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    const navbarCollapse = document.querySelector('.navbar-collapse');
+    
+    if (navbarToggler && navbarCollapse) {
+        navbarToggler.addEventListener('click', function() {
+            // Se o menu está sendo fechado, fechar todos os acordeões
+            if (navbarCollapse.classList.contains('show')) {
+                setTimeout(() => {
+                    const allButtons = document.querySelectorAll('.mobile-accordion-button');
+                    const allCollapses = document.querySelectorAll('.mobile-accordion-collapse');
+                    
+                    allButtons.forEach(btn => {
+                        btn.setAttribute('aria-expanded', 'false');
+                        btn.classList.remove('active');
+                    });
+                    
+                    allCollapses.forEach(collapse => {
+                        collapse.classList.remove('show');
+                    });
+                }, 100);
             }
         });
     }

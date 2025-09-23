@@ -486,4 +486,46 @@ class Documento extends Model
             'slug.unique' => 'Este slug já está em uso.'
         ];
     }
+
+    // Métodos de busca
+    public static function search($query)
+    {
+        return self::where('publico', true)
+            ->where(function ($q) use ($query) {
+                $q->where('titulo', 'LIKE', "%{$query}%")
+                  ->orWhere('descricao', 'LIKE', "%{$query}%")
+                  ->orWhere('tipo', 'LIKE', "%{$query}%")
+                  ->orWhere('categoria', 'LIKE', "%{$query}%")
+                  ->orWhere('arquivo_nome', 'LIKE', "%{$query}%")
+                  ->orWhereRaw("CONCAT(numero_documento, '/', ano_documento) LIKE ?", ["%{$query}%"]);
+            })
+            ->orderBy('data_documento', 'desc');
+    }
+
+    public function getSearchableContent()
+    {
+        return [
+            'titulo' => $this->titulo,
+            'descricao' => $this->descricao,
+            'tipo' => $this->tipo,
+            'categoria' => $this->categoria,
+            'numero_ano' => $this->numero_documento . '/' . $this->ano_documento,
+            'tags' => is_array($this->tags) ? implode(' ', $this->tags) : '',
+        ];
+    }
+
+    public function getSearchUrl()
+    {
+        return route('documentos.show', $this->slug ?: $this->id);
+    }
+
+    public function getSearchType()
+    {
+        return 'Documento';
+    }
+
+    public function getSearchDate()
+    {
+        return $this->data_documento;
+    }
 }

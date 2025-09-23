@@ -7,9 +7,12 @@ use App\Http\Controllers\UserAreaController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\OuvidoriaController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TransparenciaController;
+use App\Http\Controllers\SearchController;
 use App\Models\Vereador;
 use App\Models\User;
 use App\Models\Sessao;
+use App\Models\AcessoRapido;
 
 Route::get('/', function () {
     // Buscar presidente e vereadores para a página inicial
@@ -55,8 +58,11 @@ Route::get('/', function () {
     $projetos = 45; // Valor padrão até implementar tabela de projetos
     $sessoes = Sessao::realizadas()->count();
     $leis = 12;     // Valor padrão até implementar tabela de leis
+    
+    // Buscar acessos rápidos ativos para a página inicial
+    $acessosRapidos = AcessoRapido::ativos()->ordenados()->get();
         
-    return view('welcome', compact('presidente', 'vereadores', 'totalVereadores', 'projetos', 'sessoes', 'leis', 'sessoesGravadas', 'sessaoAoVivo', 'sessaoDestaque'));
+    return view('welcome', compact('presidente', 'vereadores', 'totalVereadores', 'projetos', 'sessoes', 'leis', 'sessoesGravadas', 'sessaoAoVivo', 'sessaoDestaque', 'acessosRapidos'));
 })->name('home');
 
 // Rotas de Autenticação
@@ -132,15 +138,23 @@ Route::post('/ouvidoria/manifestacao', [OuvidoriaController::class, 'store'])->n
 Route::get('/ouvidoria/consultar', [OuvidoriaController::class, 'consultar'])->name('ouvidoria.consultar');
 Route::post('/ouvidoria/avaliar/{protocolo}', [OuvidoriaController::class, 'avaliar'])->name('ouvidoria.avaliar');
 
-// Rotas do E-SIC (públicas)
-Route::get('/esic', [App\Http\Controllers\EsicController::class, 'index'])->name('esic.index');
-Route::get('/esic/nova-solicitacao', [App\Http\Controllers\EsicController::class, 'create'])->name('esic.create');
-Route::post('/esic/solicitacao', [App\Http\Controllers\EsicController::class, 'store'])->name('esic.store');
-Route::get('/esic/consultar', [App\Http\Controllers\EsicController::class, 'consultar'])->name('esic.consultar');
-Route::post('/esic/consultar', [App\Http\Controllers\EsicController::class, 'consultar'])->name('esic.consultar.post');
-Route::get('/esic/solicitacao/{protocolo}', [App\Http\Controllers\EsicController::class, 'show'])->name('esic.show');
+// Rotas ESIC (Sistema Eletrônico de Informações ao Cidadão)
+// Área pública - sem autenticação
+Route::get('/esic', [App\Http\Controllers\EsicController::class, 'publicIndex'])->name('esic.public');
 Route::get('/esic/sobre', [App\Http\Controllers\EsicController::class, 'sobre'])->name('esic.sobre');
 Route::get('/esic/faq', [App\Http\Controllers\EsicController::class, 'faq'])->name('esic.faq');
+Route::get('/esic/estatisticas', [App\Http\Controllers\EsicController::class, 'estatisticas'])->name('esic.estatisticas');
+
+// Área do usuário - com autenticação
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/esic/dashboard', [App\Http\Controllers\EsicController::class, 'dashboard'])->name('esic.dashboard');
+    Route::get('/esic/nova-solicitacao', [App\Http\Controllers\EsicController::class, 'create'])->name('esic.create');
+    Route::post('/esic/solicitacao', [App\Http\Controllers\EsicController::class, 'store'])->name('esic.store');
+    Route::get('/esic/minhas-solicitacoes', [App\Http\Controllers\EsicController::class, 'minhasSolicitacoes'])->name('esic.minhas');
+    Route::get('/esic/solicitacao/{protocolo}', [App\Http\Controllers\EsicController::class, 'show'])->name('esic.show');
+    Route::get('/esic/consultar', [App\Http\Controllers\EsicController::class, 'consultar'])->name('esic.consultar');
+    Route::post('/esic/consultar', [App\Http\Controllers\EsicController::class, 'consultar'])->name('esic.consultar.post');
+});
 
 // Rotas para Cartas de Serviço
 Route::get('/cartas-servico', [App\Http\Controllers\CartaServicoController::class, 'indexPublico'])->name('cartas-servico.index');
@@ -159,7 +173,29 @@ Route::get('/sessoes/{sessao}/pauta/download', [SessaoController::class, 'downlo
 Route::get('/sessoes/calendario', [SessaoController::class, 'calendario'])->name('sessoes.calendario');
 Route::get('/ao-vivo', [SessaoController::class, 'aoVivo'])->name('sessoes.ao-vivo');
 
-// Rotas Administrativas (protegidas por middleware admin)
+// Rotas do Portal da Transparência (públicas)
+Route::prefix('transparencia')->name('transparencia.')->group(function () {
+    Route::get('/', [TransparenciaController::class, 'index'])->name('index');
+    Route::get('/receitas', [TransparenciaController::class, 'receitas'])->name('receitas');
+    Route::get('/despesas', [TransparenciaController::class, 'despesas'])->name('despesas');
+    Route::get('/licitacoes', [TransparenciaController::class, 'licitacoes'])->name('licitacoes');
+    Route::get('/licitacoes/{licitacao}', [TransparenciaController::class, 'showLicitacao'])->name('licitacoes.show');
+    Route::get('/licitacoes/{licitacao}/documento/{documento}/download', [LicitacaoDocumentoController::class, 'download'])->name('licitacoes.documento.download');
+    Route::get('/folha-pagamento', [TransparenciaController::class, 'folhaPagamento'])->name('folha-pagamento');
+    Route::get('/exportar/{tipo}', [TransparenciaController::class, 'exportar'])->name('exportar');
+    Route::get('/api/evolucao-mensal', [TransparenciaController::class, 'evolucaoMensalJson'])->name('api.evolucao-mensal');
+});
+
+// Rotas públicas para documentos de licitações
+Route::get('/licitacao/{licitacao}/documentos', [App\Http\Controllers\LicitacaoDocumentoController::class, 'listar'])->name('licitacao.documentos');
+Route::get('/licitacao/documento/{documento}/download', [App\Http\Controllers\LicitacaoDocumentoController::class, 'download'])->name('licitacao.documento.download');
+Route::get('/licitacao/documento/{documento}/visualizar', [App\Http\Controllers\LicitacaoDocumentoController::class, 'visualizar'])->name('licitacao.documento.visualizar');
+
+// Rotas de Busca
+Route::get('/busca', [SearchController::class, 'search'])->name('search');
+Route::get('/api/busca', [SearchController::class, 'api'])->name('search.api');
+
+// Rotas administrativas (protegidas por middleware de admin)
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('admin.dashboard');
     
@@ -297,6 +333,22 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     ]);
     Route::patch('menus/{menu}/toggle-status', [App\Http\Controllers\Admin\MenuController::class, 'toggleStatus'])->name('admin.menus.toggle-status');
     Route::post('menus/reorder', [App\Http\Controllers\Admin\MenuController::class, 'reorder'])->name('admin.menus.reorder');
+
+    // Rotas administrativas para licitações
+    Route::resource('licitacoes', App\Http\Controllers\LicitacaoController::class, [
+        'as' => 'admin',
+        'parameters' => ['licitacoes' => 'licitacao']
+    ]);
+    Route::get('licitacoes/documento/{documento}/download', [App\Http\Controllers\LicitacaoController::class, 'downloadDocumento'])->name('admin.licitacoes.documento.download');
+    Route::delete('licitacoes/documento/{documento}', [App\Http\Controllers\LicitacaoController::class, 'excluirDocumento'])->name('admin.licitacoes.documento.destroy');
+    
+    // Rotas administrativas para acesso rápido
+    Route::resource('acesso-rapido', App\Http\Controllers\Admin\AcessoRapidoController::class, [
+        'as' => 'admin',
+        'parameters' => ['acesso-rapido' => 'acessoRapido']
+    ]);
+    Route::patch('acesso-rapido/{acessoRapido}/toggle-status', [App\Http\Controllers\Admin\AcessoRapidoController::class, 'toggleStatus'])->name('admin.acesso-rapido.toggle-status');
+    Route::post('acesso-rapido/update-order', [App\Http\Controllers\Admin\AcessoRapidoController::class, 'updateOrder'])->name('admin.acesso-rapido.update-order');
     
     // Futuras rotas administrativas podem ser adicionadas aqui
     // Route::resource('users', UserController::class);

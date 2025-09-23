@@ -286,7 +286,7 @@ class MenuController extends Controller
                 'vereadores.index' => 'vereadores.index',
                 'sessoes.index' => 'sessoes.index',
                 'ouvidoria.index' => 'ouvidoria.index',
-                'esic.index' => 'esic.index'
+                'esic.public' => 'esic.public'
             ];
         }
 

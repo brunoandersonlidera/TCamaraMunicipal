@@ -1,0 +1,87 @@
+/**
+ * CSS específico para a página Welcome (Página Inicial)
+ * Estilos para botões de acesso rápido e elementos específicos da home
+ */
+
+/* Estilos específicos para botões de acesso rápido */
+.btn-acesso-rapido {
+    transition: all 0.3s ease;
+    text-decoration: none !important;
+    border-radius: 12px;
+    min-height: 120px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-acesso-rapido:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    text-decoration: none !important;
+}
+
+.btn-acesso-rapido:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+}
+
+/* Estilos para elementos internos dos botões */
+.acesso-rapido-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.acesso-rapido-title {
+    font-size: 0.9rem;
+    line-height: 1.2;
+    font-weight: 600;
+}
+
+.acesso-rapido-desc {
+    font-size: 0.75rem;
+    opacity: 0.85;
+}
+
+/* Responsividade para botões de acesso rápido */
+@media (max-width: 768px) {
+    .btn-acesso-rapido {
+        min-height: 100px;
+        padding: 1rem !important;
+    }
+    
+    .acesso-rapido-icon {
+        font-size: 2rem;
+    }
+    
+    .acesso-rapido-title {
+        font-size: 0.8rem;
+    }
+    
+    .acesso-rapido-desc {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .btn-acesso-rapido {
+        min-height: 90px;
+        padding: 0.75rem !important;
+    }
+    
+    .acesso-rapido-icon {
+        font-size: 1.8rem;
+    }
+    
+    .acesso-rapido-title {
+        font-size: 0.75rem;
+    }
+}
+
+/* Animações suaves */
+.btn-acesso-rapido * {
+    transition: inherit;
+}
+
+/* Estados de foco para acessibilidade */
+.btn-acesso-rapido:focus-visible {
+    outline: 2px solid #0066cc;
+    outline-offset: 2px;
+}

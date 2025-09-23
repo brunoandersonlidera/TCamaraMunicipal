@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\EsicSolicitacao;
+use App\Models\EsicMovimentacao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -91,6 +92,9 @@ class SolicitacaoController extends Controller
      */
     public function show(EsicSolicitacao $solicitacao)
     {
+        // Carregar movimentações com usuário
+        $solicitacao->load(['movimentacoes.usuario']);
+
         // Marcar como visualizada se ainda não foi
         if (!$solicitacao->visualizada_em) {
             $solicitacao->update(['visualizada_em' => now()]);
@@ -187,6 +191,26 @@ class SolicitacaoController extends Controller
         }
 
         $solicitacao->update($dados);
+
+        // Registrar movimentação
+        $descricaoMovimentacao = 'Solicitação atualizada pelo administrador';
+        if ($request->status !== $solicitacao->getOriginal('status')) {
+            $descricaoMovimentacao = 'Status alterado para: ' . $this->getStatusLabel($request->status);
+        }
+        if ($request->filled('resposta')) {
+            $descricaoMovimentacao .= ' - Resposta adicionada';
+        }
+        if ($request->filled('observacoes_internas')) {
+            $descricaoMovimentacao .= ' - Observações internas atualizadas';
+        }
+
+        EsicMovimentacao::create([
+            'esic_solicitacao_id' => $solicitacao->id,
+            'usuario_id' => auth()->id(),
+            'status' => $request->status,
+            'descricao' => $descricaoMovimentacao,
+            'data_movimentacao' => now()
+        ]);
 
         return redirect()->route('admin.solicitacoes.show', $solicitacao)
             ->with('success', 'Solicitação atualizada com sucesso!');
@@ -442,5 +466,21 @@ class SolicitacaoController extends Controller
             'success' => true,
             'message' => 'Solicitação marcada como visualizada!'
         ]);
+    }
+
+    /**
+     * Obter label do status
+     */
+    private function getStatusLabel($status)
+    {
+        $labels = [
+            'pendente' => 'Pendente',
+            'em_andamento' => 'Em Andamento',
+            'respondida' => 'Respondida',
+            'arquivada' => 'Arquivada',
+            'cancelada' => 'Cancelada'
+        ];
+
+        return $labels[$status] ?? $status;
     }
 }

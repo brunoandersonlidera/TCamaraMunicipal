@@ -116,6 +116,13 @@
                         Carta de Serviços
                     </a>
                 </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.licitacoes.index') }}" class="nav-link {{ request()->routeIs('admin.licitacoes.*') ? 'active' : '' }}">
+                        <i class="fas fa-gavel"></i>
+                        Licitações
+                    </a>
+                </div>
             </div>
             
             <!-- Ouvidoria -->
@@ -159,6 +166,13 @@
             <!-- Site -->
             <div class="nav-section">
                 <div class="nav-section-title">Site</div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.acesso-rapido.index') }}" class="nav-link {{ request()->routeIs('admin.acesso-rapido.*') ? 'active' : '' }}">
+                        <i class="fas fa-bolt"></i>
+                        Acesso Rápido
+                    </a>
+                </div>
                 
                 <div class="nav-item">
                     <a href="{{ route('home') }}" class="nav-link" target="_blank">

@@ -13,18 +13,86 @@ use Illuminate\Support\Str;
 class EsicController extends Controller
 {
     /**
-     * Exibir página inicial do E-SIC
+     * Página pública do E-SIC com estatísticas e opções de cadastro/login
      */
-    public function index()
+    public function publicIndex()
     {
         $estatisticas = [
             'total_solicitacoes' => EsicSolicitacao::count(),
             'solicitacoes_mes' => EsicSolicitacao::whereMonth('created_at', now()->month)->count(),
+            'solicitacoes_ano' => EsicSolicitacao::whereYear('created_at', now()->year)->count(),
             'tempo_medio_resposta' => $this->calcularTempoMedioResposta(),
-            'taxa_atendimento' => $this->calcularTaxaAtendimento()
+            'taxa_atendimento' => $this->calcularTaxaAtendimento(),
+            'solicitacoes_por_categoria' => $this->getSolicitacoesPorCategoria(),
+            'solicitacoes_por_mes' => $this->getSolicitacoesPorMes()
         ];
 
-        return view('esic.index', compact('estatisticas'));
+        return view('esic.public-index', compact('estatisticas'));
+    }
+
+    /**
+     * Dashboard do usuário autenticado
+     */
+    public function dashboard()
+    {
+        $user = auth()->user();
+        
+        $minhasSolicitacoes = EsicSolicitacao::where('email_solicitante', $user->email)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        $estatisticasUsuario = [
+            'total_solicitacoes' => EsicSolicitacao::where('email_solicitante', $user->email)->count(),
+            'pendentes' => EsicSolicitacao::where('email_solicitante', $user->email)->where('status', 'pendente')->count(),
+            'respondidas' => EsicSolicitacao::where('email_solicitante', $user->email)->where('status', 'respondida')->count(),
+            'em_analise' => EsicSolicitacao::where('email_solicitante', $user->email)->where('status', 'em_analise')->count()
+        ];
+
+        return view('esic.dashboard', compact('minhasSolicitacoes', 'estatisticasUsuario'));
+    }
+
+    /**
+     * Listar todas as solicitações do usuário
+     */
+    public function minhasSolicitacoes()
+    {
+        $user = auth()->user();
+        
+        $solicitacoes = EsicSolicitacao::where('email_solicitante', $user->email)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('esic.minhas-solicitacoes', compact('solicitacoes'));
+    }
+
+    /**
+     * Página de estatísticas públicas
+     */
+    public function estatisticas()
+    {
+        // Dados gerais
+        $totalSolicitacoes = EsicSolicitacao::count();
+        $solicitacoesMes = EsicSolicitacao::whereMonth('created_at', now()->month)->count();
+        $solicitacoesAno = EsicSolicitacao::whereYear('created_at', now()->year)->count();
+        $tempoMedioResposta = $this->calcularTempoMedioResposta();
+        $taxaAtendimento = $this->calcularTaxaAtendimento();
+        
+        // Dados para gráficos
+        $solicitacoesPorCategoria = $this->getSolicitacoesPorCategoria();
+        $solicitacoesPorMes = $this->getSolicitacoesPorMes();
+        $solicitacoesPorStatus = $this->getSolicitacoesPorStatus();
+
+        return view('esic.estatisticas', compact(
+            'totalSolicitacoes',
+            'solicitacoesMes', 
+            'solicitacoesAno',
+            'tempoMedioResposta',
+            'taxaAtendimento',
+            'solicitacoesPorCategoria',
+            'solicitacoesPorMes',
+            'solicitacoesPorStatus'
+        ));
     }
 
     /**
@@ -36,14 +104,13 @@ class EsicController extends Controller
     }
 
     /**
-     * Armazenar nova solicitação
+     * Armazenar nova solicitação (usuário autenticado)
      */
     public function store(Request $request)
     {
+        $user = auth()->user();
+        
         $validator = Validator::make($request->all(), [
-            'nome_solicitante' => 'required|string|max:255',
-            'email_solicitante' => 'required|email|max:255',
-            'cpf_solicitante' => 'required|string|size:14',
             'telefone_solicitante' => 'nullable|string|max:20',
             'endereco_solicitante' => 'nullable|string|max:500',
             'assunto' => 'required|string|max:255',
@@ -53,11 +120,6 @@ class EsicController extends Controller
             'anexos.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png,txt',
             'aceita_termos' => 'required|accepted'
         ], [
-            'nome_solicitante.required' => 'O nome é obrigatório.',
-            'email_solicitante.required' => 'O e-mail é obrigatório.',
-            'email_solicitante.email' => 'O e-mail deve ser válido.',
-            'cpf_solicitante.required' => 'O CPF é obrigatório.',
-            'cpf_solicitante.size' => 'O CPF deve ter 11 dígitos.',
             'assunto.required' => 'O assunto é obrigatório.',
             'descricao.required' => 'A descrição é obrigatória.',
             'categoria.required' => 'A categoria é obrigatória.',
@@ -72,20 +134,22 @@ class EsicController extends Controller
         }
 
         try {
-            // Criar solicitação
+            // Criar solicitação usando dados do usuário autenticado
             $solicitacao = EsicSolicitacao::create([
-                'nome_solicitante' => $request->nome_solicitante,
-                'email_solicitante' => $request->email_solicitante,
-                'cpf_solicitante' => preg_replace('/\D/', '', $request->cpf_solicitante),
-                'telefone_solicitante' => $request->telefone_solicitante,
-                'endereco_solicitante' => $request->endereco_solicitante,
+                'protocolo' => $this->gerarProtocolo(),
+                'nome_solicitante' => $user->name,
+                'email_solicitante' => $user->email,
+                'cpf_solicitante' => $user->cpf ?? '',
+                'telefone_solicitante' => $request->telefone_solicitante ?? $user->telefone,
+                'endereco_solicitante' => $request->endereco_solicitante ?? $user->endereco,
                 'assunto' => $request->assunto,
                 'descricao' => $request->descricao,
                 'categoria' => $request->categoria,
                 'forma_recebimento' => $request->forma_recebimento,
                 'status' => EsicSolicitacao::STATUS_ABERTA,
                 'data_solicitacao' => now(),
-                'ip_solicitante' => $request->ip()
+                'ip_solicitante' => $request->ip(),
+                'user_id' => $user->id
             ]);
 
             // Upload de anexos
@@ -118,7 +182,7 @@ class EsicController extends Controller
             // Enviar e-mail de confirmação
             $this->enviarEmailConfirmacao($solicitacao);
 
-            return redirect()->route('esic.consultar')
+            return redirect()->route('esic.dashboard')
                 ->with('success', 'Solicitação registrada com sucesso! Protocolo: ' . $solicitacao->protocolo)
                 ->with('protocolo', $solicitacao->protocolo);
 
@@ -304,6 +368,68 @@ class EsicController extends Controller
     }
 
     /**
+     * Obter solicitações por categoria para gráficos
+     */
+    private function getSolicitacoesPorCategoria()
+    {
+        $categorias = EsicSolicitacao::getCategorias();
+        $dados = [];
+
+        foreach ($categorias as $key => $nome) {
+            $dados[] = [
+                'categoria' => $nome,
+                'total' => EsicSolicitacao::where('categoria', $key)->count()
+            ];
+        }
+
+        return $dados;
+    }
+
+    /**
+     * Obter solicitações por mês para gráficos
+     */
+    private function getSolicitacoesPorMes()
+    {
+        $dados = [];
+        
+        for ($i = 11; $i >= 0; $i--) {
+            $data = now()->subMonths($i);
+            $dados[] = [
+                'mes' => $data->format('M/Y'),
+                'total' => EsicSolicitacao::whereYear('created_at', $data->year)
+                    ->whereMonth('created_at', $data->month)
+                    ->count()
+            ];
+        }
+
+        return $dados;
+    }
+
+    /**
+     * Obter solicitações por status para gráficos
+     */
+    private function getSolicitacoesPorStatus()
+    {
+        $status = [
+            'pendente' => 'Pendente',
+            'em_analise' => 'Em Análise',
+            'respondida' => 'Respondida',
+            'finalizada' => 'Finalizada',
+            'negada' => 'Negada'
+        ];
+
+        $dados = [];
+        foreach ($status as $key => $nome) {
+            $dados[] = [
+                'status' => $nome,
+                'total' => EsicSolicitacao::where('status', $key)->count()
+            ];
+        }
+
+        return $dados;
+    }
+
+    /**
      * Enviar e-mail de confirmação
      */
     private function enviarEmailConfirmacao($solicitacao)
@@ -327,5 +453,48 @@ class EsicController extends Controller
         } catch (\Exception $e) {
             // Log do erro
         }
+    }
+
+    /**
+     * Exibir página sobre o E-SIC
+     */
+    public function sobre()
+    {
+        return view('esic.sobre');
+    }
+
+    /**
+     * Exibir página de perguntas frequentes
+     */
+    public function faq()
+    {
+        $faqs = [
+            [
+                'pergunta' => 'O que é o E-SIC?',
+                'resposta' => 'O E-SIC (Sistema Eletrônico do Serviço de Informação ao Cidadão) é um sistema que permite a qualquer pessoa, física ou jurídica, encaminhar pedidos de acesso à informação para órgãos e entidades do Poder Público.'
+            ],
+            [
+                'pergunta' => 'Quem pode fazer solicitações?',
+                'resposta' => 'Qualquer pessoa, física ou jurídica, pode solicitar informações aos órgãos públicos. Não é necessário apresentar motivos para a solicitação.'
+            ],
+            [
+                'pergunta' => 'Qual o prazo para resposta?',
+                'resposta' => 'O prazo para resposta é de até 20 dias, prorrogável por mais 10 dias mediante justificativa expressa.'
+            ],
+            [
+                'pergunta' => 'Como acompanhar minha solicitação?',
+                'resposta' => 'Você pode acompanhar sua solicitação através do número de protocolo fornecido no momento do cadastro, utilizando a opção "Consultar Solicitação".'
+            ],
+            [
+                'pergunta' => 'Posso anexar documentos à minha solicitação?',
+                'resposta' => 'Sim, é possível anexar documentos que complementem sua solicitação. Os formatos aceitos são: PDF, DOC, DOCX, JPG, JPEG, PNG e TXT, com tamanho máximo de 10MB por arquivo.'
+            ],
+            [
+                'pergunta' => 'E se eu não concordar com a resposta?',
+                'resposta' => 'Caso não concorde com a resposta ou não a receba no prazo, você pode apresentar recurso no prazo de 10 dias a contar do seu recebimento.'
+            ]
+        ];
+
+        return view('esic.faq', compact('faqs'));
     }
 }

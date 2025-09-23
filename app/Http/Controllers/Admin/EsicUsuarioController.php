@@ -80,7 +80,8 @@ class EsicUsuarioController extends Controller
      */
     public function create()
     {
-        return view('admin.esic-usuarios.create');
+        $usuario = new EsicUsuario();
+        return view('admin.esic-usuarios.create', compact('usuario'));
     }
 
     /**

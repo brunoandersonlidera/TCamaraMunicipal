@@ -208,6 +208,43 @@
                 </div>
             </div>
             @endif
+
+            <!-- Histórico de Movimentações -->
+            @if($solicitacao->movimentacoes->count() > 0)
+            <div class="admin-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Histórico de Movimentações</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        @foreach($solicitacao->movimentacoes->sortByDesc('data_movimentacao') as $movimentacao)
+                        <div class="timeline-item">
+                            <div class="timeline-marker">
+                                <i class="fas fa-circle text-primary"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-0">{{ $movimentacao->descricao }}</h6>
+                                    <span class="badge bg-{{ $movimentacao->status === 'pendente' ? 'warning' : ($movimentacao->status === 'em_andamento' ? 'info' : ($movimentacao->status === 'respondida' ? 'success' : 'secondary')) }}">
+                                        {{ ucfirst(str_replace('_', ' ', $movimentacao->status)) }}
+                                    </span>
+                                </div>
+                                <div class="text-muted small">
+                                    <i class="fas fa-user me-1"></i>{{ $movimentacao->usuario->name ?? 'Sistema' }}
+                                    <i class="fas fa-clock ms-3 me-1"></i>{{ $movimentacao->data_movimentacao->format('d/m/Y H:i') }}
+                                </div>
+                                @if($movimentacao->observacoes)
+                                <div class="mt-2">
+                                    <small class="text-muted">{{ $movimentacao->observacoes }}</small>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- Sidebar -->

@@ -18,6 +18,7 @@ class EsicSolicitacao extends Model
 
     protected $fillable = [
         'protocolo',
+        'user_id',
         'nome_solicitante',
         'email_solicitante',
         'telefone_solicitante',
@@ -88,6 +89,7 @@ class EsicSolicitacao extends Model
     const STATUS_RESPONDIDA = 'respondida';
     const STATUS_NEGADA = 'negada';
     const STATUS_PARCIALMENTE_ATENDIDA = 'parcialmente_atendida';
+    const STATUS_FINALIZADA = 'finalizada';
     const STATUS_CANCELADA = 'cancelada';
     const STATUS_EXPIRADA = 'expirada';
 
@@ -114,9 +116,24 @@ class EsicSolicitacao extends Model
     const FORMA_SISTEMA = 'sistema';
 
     // Relacionamentos
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function responsavel()
     {
         return $this->belongsTo(User::class, 'responsavel_id');
+    }
+
+    public function movimentacoes()
+    {
+        return $this->hasMany(EsicMovimentacao::class, 'esic_solicitacao_id');
+    }
+
+    public function ultimaMovimentacao()
+    {
+        return $this->hasOne(EsicMovimentacao::class, 'esic_solicitacao_id')->latest('data_movimentacao');
     }
 
     // Scopes
@@ -225,6 +242,7 @@ class EsicSolicitacao extends Model
                 self::STATUS_RESPONDIDA => 'Respondida',
                 self::STATUS_NEGADA => 'Negada',
                 self::STATUS_PARCIALMENTE_ATENDIDA => 'Parcialmente Atendida',
+                self::STATUS_FINALIZADA => 'Finalizada',
                 self::STATUS_CANCELADA => 'Cancelada',
                 self::STATUS_EXPIRADA => 'Expirada',
                 default => 'Indefinido'
@@ -636,7 +654,8 @@ class EsicSolicitacao extends Model
                 self::STATUS_NEGADA,
                 self::STATUS_PARCIALMENTE_ATENDIDA,
                 self::STATUS_CANCELADA,
-                self::STATUS_EXPIRADA
+                self::STATUS_EXPIRADA,
+                self::STATUS_FINALIZADA
             ]),
             'prioridade' => 'nullable|in:' . implode(',', [
                 self::PRIORIDADE_BAIXA,
@@ -703,6 +722,54 @@ class EsicSolicitacao extends Model
             'tags.array' => 'As tags devem ser um array.',
             'tags.*.string' => 'Cada tag deve ser uma string.',
             'tags.*.max' => 'Cada tag não pode exceder 50 caracteres.'
+        ];
+    }
+
+    /**
+     * Retorna as categorias disponíveis
+     */
+    public static function getCategorias()
+    {
+        return [
+            self::CATEGORIA_FINANCEIRO => 'Financeiro',
+            self::CATEGORIA_ADMINISTRATIVO => 'Administrativo',
+            self::CATEGORIA_LEGISLATIVO => 'Legislativo',
+            self::CATEGORIA_RECURSOS_HUMANOS => 'Recursos Humanos',
+            self::CATEGORIA_LICITACOES => 'Licitações',
+            self::CATEGORIA_CONTRATOS => 'Contratos',
+            self::CATEGORIA_TRANSPARENCIA => 'Transparência',
+            self::CATEGORIA_OUTROS => 'Outros'
+        ];
+    }
+
+    /**
+     * Retorna as formas de recebimento disponíveis
+     */
+    public static function getFormasRecebimento()
+    {
+        return [
+            self::FORMA_EMAIL => 'E-mail',
+            self::FORMA_CORREIO => 'Correio',
+            self::FORMA_PRESENCIAL => 'Presencial',
+            self::FORMA_SISTEMA => 'Sistema'
+        ];
+    }
+
+    /**
+     * Retorna as opções de status disponíveis
+     */
+    public static function getStatusOptions()
+    {
+        return [
+            self::STATUS_PENDENTE => 'Pendente',
+            self::STATUS_EM_ANALISE => 'Em Análise',
+            self::STATUS_AGUARDANDO_INFORMACOES => 'Aguardando Informações',
+            self::STATUS_RESPONDIDA => 'Respondida',
+            self::STATUS_NEGADA => 'Negada',
+            self::STATUS_PARCIALMENTE_ATENDIDA => 'Parcialmente Atendida',
+            self::STATUS_CANCELADA => 'Cancelada',
+            self::STATUS_EXPIRADA => 'Expirada',
+            self::STATUS_FINALIZADA => 'Finalizada'
         ];
     }
 }

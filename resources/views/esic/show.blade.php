@@ -220,7 +220,7 @@
                             </a>
                         </div>
                         <div class="col-md-6 text-end">
-                            <a href="{{ route('esic.index') }}" class="btn btn-primary">
+                            <a href="{{ route('esic.public') }}" class="btn btn-primary">
                                 <i class="fas fa-home me-2"></i>
                                 Voltar ao E-SIC
                             </a>

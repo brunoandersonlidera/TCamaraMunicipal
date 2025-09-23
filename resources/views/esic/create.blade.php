@@ -202,7 +202,7 @@
                                 <i class="fas fa-paper-plane me-2"></i>
                                 Enviar Solicitação
                             </button>
-                            <a href="{{ route('esic.index') }}" class="btn btn-outline-secondary btn-lg">
+                            <a href="{{ route('esic.public') }}" class="btn btn-outline-secondary btn-lg">
                                 <i class="fas fa-arrow-left me-2"></i>
                                 Voltar
                             </a>

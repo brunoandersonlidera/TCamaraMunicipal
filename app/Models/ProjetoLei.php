@@ -442,4 +442,45 @@ class ProjetoLei extends Model
             'slug.unique' => 'Este slug já está em uso.'
         ];
     }
+
+    // Métodos de busca
+    public static function search($query)
+    {
+        return self::where(function ($q) use ($query) {
+                $q->where('ementa', 'LIKE', "%{$query}%")
+                  ->orWhere('justificativa', 'LIKE', "%{$query}%")
+                  ->orWhere('texto_integral', 'LIKE', "%{$query}%")
+                  ->orWhere('tipo', 'LIKE', "%{$query}%")
+                  ->orWhere('lei_numero', 'LIKE', "%{$query}%")
+                  ->orWhereRaw("CONCAT(numero, '/', ano) LIKE ?", ["%{$query}%"]);
+            })
+            ->orderBy('data_protocolo', 'desc');
+    }
+
+    public function getSearchableContent()
+    {
+        return [
+            'numero_ano' => $this->numero . '/' . $this->ano,
+            'tipo' => $this->tipo,
+            'ementa' => $this->ementa,
+            'justificativa' => strip_tags($this->justificativa),
+            'status' => $this->status,
+            'lei_numero' => $this->lei_numero,
+        ];
+    }
+
+    public function getSearchUrl()
+    {
+        return route('projetos-lei.show', $this->slug ?: $this->id);
+    }
+
+    public function getSearchType()
+    {
+        return 'Projeto de Lei';
+    }
+
+    public function getSearchDate()
+    {
+        return $this->data_protocolo;
+    }
 }

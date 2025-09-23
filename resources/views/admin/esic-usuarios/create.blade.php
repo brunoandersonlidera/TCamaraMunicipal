@@ -1,1 +1,1 @@
-@include('admin.esic-usuarios.form')
+@include('admin.esic-usuarios.form', ['usuario' => $usuario])
