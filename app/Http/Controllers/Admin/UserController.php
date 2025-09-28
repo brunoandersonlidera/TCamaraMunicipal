@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -184,7 +185,7 @@ class UserController extends Controller
         $tempPassword = 'temp' . rand(1000, 9999);
         
         $user->update([
-            'password' => Hash::make($tempPassword),
+            'password' => $tempPassword, // O mutator do modelo já faz o hash
             'email_verified_at' => null // Forçar verificação de email
         ]);
 
@@ -232,5 +233,67 @@ class UserController extends Controller
         }
 
         return redirect()->route('login');
+    }
+
+    /**
+     * Show form to manage user roles
+     */
+    public function manageRoles(User $user)
+    {
+        $roles = Role::where('is_active', true)->orderBy('priority')->get();
+        $userRoles = $user->roles->pluck('id')->toArray();
+        
+        return view('admin.users.manage-roles', compact('user', 'roles', 'userRoles'));
+    }
+
+    /**
+     * Update user roles
+     */
+    public function updateRoles(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'roles' => 'array',
+            'roles.*' => 'exists:roles,id'
+        ]);
+
+        // Verificar se o usuário atual não está removendo seu próprio role de admin
+        if ($user->id === Auth::id()) {
+            $currentUserRoles = $user->roles->pluck('id')->toArray();
+            $newRoles = $validated['roles'] ?? [];
+            
+            // Verificar se tem algum role de admin nos roles atuais
+            $hasAdminRole = $user->roles->where('name', 'like', '%admin%')->count() > 0;
+            
+            if ($hasAdminRole) {
+                // Verificar se ainda terá role de admin nos novos roles
+                $newAdminRoles = Role::whereIn('id', $newRoles)
+                    ->where('name', 'like', '%admin%')
+                    ->count();
+                
+                if ($newAdminRoles === 0) {
+                    return redirect()->back()
+                        ->with('error', 'Você não pode remover seus próprios privilégios de administrador!');
+                }
+            }
+        }
+
+        // Sincronizar roles
+        $user->syncRoles($validated['roles'] ?? []);
+
+        return redirect()->route('admin.users.show', $user)
+            ->with('success', 'Roles do usuário atualizados com sucesso!');
+    }
+
+    /**
+     * Get user permissions (via roles)
+     */
+    public function permissions(User $user)
+    {
+        $permissions = $user->getAllPermissions()->groupBy('module');
+        
+        return response()->json([
+            'success' => true,
+            'permissions' => $permissions
+        ]);
     }
 }

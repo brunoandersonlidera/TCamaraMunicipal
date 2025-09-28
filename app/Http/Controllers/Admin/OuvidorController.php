@@ -104,7 +104,7 @@ class OuvidorController extends Controller
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($request->password),
+                'password' => $request->password, // O mutator do modelo já faz o hash
                 'role' => 'ouvidor',
                 'email_verified_at' => now(),
             ]);
@@ -202,7 +202,7 @@ class OuvidorController extends Controller
             ];
 
             if ($request->filled('password')) {
-                $userData['password'] = Hash::make($request->password);
+                $userData['password'] = $request->password; // O mutator do modelo já faz o hash
             }
 
             $ouvidor->user->update($userData);

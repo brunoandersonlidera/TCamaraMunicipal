@@ -119,7 +119,7 @@ class UserAreaController extends Controller
 
         // Atualiza a senha
         $user->update([
-            'password' => Hash::make($request->password)
+            'password' => $request->password // O mutator do modelo já faz o hash
         ]);
 
         return back()->with('success', 'Senha alterada com sucesso!');

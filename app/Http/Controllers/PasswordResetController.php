@@ -116,7 +116,7 @@ class PasswordResetController extends Controller
 
         // Atualiza a senha do usuário
         $user = User::where('email', $request->email)->first();
-        $user->password = Hash::make($request->password);
+        $user->password = $request->password; // O mutator do modelo já faz o hash automaticamente
         $user->save();
 
         // Remove o token usado

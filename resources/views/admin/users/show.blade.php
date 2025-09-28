@@ -258,6 +258,11 @@
                                     <i class="fas fa-edit me-2"></i>Editar Usuário
                                 </a>
                                 
+                                <a href="{{ route('admin.users.manage-roles', $user) }}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-users-cog me-2"></i>Gerenciar Roles
+                                </a>
+                                
                                 @if($user->id !== auth()->id())
                                     <button type="button" class="btn btn-outline-danger btn-sm delete-user" 
                                             data-user-id="{{ $user->id }}" 
