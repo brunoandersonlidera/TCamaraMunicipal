@@ -37,6 +37,22 @@ Route::get('/files/{path}', function ($path) {
     ]);
 })->where('path', '.*');
 
+// Rota personalizada para servir imagens do public/images
+Route::get('/images/{path}', function ($path) {
+    $filePath = public_path('images/' . $path);
+    
+    if (!file_exists($filePath)) {
+        abort(404);
+    }
+    
+    $mimeType = mime_content_type($filePath);
+    
+    return Response::file($filePath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*');
+
 Route::get('/', function () {
     // Buscar presidente e vereadores para a página inicial
     $vereadores = Vereador::ativos()->orderBy('nome_parlamentar')->get();
