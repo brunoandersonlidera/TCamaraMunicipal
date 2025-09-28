@@ -178,7 +178,8 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 ## 📞 Contato
 
 **Desenvolvedor**: Bruno Anderson  
-**Email**: contato@exemplo.com  
+**Email**: bruno@lideratecnologia.com.br
+**WhatsApp**: (65) 99920-5608
 **GitHub**: [@brunoandersonlidera](https://github.com/brunoandersonlidera)
 
 ## 🏛️ Sobre o Projeto
@@ -196,4 +197,4 @@ Sistema desenvolvido para modernizar e digitalizar os processos de uma Câmara M
 
 **Versão**: 1.0.0  
 **Laravel**: 12.0  
-**Status**: Em desenvolvimento ativo
+**Status**: Em desenvolvimento ativo, há diversos bugs a serem corrigidos.
