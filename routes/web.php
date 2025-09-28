@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\VereadorController;
 use App\Http\Controllers\SessaoController;
 use App\Http\Controllers\UserAreaController;
@@ -18,6 +20,22 @@ use App\Models\User;
 use App\Models\Sessao;
 use App\Models\AcessoRapido;
 use App\Models\Noticia;
+
+// Rota personalizada para servir imagens do storage
+Route::get('/storage/{path}', function ($path) {
+    $filePath = storage_path('app/public/' . $path);
+    
+    if (!file_exists($filePath)) {
+        abort(404);
+    }
+    
+    $mimeType = mime_content_type($filePath);
+    
+    return Response::file($filePath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*');
 
 Route::get('/', function () {
     // Buscar presidente e vereadores para a página inicial
@@ -277,15 +295,115 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         ->name('admin.noticias.toggle-destaque');
 
     // Rotas para Usuários
-    Route::resource('users', App\Http\Controllers\Admin\UserController::class, [
-        'as' => 'admin'
-    ]);
-    Route::patch('users/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])
-        ->name('admin.users.toggle-status');
-    Route::post('users/{user}/reset-password', [App\Http\Controllers\Admin\UserController::class, 'resetPassword'])
-        ->name('admin.users.reset-password');
-    Route::get('users/{user}/impersonate', [App\Http\Controllers\Admin\UserController::class, 'impersonate'])
-        ->name('admin.users.impersonate');
+    Route::middleware(['permission:usuarios.listar'])->group(function () {
+        Route::get('users', [App\Http\Controllers\Admin\UserController::class, 'index'])
+            ->name('admin.users.index');
+        Route::get('users/{user}', [App\Http\Controllers\Admin\UserController::class, 'show'])
+            ->name('admin.users.show');
+    });
+    
+    Route::middleware(['permission:usuarios.criar'])->group(function () {
+        Route::get('users/create', [App\Http\Controllers\Admin\UserController::class, 'create'])
+            ->name('admin.users.create');
+        Route::post('users', [App\Http\Controllers\Admin\UserController::class, 'store'])
+            ->name('admin.users.store');
+    });
+    
+    Route::middleware(['permission:usuarios.editar'])->group(function () {
+        Route::get('users/{user}/edit', [App\Http\Controllers\Admin\UserController::class, 'edit'])
+            ->name('admin.users.edit');
+        Route::put('users/{user}', [App\Http\Controllers\Admin\UserController::class, 'update'])
+            ->name('admin.users.update');
+        Route::patch('users/{user}', [App\Http\Controllers\Admin\UserController::class, 'update'])
+            ->name('admin.users.update');
+        Route::patch('users/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])
+            ->name('admin.users.toggle-status');
+        Route::post('users/{user}/reset-password', [App\Http\Controllers\Admin\UserController::class, 'resetPassword'])
+            ->name('admin.users.reset-password');
+    });
+    
+    Route::middleware(['permission:usuarios.excluir'])->group(function () {
+        Route::delete('users/{user}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])
+            ->name('admin.users.destroy');
+    });
+    
+    Route::middleware(['permission:usuarios.impersonificar'])->group(function () {
+        Route::get('users/{user}/impersonate', [App\Http\Controllers\Admin\UserController::class, 'impersonate'])
+            ->name('admin.users.impersonate');
+    });
+    
+    Route::middleware(['permission:usuarios.gerenciar_roles'])->group(function () {
+        Route::get('users/{user}/manage-roles', [App\Http\Controllers\Admin\UserController::class, 'manageRoles'])
+            ->name('admin.users.manage-roles');
+        Route::put('users/{user}/update-roles', [App\Http\Controllers\Admin\UserController::class, 'updateRoles'])
+            ->name('admin.users.update-roles');
+        Route::get('users/{user}/permissions', [App\Http\Controllers\Admin\UserController::class, 'permissions'])
+            ->name('admin.users.permissions');
+    });
+
+    // Rotas para Tipos de Usuários (Roles)
+    Route::middleware(['permission:roles.listar'])->group(function () {
+        Route::get('roles', [App\Http\Controllers\Admin\RoleController::class, 'index'])
+            ->name('admin.roles.index');
+        Route::get('roles/{role}', [App\Http\Controllers\Admin\RoleController::class, 'show'])
+            ->name('admin.roles.show');
+    });
+    
+    Route::middleware(['permission:roles.criar'])->group(function () {
+        Route::get('roles/create', [App\Http\Controllers\Admin\RoleController::class, 'create'])
+            ->name('admin.roles.create');
+        Route::post('roles', [App\Http\Controllers\Admin\RoleController::class, 'store'])
+            ->name('admin.roles.store');
+    });
+    
+    Route::middleware(['permission:roles.editar'])->group(function () {
+        Route::get('roles/{role}/edit', [App\Http\Controllers\Admin\RoleController::class, 'edit'])
+            ->name('admin.roles.edit');
+        Route::put('roles/{role}', [App\Http\Controllers\Admin\RoleController::class, 'update'])
+            ->name('admin.roles.update');
+        Route::patch('roles/{role}', [App\Http\Controllers\Admin\RoleController::class, 'update'])
+            ->name('admin.roles.update');
+        Route::patch('roles/{role}/toggle-status', [App\Http\Controllers\Admin\RoleController::class, 'toggleStatus'])
+            ->name('admin.roles.toggle-status');
+    });
+    
+    Route::middleware(['permission:roles.excluir'])->group(function () {
+        Route::delete('roles/{role}', [App\Http\Controllers\Admin\RoleController::class, 'destroy'])
+            ->name('admin.roles.destroy');
+    });
+
+    // Rotas para Permissões
+    Route::middleware(['permission:permissoes.listar'])->group(function () {
+        Route::get('permissions', [App\Http\Controllers\Admin\PermissionController::class, 'index'])
+            ->name('admin.permissions.index');
+        Route::get('permissions/{permission}', [App\Http\Controllers\Admin\PermissionController::class, 'show'])
+            ->name('admin.permissions.show');
+        Route::get('permissions/by-module', [App\Http\Controllers\Admin\PermissionController::class, 'getByModule'])
+            ->name('admin.permissions.by-module');
+    });
+    
+    Route::middleware(['permission:permissoes.criar'])->group(function () {
+        Route::get('permissions/create', [App\Http\Controllers\Admin\PermissionController::class, 'create'])
+            ->name('admin.permissions.create');
+        Route::post('permissions', [App\Http\Controllers\Admin\PermissionController::class, 'store'])
+            ->name('admin.permissions.store');
+    });
+    
+    Route::middleware(['permission:permissoes.editar'])->group(function () {
+        Route::get('permissions/{permission}/edit', [App\Http\Controllers\Admin\PermissionController::class, 'edit'])
+            ->name('admin.permissions.edit');
+        Route::put('permissions/{permission}', [App\Http\Controllers\Admin\PermissionController::class, 'update'])
+            ->name('admin.permissions.update');
+        Route::patch('permissions/{permission}', [App\Http\Controllers\Admin\PermissionController::class, 'update'])
+            ->name('admin.permissions.update');
+        Route::patch('permissions/{permission}/toggle-status', [App\Http\Controllers\Admin\PermissionController::class, 'toggleStatus'])
+            ->name('admin.permissions.toggle-status');
+    });
+    
+    Route::middleware(['permission:permissoes.excluir'])->group(function () {
+        Route::delete('permissions/{permission}', [App\Http\Controllers\Admin\PermissionController::class, 'destroy'])
+            ->name('admin.permissions.destroy');
+    });
     
     // Rotas administrativas para tipos de sessão
     Route::resource('tipos-sessao', App\Http\Controllers\Admin\TipoSessaoController::class, [
