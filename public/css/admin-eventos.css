@@ -1,0 +1,91 @@
+/* ===================================
+   ESTILOS PARA ADMINISTRAÇÃO DE EVENTOS
+   =================================== */
+
+/* Cores de destaque para eventos */
+.evento-cor-preview {
+    min-width: 60px;
+    padding: 8px;
+    border-radius: 4px;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+}
+
+/* Seletor de cores */
+.color-preview {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    display: inline-block;
+    margin: 2px;
+}
+
+.color-preview:hover {
+    transform: scale(1.1);
+    border-color: #007bff;
+}
+
+.color-preview.selected {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Preview do evento no formulário */
+.evento-preview {
+    min-width: 60px;
+    padding: 8px;
+    border-radius: 4px;
+    text-align: center;
+    color: white;
+}
+
+.evento-preview .preview-dia {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.evento-preview .preview-mes {
+    font-size: 0.8em;
+    text-transform: uppercase;
+}
+
+/* Cores específicas para eventos - baseadas no sistema existente */
+.cor-dc3545 { background-color: #dc3545; color: white; } /* Vermelho - Sessão Plenária */
+.cor-fd7e14 { background-color: #fd7e14; color: white; } /* Laranja - Audiência Pública/ESIC */
+.cor-6f42c1 { background-color: #6f42c1; color: white; } /* Roxo - Reunião Comissão */
+.cor-e83e8c { background-color: #e83e8c; color: white; } /* Rosa - Votação */
+.cor-20c997 { background-color: #20c997; color: white; } /* Verde água - Licitação */
+.cor-0dcaf0 { background-color: #0dcaf0; color: #212529; } /* Azul claro - Agenda Vereador */
+.cor-6610f2 { background-color: #6610f2; color: white; } /* Índigo - Ato Vereador */
+.cor-6f42c1 { background-color: #6f42c1; color: #ffffff; } /* Roxo - Data Comemorativa */
+.cor-6c757d { background-color: #6c757d; color: white; } /* Cinza - Outro */
+.cor-007bff { background-color: #007bff; color: white; } /* Azul padrão */
+.cor-28a745 { background-color: #28a745; color: white; } /* Verde */
+
+/* Classes auxiliares para cores dinâmicas */
+.evento-cor-dinamica {
+    color: white;
+    font-weight: bold;
+}
+
+.evento-cor-dinamica.cor-clara {
+    color: #212529;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .color-preview {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .evento-cor-preview {
+        min-width: 50px;
+        padding: 6px;
+        font-size: 0.9em;
+    }
+}

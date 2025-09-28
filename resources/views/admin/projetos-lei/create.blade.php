@@ -137,9 +137,24 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
+                            <label for="tipo_autoria" class="form-label">Tipo de Autoria <span class="text-danger">*</span></label>
+                            <select class="form-select @error('tipo_autoria') is-invalid @enderror" id="tipo_autoria" name="tipo_autoria" required>
+                                <option value="">Selecione o tipo de autoria</option>
+                                <option value="vereador" {{ old('tipo_autoria', 'vereador') == 'vereador' ? 'selected' : '' }}>Vereador</option>
+                                <option value="prefeito" {{ old('tipo_autoria') == 'prefeito' ? 'selected' : '' }}>Prefeito Municipal</option>
+                                <option value="comissao" {{ old('tipo_autoria') == 'comissao' ? 'selected' : '' }}>Comissão da Câmara</option>
+                                <option value="iniciativa_popular" {{ old('tipo_autoria') == 'iniciativa_popular' ? 'selected' : '' }}>Iniciativa Popular</option>
+                            </select>
+                            @error('tipo_autoria')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Campos específicos para Vereador -->
+                        <div id="campos_vereador" class="mb-3" style="display: none;">
                             <label for="autor_id" class="form-label">Autor Principal <span class="text-danger">*</span></label>
-                            <select class="form-select @error('autor_id') is-invalid @enderror" id="autor_id" name="autor_id" required>
-                                <option value="">Selecione o autor</option>
+                            <select class="form-select @error('autor_id') is-invalid @enderror" id="autor_id" name="autor_id">
+                                <option value="">Selecione o vereador</option>
                                 @foreach($vereadores as $vereador)
                                     <option value="{{ $vereador->id }}" {{ old('autor_id') == $vereador->id ? 'selected' : '' }}>
                                         {{ $vereador->nome }} - {{ $vereador->partido }}
@@ -149,6 +164,59 @@
                             @error('autor_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                        </div>
+
+                        <!-- Campos específicos para Comissão -->
+                        <div id="campos_comissao" class="mb-3" style="display: none;">
+                            <label for="autor_nome" class="form-label">Nome da Comissão <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('autor_nome') is-invalid @enderror" 
+                                   id="autor_nome" name="autor_nome" value="{{ old('autor_nome') }}"
+                                   placeholder="Ex: Comissão de Administração e Finanças">
+                            @error('autor_nome')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Campos específicos para Iniciativa Popular -->
+                        <div id="campos_iniciativa_popular" class="mb-3" style="display: none;">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Para projetos de iniciativa popular, é necessário cadastrar um comitê responsável.
+                            </div>
+                            
+                            <label for="comite_nome" class="form-label">Nome do Responsável/Comitê <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('comite_nome') is-invalid @enderror" 
+                                   id="comite_nome" name="comite_nome" value="{{ old('comite_nome') }}"
+                                   placeholder="Nome do responsável ou comitê">
+                            @error('comite_nome')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <label for="comite_email" class="form-label">Email de Contato</label>
+                                    <input type="email" class="form-control" id="comite_email" name="comite_email" 
+                                           value="{{ old('comite_email') }}" placeholder="email@exemplo.com">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="comite_telefone" class="form-label">Telefone</label>
+                                    <input type="text" class="form-control" id="comite_telefone" name="comite_telefone" 
+                                           value="{{ old('comite_telefone') }}" placeholder="(00) 00000-0000">
+                                </div>
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <label for="numero_assinaturas" class="form-label">Número de Assinaturas Coletadas</label>
+                                    <input type="number" class="form-control" id="numero_assinaturas" name="numero_assinaturas" 
+                                           value="{{ old('numero_assinaturas', 0) }}" min="0">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="minimo_assinaturas" class="form-label">Mínimo de Assinaturas Necessárias</label>
+                                    <input type="number" class="form-control" id="minimo_assinaturas" name="minimo_assinaturas" 
+                                           value="{{ old('minimo_assinaturas', 1000) }}" min="1">
+                                </div>
+                            </div>
                         </div>
 
                         <div class="mb-3">
@@ -385,4 +453,55 @@
 
 @push('scripts')
 <script src="{{ asset('js/projetos-lei.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoAutoriaSelect = document.getElementById('tipo_autoria');
+    const camposVereador = document.getElementById('campos_vereador');
+    const camposComissao = document.getElementById('campos_comissao');
+    const camposIniciativaPopular = document.getElementById('campos_iniciativa_popular');
+    const autorIdSelect = document.getElementById('autor_id');
+    const autorNomeInput = document.getElementById('autor_nome');
+    const comiteNomeInput = document.getElementById('comite_nome');
+
+    function toggleCampos() {
+        const tipoSelecionado = tipoAutoriaSelect.value;
+        
+        // Esconder todos os campos
+        camposVereador.style.display = 'none';
+        camposComissao.style.display = 'none';
+        camposIniciativaPopular.style.display = 'none';
+        
+        // Remover required de todos os campos
+        autorIdSelect.removeAttribute('required');
+        autorNomeInput.removeAttribute('required');
+        comiteNomeInput.removeAttribute('required');
+        
+        // Mostrar campos específicos baseado na seleção
+        switch(tipoSelecionado) {
+            case 'vereador':
+                camposVereador.style.display = 'block';
+                autorIdSelect.setAttribute('required', 'required');
+                break;
+            case 'prefeito':
+                // Para prefeito, não precisamos de campos adicionais
+                // O nome será definido automaticamente como "Prefeito Municipal"
+                break;
+            case 'comissao':
+                camposComissao.style.display = 'block';
+                autorNomeInput.setAttribute('required', 'required');
+                break;
+            case 'iniciativa_popular':
+                camposIniciativaPopular.style.display = 'block';
+                comiteNomeInput.setAttribute('required', 'required');
+                break;
+        }
+    }
+
+    // Executar na inicialização
+    toggleCampos();
+    
+    // Executar quando o tipo de autoria mudar
+    tipoAutoriaSelect.addEventListener('change', toggleCampos);
+});
+</script>
 @endpush

@@ -31,16 +31,105 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('projetoForm');
     if (form) {
         form.addEventListener('submit', function(e) {
-            const titulo = document.getElementById('titulo').value.trim();
-            const ementa = document.getElementById('ementa').value.trim();
-            const autorId = document.getElementById('autor_id').value;
-            
-            if (!titulo || !ementa || !autorId) {
+            if (!validateForm()) {
                 e.preventDefault();
-                alert('Por favor, preencha todos os campos obrigatórios.');
                 return false;
             }
         });
+    }
+    
+    // Função de validação completa do formulário
+    function validateForm() {
+        const errors = [];
+        
+        // Validações básicas
+        const titulo = document.getElementById('titulo');
+        const ementa = document.getElementById('ementa');
+        const tipoAutoria = document.getElementById('tipo_autoria');
+        
+        if (!titulo || !titulo.value.trim()) {
+            errors.push('O título é obrigatório.');
+        }
+        
+        if (!ementa || !ementa.value.trim()) {
+            errors.push('A ementa é obrigatória.');
+        }
+        
+        if (!tipoAutoria || !tipoAutoria.value) {
+            errors.push('O tipo de autoria é obrigatório.');
+        }
+        
+        // Validações específicas por tipo de autoria
+        if (tipoAutoria && tipoAutoria.value) {
+            switch (tipoAutoria.value) {
+                case 'vereador':
+                    const autorId = document.getElementById('autor_id');
+                    if (!autorId || !autorId.value) {
+                        errors.push('O vereador autor é obrigatório.');
+                    }
+                    break;
+                    
+                case 'comissao':
+                    const autorNome = document.getElementById('autor_nome');
+                    if (!autorNome || !autorNome.value.trim()) {
+                        errors.push('O nome da comissão é obrigatório.');
+                    }
+                    break;
+                    
+                case 'iniciativa_popular':
+                    const comiteNome = document.getElementById('comite_nome');
+                    const numeroAssinaturas = document.getElementById('numero_assinaturas');
+                    const minimoAssinaturas = document.getElementById('minimo_assinaturas');
+                    const comiteEmail = document.getElementById('comite_email');
+                    const comiteTelefone = document.getElementById('comite_telefone');
+                    
+                    if (!comiteNome || !comiteNome.value.trim()) {
+                        errors.push('O nome do responsável/comitê é obrigatório.');
+                    }
+                    
+                    if (!numeroAssinaturas || !numeroAssinaturas.value || parseInt(numeroAssinaturas.value) <= 0) {
+                        errors.push('O número de assinaturas coletadas deve ser maior que zero.');
+                    }
+                    
+                    if (!minimoAssinaturas || !minimoAssinaturas.value || parseInt(minimoAssinaturas.value) < 100) {
+                        errors.push('O mínimo de assinaturas deve ser pelo menos 100.');
+                    }
+                    
+                    if (numeroAssinaturas && minimoAssinaturas && 
+                        parseInt(numeroAssinaturas.value) < parseInt(minimoAssinaturas.value)) {
+                        errors.push('O número de assinaturas coletadas deve ser maior ou igual ao mínimo necessário.');
+                    }
+                    
+                    if (comiteEmail && comiteEmail.value && !isValidEmail(comiteEmail.value)) {
+                        errors.push('O email do comitê deve ser um endereço válido.');
+                    }
+                    
+                    if (comiteTelefone && comiteTelefone.value && !isValidPhone(comiteTelefone.value)) {
+                        errors.push('O telefone deve ter 10 ou 11 dígitos.');
+                    }
+                    break;
+            }
+        }
+        
+        // Exibir erros se houver
+        if (errors.length > 0) {
+            alert('Por favor, corrija os seguintes erros:\n\n' + errors.join('\n'));
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // Função para validar email
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+    
+    // Função para validar telefone
+    function isValidPhone(phone) {
+        const phoneDigits = phone.replace(/[^0-9]/g, '');
+        return phoneDigits.length >= 10 && phoneDigits.length <= 11;
     }
     
     // Habilitar/desabilitar campos baseado no status
@@ -50,22 +139,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const arquivoLei = document.getElementById('arquivo_lei');
     
     function toggleAprovacaoFields() {
+        if (!statusSelect) return; // Sair se não houver statusSelect
+        
         const isAprovado = statusSelect.value === 'aprovado';
         
         if (isAprovado) {
-            dataAprovacao.removeAttribute('disabled');
-            numeroLei.removeAttribute('disabled');
-            arquivoLei.removeAttribute('disabled');
+            if (dataAprovacao) dataAprovacao.removeAttribute('disabled');
+            if (numeroLei) numeroLei.removeAttribute('disabled');
+            if (arquivoLei) arquivoLei.removeAttribute('disabled');
         } else {
-            dataAprovacao.value = '';
-            numeroLei.value = '';
-            dataAprovacao.setAttribute('disabled', 'disabled');
-            numeroLei.setAttribute('disabled', 'disabled');
-            arquivoLei.setAttribute('disabled', 'disabled');
+            if (dataAprovacao) {
+                dataAprovacao.value = '';
+                dataAprovacao.setAttribute('disabled', 'disabled');
+            }
+            if (numeroLei) {
+                numeroLei.value = '';
+                numeroLei.setAttribute('disabled', 'disabled');
+            }
+            if (arquivoLei) {
+                arquivoLei.setAttribute('disabled', 'disabled');
+            }
         }
     }
     
-    if (statusSelect) {
+    // Só executar se todos os elementos necessários existirem (página de edição/criação)
+    if (statusSelect && dataAprovacao && numeroLei && arquivoLei) {
         statusSelect.addEventListener('change', toggleAprovacaoFields);
         toggleAprovacaoFields(); // Trigger inicial
     }
@@ -101,14 +199,46 @@ function toggleView(view) {
     if (view === 'table') {
         tableView.style.display = 'block';
         cardsView.style.display = 'none';
-        tableBtn.classList.add('active');
-        cardsBtn.classList.remove('active');
+        
+        // Verificação de segurança para classList
+        if (tableBtn && tableBtn.classList) {
+            try {
+                tableBtn.classList.add('active');
+            } catch (error) {
+                console.warn('Erro ao adicionar classe active ao tableBtn:', error);
+            }
+        }
+        
+        if (cardsBtn && cardsBtn.classList) {
+            try {
+                cardsBtn.classList.remove('active');
+            } catch (error) {
+                console.warn('Erro ao remover classe active do cardsBtn:', error);
+            }
+        }
+        
         localStorage.setItem('projetos_view', 'table');
     } else {
         tableView.style.display = 'none';
         cardsView.style.display = 'block';
-        tableBtn.classList.remove('active');
-        cardsBtn.classList.add('active');
+        
+        // Verificação de segurança para classList
+        if (tableBtn && tableBtn.classList) {
+            try {
+                tableBtn.classList.remove('active');
+            } catch (error) {
+                console.warn('Erro ao remover classe active do tableBtn:', error);
+            }
+        }
+        
+        if (cardsBtn && cardsBtn.classList) {
+            try {
+                cardsBtn.classList.add('active');
+            } catch (error) {
+                console.warn('Erro ao adicionar classe active ao cardsBtn:', error);
+            }
+        }
+        
         localStorage.setItem('projetos_view', 'cards');
     }
 }

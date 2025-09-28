@@ -517,12 +517,26 @@ function mostrarNotificacao(mensagem, tipo = 'info') {
     
     // Mostrar notificação
     setTimeout(() => {
-        notification.classList.add('show');
+        // Verificação de segurança para classList
+        if (notification && notification.classList) {
+            try {
+                notification.classList.add('show');
+            } catch (error) {
+                console.warn('Erro ao adicionar classe show à notification:', error);
+            }
+        }
     }, 100);
     
     // Remover notificação
     setTimeout(() => {
-        notification.classList.remove('show');
+        // Verificação de segurança para classList
+        if (notification && notification.classList) {
+            try {
+                notification.classList.remove('show');
+            } catch (error) {
+                console.warn('Erro ao remover classe show da notification:', error);
+            }
+        }
         setTimeout(() => {
             document.body.removeChild(notification);
         }, 300);

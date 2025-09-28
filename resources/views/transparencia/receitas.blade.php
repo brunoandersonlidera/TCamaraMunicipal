@@ -169,12 +169,12 @@
                                                 @endif
                                             </td>
                                             <td class="text-center">
-                                                @if($receita->data_arrecadacao)
-                                                    {{ $receita->data_arrecadacao->format('d/m/Y') }}
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
+                                @if($receita->data_arrecadacao)
+                                    {{ $receita->data_arrecadacao->format('d/m/Y') }}
+                                @else
+                                    <span class="text-muted">Não informado</span>
+                                @endif
+                            </td>
                                             <td class="text-center">
                                                 <small>
                                                     {{ str_pad($receita->mes_referencia, 2, '0', STR_PAD_LEFT) }}/{{ $receita->ano_referencia }}
@@ -210,7 +210,7 @@
                                         de {{ $receitas->total() }} registros
                                     </div>
                                     <div>
-                                        {{ $receitas->appends(request()->query())->links() }}
+                                        {{ $receitas->appends(request()->query())->links('pagination::bootstrap-5') }}
                                     </div>
                                 </div>
                             </div>

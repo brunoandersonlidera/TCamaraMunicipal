@@ -240,8 +240,20 @@
             <div class="mb-3">
                 <label for="comissoes" class="form-label">Comissões</label>
                 <div id="comissoes-container">
-                    @if(old('comissoes') || $vereador->comissoes)
-                        @foreach(old('comissoes', $vereador->comissoes ?? []) as $comissao)
+                    @php
+                        $comissoes = old('comissoes');
+                        if (!$comissoes) {
+                            $comissoes = $vereador->comissoes;
+                            // Garantir que seja sempre um array
+                            if (is_string($comissoes)) {
+                                $comissoes = json_decode($comissoes, true) ?? [];
+                            } elseif (!is_array($comissoes)) {
+                                $comissoes = [];
+                            }
+                        }
+                    @endphp
+                    @if($comissoes && count($comissoes) > 0)
+                        @foreach($comissoes as $comissao)
                             <div class="input-group mb-2">
                                 <input type="text" class="form-control" name="comissoes[]" value="{{ $comissao }}" placeholder="Nome da comissão">
                                 <button type="button" class="btn btn-outline-danger" onclick="removeComissao(this)">
@@ -266,6 +278,15 @@
     </div>
     
     <!-- Redes Sociais -->
+    @php
+        $redes_sociais_edit = $vereador->redes_sociais;
+        // Garantir que seja sempre um array
+        if (is_string($redes_sociais_edit)) {
+            $redes_sociais_edit = json_decode($redes_sociais_edit, true) ?? [];
+        } elseif (!is_array($redes_sociais_edit)) {
+            $redes_sociais_edit = [];
+        }
+    @endphp
     <div class="admin-card mb-4">
         <div class="card-header">
             <h5 class="mb-0"><i class="fas fa-share-alt"></i> Redes Sociais</h5>
@@ -275,10 +296,10 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="facebook" class="form-label">Facebook</label>
-                        <input type="url" class="form-control @error('redes_sociais.facebook') is-invalid @enderror" 
+                        <input type="text" class="form-control @error('redes_sociais.facebook') is-invalid @enderror" 
                                id="facebook" name="redes_sociais[facebook]" 
-                               value="{{ old('redes_sociais.facebook', $vereador->redes_sociais['facebook'] ?? '') }}" 
-                               placeholder="https://facebook.com/usuario">
+                               value="{{ old('redes_sociais.facebook', $redes_sociais_edit['facebook'] ?? '') }}" 
+                               placeholder="https://facebook.com/usuario ou @usuario">
                         @error('redes_sociais.facebook')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -287,10 +308,10 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="instagram" class="form-label">Instagram</label>
-                        <input type="url" class="form-control @error('redes_sociais.instagram') is-invalid @enderror" 
+                        <input type="text" class="form-control @error('redes_sociais.instagram') is-invalid @enderror" 
                                id="instagram" name="redes_sociais[instagram]" 
-                               value="{{ old('redes_sociais.instagram', $vereador->redes_sociais['instagram'] ?? '') }}" 
-                               placeholder="https://instagram.com/usuario">
+                               value="{{ old('redes_sociais.instagram', $redes_sociais_edit['instagram'] ?? '') }}" 
+                               placeholder="https://instagram.com/usuario ou @usuario">
                         @error('redes_sociais.instagram')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -302,10 +323,10 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="twitter" class="form-label">Twitter</label>
-                        <input type="url" class="form-control @error('redes_sociais.twitter') is-invalid @enderror" 
+                        <input type="text" class="form-control @error('redes_sociais.twitter') is-invalid @enderror" 
                                id="twitter" name="redes_sociais[twitter]" 
-                               value="{{ old('redes_sociais.twitter', $vereador->redes_sociais['twitter'] ?? '') }}" 
-                               placeholder="https://twitter.com/usuario">
+                               value="{{ old('redes_sociais.twitter', $redes_sociais_edit['twitter'] ?? '') }}" 
+                               placeholder="https://twitter.com/usuario ou @usuario">
                         @error('redes_sociais.twitter')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -314,10 +335,10 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="linkedin" class="form-label">LinkedIn</label>
-                        <input type="url" class="form-control @error('redes_sociais.linkedin') is-invalid @enderror" 
+                        <input type="text" class="form-control @error('redes_sociais.linkedin') is-invalid @enderror" 
                                id="linkedin" name="redes_sociais[linkedin]" 
-                               value="{{ old('redes_sociais.linkedin', $vereador->redes_sociais['linkedin'] ?? '') }}" 
-                               placeholder="https://linkedin.com/in/usuario">
+                               value="{{ old('redes_sociais.linkedin', $redes_sociais_edit['linkedin'] ?? '') }}" 
+                               placeholder="https://linkedin.com/in/usuario ou nome-usuario">
                         @error('redes_sociais.linkedin')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

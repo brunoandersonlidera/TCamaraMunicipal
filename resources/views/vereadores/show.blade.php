@@ -59,7 +59,14 @@
                         Voltar aos Vereadores
                     </a>
                     @if($vereador->redes_sociais)
-                        @php $redes = json_decode($vereador->redes_sociais, true); @endphp
+                        @php 
+                            $redes = $vereador->redes_sociais;
+                            if (is_string($redes)) {
+                                $redes = json_decode($redes, true) ?? [];
+                            } elseif (!is_array($redes)) {
+                                $redes = [];
+                            }
+                        @endphp
                         @if(isset($redes['facebook']))
                         <a href="{{ $redes['facebook'] }}" target="_blank" class="btn btn-outline-light">
                             <i class="fab fa-facebook me-1"></i>
@@ -177,8 +184,15 @@
                             Comissões
                         </h4>
                         
-                        @php $comissoes = json_decode($vereador->comissoes, true); @endphp
-                        @if($comissoes)
+                        @php 
+                            $comissoes = $vereador->comissoes;
+                            if (is_string($comissoes)) {
+                                $comissoes = json_decode($comissoes, true) ?? [];
+                            } elseif (!is_array($comissoes)) {
+                                $comissoes = [];
+                            }
+                        @endphp
+                        @if($comissoes && count($comissoes) > 0)
                             @foreach($comissoes as $comissao)
                             <div class="comissao-item mb-2">
                                 <span class="badge bg-primary fs-6 px-3 py-2 w-100 text-start">

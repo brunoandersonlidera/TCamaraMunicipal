@@ -206,11 +206,11 @@ class SessaoController extends Controller
             ->get();
 
         // Agrupar sessões por data
-        $sessoesPorData = $sessoes->groupBy(function($sessao) {
+        $sessoesPorDia = $sessoes->groupBy(function($sessao) {
             return $sessao->data_sessao->format('Y-m-d');
         });
 
-        return view('sessoes.calendario', compact('sessoesPorData', 'ano', 'mes'));
+        return view('sessoes.calendario', compact('sessoesPorDia', 'ano', 'mes'));
     }
 
     public function proximas()
@@ -367,7 +367,7 @@ class SessaoController extends Controller
 
         $totalPresencas = 0;
         $totalSessoes = $sessoesFinalizadas->count();
-        $totalVereadores = Vereador::ativo()->count();
+        $totalVereadores = Vereador::ativos()->count();
 
         foreach ($sessoesFinalizadas as $sessao) {
             $presentes = $sessao->vereadores->where('pivot.presente', true)->count();

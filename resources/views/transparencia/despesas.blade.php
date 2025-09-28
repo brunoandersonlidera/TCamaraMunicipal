@@ -179,11 +179,7 @@
                                                 @endif
                                             </td>
                                             <td class="text-center">
-                                                @if($despesa->data_empenho)
-                                                    {{ $despesa->data_empenho->format('d/m/Y') }}
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
+                                                {{ $despesa->data_empenho ? $despesa->data_empenho->format('d/m/Y') : 'Não informado' }}
                                             </td>
                                             <td class="text-center">
                                                 <small>
@@ -217,15 +213,7 @@
                         <!-- Paginação -->
                         @if($despesas->hasPages())
                             <div class="card-footer bg-light">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="text-muted">
-                                        Mostrando {{ $despesas->firstItem() }} a {{ $despesas->lastItem() }} 
-                                        de {{ $despesas->total() }} registros
-                                    </div>
-                                    <div>
-                                        {{ $despesas->appends(request()->query())->links() }}
-                                    </div>
-                                </div>
+                                {{ $despesas->appends(request()->query())->links('pagination::bootstrap-5') }}
                             </div>
                         @endif
 

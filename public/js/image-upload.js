@@ -29,17 +29,35 @@ function initImageUpload(component) {
     // Drag and drop events
     uploadZone.addEventListener('dragover', function(e) {
         e.preventDefault();
-        uploadZone.classList.add('dragover');
+        if (uploadZone && uploadZone.classList) {
+            try {
+                uploadZone.classList.add('dragover');
+            } catch (error) {
+                console.warn('Erro ao adicionar classe dragover:', error);
+            }
+        }
     });
 
     uploadZone.addEventListener('dragleave', function(e) {
         e.preventDefault();
-        uploadZone.classList.remove('dragover');
+        if (uploadZone && uploadZone.classList) {
+            try {
+                uploadZone.classList.remove('dragover');
+            } catch (error) {
+                console.warn('Erro ao remover classe dragover:', error);
+            }
+        }
     });
 
     uploadZone.addEventListener('drop', function(e) {
         e.preventDefault();
-        uploadZone.classList.remove('dragover');
+        if (uploadZone && uploadZone.classList) {
+            try {
+                uploadZone.classList.remove('dragover');
+            } catch (error) {
+                console.warn('Erro ao remover classe dragover:', error);
+            }
+        }
         
         const files = Array.from(e.dataTransfer.files);
         handleFiles(files);

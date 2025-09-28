@@ -7,7 +7,7 @@
 @elseif($menu->tipo === 'dropdown' && $menu->children->count() > 0)
     <li class="nav-item dropdown">
         <!-- Desktop: Dropdown padrão do Bootstrap -->
-        <a class="nav-link dropdown-toggle d-none d-lg-flex" href="#" id="dropdown{{ $menu->id }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <a class="nav-link dropdown-toggle d-none d-lg-block" href="#" id="dropdown{{ $menu->id }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             @if($menu->icone)
                 <i class="{{ $menu->icone }} me-1"></i>
             @endif

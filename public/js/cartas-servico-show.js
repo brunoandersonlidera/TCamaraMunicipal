@@ -42,9 +42,20 @@ function initAccordions() {
                         const otherTarget = document.querySelector(otherTargetId);
                         
                         otherButton.setAttribute('aria-expanded', 'false');
-                        otherButton.classList.add('collapsed');
-                        if (otherTarget) {
-                            otherTarget.classList.remove('show');
+                        // Verificação de segurança para classList
+                        if (otherButton && otherButton.classList) {
+                            try {
+                                otherButton.classList.add('collapsed');
+                            } catch (error) {
+                                console.warn('Erro ao adicionar classe collapsed ao otherButton:', error);
+                            }
+                        }
+                        if (otherTarget && otherTarget.classList) {
+                            try {
+                                otherTarget.classList.remove('show');
+                            } catch (error) {
+                                console.warn('Erro ao remover classe show do otherTarget:', error);
+                            }
                         }
                     }
                 });
@@ -52,10 +63,21 @@ function initAccordions() {
             
             // Toggle do accordion atual
             this.setAttribute('aria-expanded', !isExpanded);
-            this.classList.toggle('collapsed', isExpanded);
+            // Verificação de segurança para classList
+            if (this && this.classList) {
+                try {
+                    this.classList.toggle('collapsed', isExpanded);
+                } catch (error) {
+                    console.warn('Erro ao alternar classe collapsed:', error);
+                }
+            }
             
-            if (target) {
-                target.classList.toggle('show', !isExpanded);
+            if (target && target.classList) {
+                try {
+                    target.classList.toggle('show', !isExpanded);
+                } catch (error) {
+                    console.warn('Erro ao alternar classe show do target:', error);
+                }
             }
         });
     });
@@ -201,14 +223,28 @@ function initPrintButton() {
             e.preventDefault();
             
             // Preparar página para impressão
-            document.body.classList.add('printing');
+            // Verificação de segurança para classList
+            if (document.body && document.body.classList) {
+                try {
+                    document.body.classList.add('printing');
+                } catch (error) {
+                    console.warn('Erro ao adicionar classe printing ao body:', error);
+                }
+            }
             
             // Imprimir
             window.print();
             
             // Remover classe após impressão
             setTimeout(() => {
-                document.body.classList.remove('printing');
+                // Verificação de segurança para classList
+                if (document.body && document.body.classList) {
+                    try {
+                        document.body.classList.remove('printing');
+                    } catch (error) {
+                        console.warn('Erro ao remover classe printing do body:', error);
+                    }
+                }
             }, 1000);
         });
     }
@@ -233,9 +269,22 @@ function initScrollSpy() {
             const navLink = document.querySelector(`.nav-link[href="#${id}"]`);
             
             if (entry.isIntersecting) {
-                navLinks.forEach(link => link.classList.remove('active'));
-                if (navLink) {
-                    navLink.classList.add('active');
+                navLinks.forEach(link => {
+                    // Verificação de segurança para classList
+                    if (link && link.classList) {
+                        try {
+                            link.classList.remove('active');
+                        } catch (error) {
+                            console.warn('Erro ao remover classe active do link:', error);
+                        }
+                    }
+                });
+                if (navLink && navLink.classList) {
+                    try {
+                        navLink.classList.add('active');
+                    } catch (error) {
+                        console.warn('Erro ao adicionar classe active ao navLink:', error);
+                    }
                 }
             }
         });
@@ -273,7 +322,14 @@ function initStickyNavigation() {
     
     const observer = new IntersectionObserver(
         ([entry]) => {
-            stickyNav.classList.toggle('visible', !entry.isIntersecting);
+            // Verificação de segurança para classList
+            if (stickyNav && stickyNav.classList) {
+                try {
+                    stickyNav.classList.toggle('visible', !entry.isIntersecting);
+                } catch (error) {
+                    console.warn('Erro ao alternar classe visible do stickyNav:', error);
+                }
+            }
         },
         { threshold: 0 }
     );
@@ -340,7 +396,14 @@ function openImageModal(src, alt) {
     
     // Mostrar modal
     setTimeout(() => {
-        modal.classList.add('show');
+        // Verificação de segurança para classList
+        if (modal && modal.classList) {
+            try {
+                modal.classList.add('show');
+            } catch (error) {
+                console.warn('Erro ao adicionar classe show ao modal:', error);
+            }
+        }
     }, 10);
 }
 
@@ -399,7 +462,14 @@ function submitFeedback(isHelpful) {
             // Desabilitar botões de feedback
             document.querySelectorAll('.feedback-btn').forEach(btn => {
                 btn.disabled = true;
-                btn.classList.add('disabled');
+                // Verificação de segurança para classList
+                if (btn && btn.classList) {
+                    try {
+                        btn.classList.add('disabled');
+                    } catch (error) {
+                        console.warn('Erro ao adicionar classe disabled ao btn:', error);
+                    }
+                }
             });
         }
     })
@@ -436,12 +506,26 @@ function initAccessibility() {
     // Melhorar foco visível
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Tab') {
-            document.body.classList.add('keyboard-navigation');
+            // Verificação de segurança para classList
+            if (document.body && document.body.classList) {
+                try {
+                    document.body.classList.add('keyboard-navigation');
+                } catch (error) {
+                    console.warn('Erro ao adicionar classe keyboard-navigation ao body:', error);
+                }
+            }
         }
     });
     
     document.addEventListener('mousedown', function() {
-        document.body.classList.remove('keyboard-navigation');
+        // Verificação de segurança para classList
+        if (document.body && document.body.classList) {
+            try {
+                document.body.classList.remove('keyboard-navigation');
+            } catch (error) {
+                console.warn('Erro ao remover classe keyboard-navigation do body:', error);
+            }
+        }
     });
 }
 
@@ -459,11 +543,25 @@ function showNotification(message, type = 'info') {
     document.body.appendChild(notification);
     
     setTimeout(() => {
-        notification.classList.add('show');
+        // Verificação de segurança para classList
+        if (notification && notification.classList) {
+            try {
+                notification.classList.add('show');
+            } catch (error) {
+                console.warn('Erro ao adicionar classe show à notification:', error);
+            }
+        }
     }, 100);
     
     setTimeout(() => {
-        notification.classList.remove('show');
+        // Verificação de segurança para classList
+        if (notification && notification.classList) {
+            try {
+                notification.classList.remove('show');
+            } catch (error) {
+                console.warn('Erro ao remover classe show da notification:', error);
+            }
+        }
         setTimeout(() => {
             if (notification.parentNode) {
                 document.body.removeChild(notification);

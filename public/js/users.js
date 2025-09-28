@@ -12,12 +12,24 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (passwordField.type === 'password') {
                 passwordField.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+                if (icon && icon.classList) {
+                    try {
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } catch (error) {
+                        console.warn('Erro ao alterar ícone de senha:', error);
+                    }
+                }
             } else {
                 passwordField.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+                if (icon && icon.classList) {
+                    try {
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    } catch (error) {
+                        console.warn('Erro ao alterar ícone de senha:', error);
+                    }
+                }
             }
         });
     }
@@ -96,10 +108,22 @@ document.addEventListener('DOMContentLoaded', function() {
             
             requiredFields.forEach(field => {
                 if (!field.value.trim()) {
-                    field.classList.add('is-invalid');
+                    if (field && field.classList) {
+                        try {
+                            field.classList.add('is-invalid');
+                        } catch (error) {
+                            console.warn('Erro ao adicionar classe de validação:', error);
+                        }
+                    }
                     isValid = false;
                 } else {
-                    field.classList.remove('is-invalid');
+                    if (field && field.classList) {
+                        try {
+                            field.classList.remove('is-invalid');
+                        } catch (error) {
+                            console.warn('Erro ao remover classe de validação:', error);
+                        }
+                    }
                 }
             });
             

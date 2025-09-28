@@ -1,0 +1,26 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo do brasão -->
+  <circle cx="60" cy="60" r="55" fill="#1e3a8a" stroke="#fbbf24" stroke-width="3"/>
+  
+  <!-- Símbolo da câmara -->
+  <rect x="25" y="45" width="70" height="35" rx="5" fill="#fbbf24"/>
+  <rect x="30" y="50" width="60" height="25" rx="3" fill="#1e3a8a"/>
+  
+  <!-- Colunas -->
+  <rect x="35" y="52" width="6" height="21" fill="#fbbf24"/>
+  <rect x="45" y="52" width="6" height="21" fill="#fbbf24"/>
+  <rect x="55" y="52" width="6" height="21" fill="#fbbf24"/>
+  <rect x="65" y="52" width="6" height="21" fill="#fbbf24"/>
+  <rect x="75" y="52" width="6" height="21" fill="#fbbf24"/>
+  
+  <!-- Base -->
+  <rect x="25" y="75" width="70" height="8" rx="2" fill="#fbbf24"/>
+  
+  <!-- Texto -->
+  <text x="60" y="95" text-anchor="middle" fill="#fbbf24" font-family="serif" font-size="10" font-weight="bold">CÂMARA</text>
+  <text x="60" y="105" text-anchor="middle" fill="#fbbf24" font-family="serif" font-size="8">MUNICIPAL</text>
+  
+  <!-- Estrelas decorativas -->
+  <polygon points="20,25 22,31 28,31 23,35 25,41 20,37 15,41 17,35 12,31 18,31" fill="#fbbf24"/>
+  <polygon points="100,25 102,31 108,31 103,35 105,41 100,37 95,41 97,35 92,31 98,31" fill="#fbbf24"/>
+</svg>

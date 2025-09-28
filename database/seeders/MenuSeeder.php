@@ -91,6 +91,18 @@ class MenuSeeder extends Seeder
             'ativo' => true,
         ]);
 
+        Menu::create([
+            'titulo' => 'Missão, Visão e Valores',
+            'slug' => 'missao-visao-valores',
+            'tipo' => 'link',
+            'url' => '/sobre/missao',
+            'icone' => 'fas fa-bullseye',
+            'posicao' => 'header',
+            'parent_id' => $menuSobre->id,
+            'ordem' => 4,
+            'ativo' => true,
+        ]);
+
         // 3. Legislativo (Dropdown) - Agrupando Vereadores, Projetos e Sessões
         $menuLegislativo = Menu::create([
             'titulo' => 'Legislativo',
@@ -216,7 +228,7 @@ class MenuSeeder extends Seeder
             'titulo' => 'Contato',
             'slug' => 'contato',
             'tipo' => 'link',
-            'rota' => 'contato.index',
+            'url' => '/contato',
             'icone' => 'fas fa-envelope',
             'posicao' => 'header',
             'ordem' => 5,

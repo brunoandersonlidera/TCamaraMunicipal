@@ -138,11 +138,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($projetos as $projeto)
+                            @foreach($projetos as $projetoLei)
                             <tr>
                                 <td>
-                                    <div class="fw-bold">{{ $projeto->numero }}</div>
-                                    @if($projeto->urgente)
+                                    <div class="fw-bold">{{ $projetoLei->numero }}</div>
+                                    @if($projetoLei->urgente)
                                         <span class="badge bg-warning text-dark">
                                             <i class="fas fa-exclamation-triangle me-1"></i>Urgente
                                         </span>
@@ -150,18 +150,18 @@
                                 </td>
                                 <td>
                                     <span class="badge bg-info">
-                                        {{ ucfirst(str_replace('_', ' ', $projeto->tipo)) }}
+                                        {{ ucfirst(str_replace('_', ' ', $projetoLei->tipo)) }}
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="fw-bold">{{ Str::limit($projeto->titulo, 50) }}</div>
-                                    <small class="text-muted">{{ Str::limit($projeto->ementa, 80) }}</small>
+                                    <div class="fw-bold">{{ Str::limit($projetoLei->titulo, 50) }}</div>
+                                    <small class="text-muted">{{ Str::limit($projetoLei->ementa, 80) }}</small>
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        @if($projeto->autor->foto)
-                                            <img src="{{ asset('storage/' . $projeto->autor->foto) }}" 
-                                                 alt="{{ $projeto->autor->nome }}" 
+                                        @if($projetoLei->tipo_autoria === 'vereador' && $projetoLei->autor && $projetoLei->autor->foto)
+                                            <img src="{{ asset('storage/' . $projetoLei->autor->foto) }}" 
+                                                 alt="{{ $projetoLei->autor->nome }}" 
                                                  class="rounded-circle me-2" 
                                                  style="width: 30px; height: 30px; object-fit: cover;">
                                         @else
@@ -171,34 +171,37 @@
                                             </div>
                                         @endif
                                         <div>
-                                            <div class="fw-bold" style="font-size: 0.875rem;">{{ $projeto->autor->nome }}</div>
-                                            @if($projeto->vereadores->count() > 0)
-                                                <small class="text-muted">+{{ $projeto->vereadores->count() }} coautor(es)</small>
-                                            @endif
+                                            <div class="fw-bold" style="font-size: 0.875rem;">{{ $projetoLei->getAutorCompleto() }}</div>
+                                            <small class="text-muted">
+                                                {{ ucfirst(str_replace('_', ' ', $projetoLei->tipo_autoria)) }}
+                                                @if($projetoLei->coautores && $projetoLei->coautores->count() > 0)
+                                                    • +{{ $projetoLei->coautores->count() }} coautor(es)
+                                                @endif
+                                            </small>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <div>{{ $projeto->data_protocolo->format('d/m/Y') }}</div>
-                                    <small class="text-muted">{{ $projeto->data_protocolo->diffForHumans() }}</small>
+                                    <div>{{ $projetoLei->data_protocolo->format('d/m/Y') }}</div>
+                                    <small class="text-muted">{{ $projetoLei->data_protocolo->diffForHumans() }}</small>
                                 </td>
                                 <td>
-                                    <span class="badge bg-{{ $projeto->status === 'aprovado' ? 'success' : ($projeto->status === 'rejeitado' ? 'danger' : ($projeto->status === 'tramitando' ? 'warning' : 'secondary')) }}">
-                                        {{ ucfirst($projeto->status) }}
+                                    <span class="badge bg-{{ $projetoLei->status === 'aprovado' ? 'success' : ($projetoLei->status === 'rejeitado' ? 'danger' : ($projetoLei->status === 'tramitando' ? 'warning' : 'secondary')) }}">
+                                        {{ ucfirst($projetoLei->status) }}
                                     </span>
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ route('admin.projetos-lei.show', $projeto) }}" 
+                                        <a href="{{ route('admin.projetos-lei.show', $projetoLei) }}" 
                                            class="btn btn-outline-info" title="Visualizar">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('admin.projetos-lei.edit', $projeto) }}" 
+                                        <a href="{{ route('admin.projetos-lei.edit', $projetoLei) }}" 
                                            class="btn btn-outline-primary" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button type="button" class="btn btn-outline-danger" 
-                                                onclick="confirmDelete('{{ $projeto->id }}')" title="Excluir">
+                                                onclick="confirmDelete('{{ $projetoLei->id }}')" title="Excluir">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -211,27 +214,27 @@
 
                 <!-- Visualização em Cards -->
                 <div id="cardsView" class="row p-3" style="display: none;">
-                    @foreach($projetos as $projeto)
+                    @foreach($projetos as $projetoLei)
                     <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card h-100">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <div>
-                                    <span class="badge bg-info">{{ $projeto->numero }}</span>
-                                    @if($projeto->urgente)
+                                    <span class="badge bg-info">{{ $projetoLei->numero }}</span>
+                                    @if($projetoLei->urgente)
                                         <span class="badge bg-warning text-dark">Urgente</span>
                                     @endif
                                 </div>
-                                <span class="badge bg-{{ $projeto->status === 'aprovado' ? 'success' : ($projeto->status === 'rejeitado' ? 'danger' : ($projeto->status === 'tramitando' ? 'warning' : 'secondary')) }}">
-                                    {{ ucfirst($projeto->status) }}
+                                <span class="badge bg-{{ $projetoLei->status === 'aprovado' ? 'success' : ($projetoLei->status === 'rejeitado' ? 'danger' : ($projetoLei->status === 'tramitando' ? 'warning' : 'secondary')) }}">
+                                    {{ ucfirst($projetoLei->status) }}
                                 </span>
                             </div>
                             <div class="card-body">
-                                <h6 class="card-title">{{ Str::limit($projeto->titulo, 60) }}</h6>
-                                <p class="card-text text-muted small">{{ Str::limit($projeto->ementa, 100) }}</p>
+                                <h6 class="card-title">{{ Str::limit($projetoLei->titulo, 60) }}</h6>
+                                <p class="card-text text-muted small">{{ Str::limit($projetoLei->ementa, 100) }}</p>
                                 <div class="d-flex align-items-center mb-2">
-                                    @if($projeto->autor->foto)
-                                        <img src="{{ asset('storage/' . $projeto->autor->foto) }}" 
-                                             alt="{{ $projeto->autor->nome }}" 
+                                    @if($projetoLei->tipo_autoria === 'vereador' && $projetoLei->autor && $projetoLei->autor->foto)
+                                        <img src="{{ asset('storage/' . $projetoLei->autor->foto) }}" 
+                                             alt="{{ $projetoLei->autor->nome }}" 
                                              class="rounded-circle me-2" 
                                              style="width: 25px; height: 25px; object-fit: cover;">
                                     @else
@@ -240,22 +243,25 @@
                                             <i class="fas fa-user text-white" style="font-size: 10px;"></i>
                                         </div>
                                     @endif
-                                    <small class="text-muted">{{ $projeto->autor->nome }}</small>
+                                    <div>
+                                        <small class="text-muted d-block">{{ $projetoLei->getAutorCompleto() }}</small>
+                                        <small class="text-muted">{{ ucfirst(str_replace('_', ' ', $projetoLei->tipo_autoria)) }}</small>
+                                    </div>
                                 </div>
-                                <small class="text-muted">{{ $projeto->data_protocolo->format('d/m/Y') }}</small>
+                                <small class="text-muted">{{ $projetoLei->data_protocolo->format('d/m/Y') }}</small>
                             </div>
                             <div class="card-footer">
                                 <div class="btn-group btn-group-sm w-100">
-                                    <a href="{{ route('admin.projetos-lei.show', $projeto) }}" 
+                                    <a href="{{ route('admin.projetos-lei.show', $projetoLei) }}" 
                                        class="btn btn-outline-info">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('admin.projetos-lei.edit', $projeto) }}" 
+                                    <a href="{{ route('admin.projetos-lei.edit', $projetoLei) }}" 
                                        class="btn btn-outline-primary">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <button type="button" class="btn btn-outline-danger" 
-                                            onclick="confirmDelete('{{ $projeto->id }}')">
+                                            onclick="confirmDelete('{{ $projetoLei->id }}')">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>

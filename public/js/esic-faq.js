@@ -158,8 +158,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateActiveCategory(activeButton) {
-        categoryButtons.forEach(btn => btn.classList.remove('active'));
-        activeButton.classList.add('active');
+        categoryButtons.forEach(btn => {
+            // Verificação de segurança para classList
+            if (btn && btn.classList) {
+                try {
+                    btn.classList.remove('active');
+                } catch (error) {
+                    console.warn('Erro ao remover classe active do btn:', error);
+                }
+            }
+        });
+        // Verificação de segurança para classList
+        if (activeButton && activeButton.classList) {
+            try {
+                activeButton.classList.add('active');
+            } catch (error) {
+                console.warn('Erro ao adicionar classe active ao activeButton:', error);
+            }
+        }
     }
 
     function removeAllHighlights() {
@@ -204,7 +220,14 @@ document.addEventListener('DOMContentLoaded', function() {
             closeAllAccordionItems();
             
             // Abrir este item
-            item.classList.add('active');
+            // Verificação de segurança para classList
+            if (item && item.classList) {
+                try {
+                    item.classList.add('active');
+                } catch (error) {
+                    console.warn('Erro ao adicionar classe active ao item:', error);
+                }
+            }
             answer.style.maxHeight = answer.scrollHeight + 'px';
             if (icon) icon.style.transform = 'rotate(180deg)';
 
@@ -226,7 +249,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const answer = item.querySelector('.faq-answer');
             const icon = item.querySelector('.faq-icon');
             
-            item.classList.remove('active');
+            // Verificação de segurança para classList
+            if (item && item.classList) {
+                try {
+                    item.classList.remove('active');
+                } catch (error) {
+                    console.warn('Erro ao remover classe active do item:', error);
+                }
+            }
             if (answer) answer.style.maxHeight = null;
             if (icon) icon.style.transform = 'rotate(0deg)';
         });
@@ -306,7 +336,18 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function saveFAQState() {
         const openItems = Array.from(faqItems)
-            .filter(item => item.classList.contains('active'))
+            .filter(item => {
+                // Verificação de segurança para classList
+                if (item && item.classList) {
+                    try {
+                        return item.classList.contains('active');
+                    } catch (error) {
+                        console.warn('Erro ao verificar classe active do item:', error);
+                        return false;
+                    }
+                }
+                return false;
+            })
             .map(item => item.dataset.id || Array.from(faqItems).indexOf(item));
         
         localStorage.setItem('faq_open_items', JSON.stringify(openItems));

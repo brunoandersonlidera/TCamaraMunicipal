@@ -133,10 +133,23 @@ function updateOrderBadges(rows) {
             badge.textContent = index + 1;
             
             // Adiciona animação de feedback
-            row.classList.add('updated');
-            setTimeout(() => {
-                row.classList.remove('updated');
-            }, 500);
+            // Verificação de segurança para classList
+            if (row && row.classList) {
+                try {
+                    row.classList.add('updated');
+                    setTimeout(() => {
+                        if (row && row.classList) {
+                            try {
+                                row.classList.remove('updated');
+                            } catch (error) {
+                                console.warn('Erro ao remover classe updated da row:', error);
+                            }
+                        }
+                    }, 500);
+                } catch (error) {
+                    console.warn('Erro ao adicionar classe updated à row:', error);
+                }
+            }
         }
     });
 }

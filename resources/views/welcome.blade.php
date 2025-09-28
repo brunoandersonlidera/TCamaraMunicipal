@@ -15,105 +15,240 @@
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="container">
-        <div class="row align-items-center">
+        <div class="row align-items-center min-vh-75">
+            <!-- Texto Dinâmico - Lado Esquerdo -->
             <div class="col-lg-6">
                 <h1 class="display-4 fw-bold mb-4 animate-fade-in-up">
-                    Bem-vindo à Câmara Municipal
+                    {{ $heroConfig->titulo }}
                 </h1>
                 <p class="lead mb-4 animate-fade-in-up" style="animation-delay: 0.2s;">
-                    Trabalhando pela transparência, representatividade e desenvolvimento do nosso município. 
-                    Acompanhe as atividades legislativas e participe da vida política da sua cidade.
+                    {{ $heroConfig->descricao }}
                 </p>
                 <div class="d-flex gap-3 flex-wrap animate-fade-in-up" style="animation-delay: 0.4s;">
-                    <a href="{{ route('vereadores.index') }}" class="btn btn-primary-custom">
-                        <i class="fas fa-users me-2"></i>
-                        Conheça os Vereadores
-                    </a>
-                    <a href="#" class="btn btn-outline-light">
+                    <a href="{{ $heroConfig->botao_primario_link }}" 
+                       class="btn btn-primary-custom"
+                       target="{{ $heroConfig->botao_primario_nova_aba ? '_blank' : '_self' }}">
                         <i class="fas fa-eye me-2"></i>
-                        Portal da Transparência
+                        {{ $heroConfig->botao_primario_texto }}
+                    </a>
+                    <a href="{{ $heroConfig->botao_secundario_link }}" 
+                       class="btn btn-outline-light"
+                       target="{{ $heroConfig->botao_secundario_nova_aba ? '_blank' : '_self' }}">
+                        <i class="fas fa-users me-2"></i>
+                        {{ $heroConfig->botao_secundario_texto }}
                     </a>
                 </div>
             </div>
-            <div class="col-lg-6 text-center">
-                <div class="animate-fade-in-up" style="animation-delay: 0.6s;">
-                    <i class="fas fa-landmark" style="font-size: 12rem; opacity: 0.1;"></i>
-                </div>
+            
+            <!-- Slider de Imagens - Lado Direito -->
+            <div class="col-lg-6">
+                @if($slides->count() > 0)
+                    <div id="heroSlider" class="carousel slide hero-slider" data-bs-ride="carousel">
+                        <!-- Indicadores -->
+                        <div class="carousel-indicators">
+                            @foreach($slides as $index => $slide)
+                                <button type="button" 
+                                        data-bs-target="#heroSlider" 
+                                        data-bs-slide-to="{{ $index }}" 
+                                        class="{{ $index === 0 ? 'active' : '' }}"
+                                        aria-current="{{ $index === 0 ? 'true' : 'false' }}"
+                                        aria-label="Slide {{ $index + 1 }}"></button>
+                            @endforeach
+                        </div>
+                        
+                        <!-- Slides -->
+                        <div class="carousel-inner">
+                            @foreach($slides as $index => $slide)
+                                <div class="carousel-item {{ $index === 0 ? 'active' : '' }}"
+                                     data-bs-interval="{{ $slide->velocidade * 1000 }}">
+                                    @if($slide->link)
+                                        <a href="{{ $slide->link }}" 
+                                           target="{{ $slide->nova_aba ? '_blank' : '_self' }}"
+                                           class="d-block">
+                                    @endif
+                                    
+                                    <img src="{{ $slide->url_imagem }}" 
+                                         class="d-block w-100 hero-slide-image" 
+                                         alt="{{ $slide->titulo }}">
+                                    
+                                    @if($slide->titulo || $slide->descricao)
+                                        <div class="carousel-caption d-none d-md-block">
+                                            @if($slide->titulo)
+                                                <h5>{{ $slide->titulo }}</h5>
+                                            @endif
+                                            @if($slide->descricao)
+                                                <p>{{ $slide->descricao }}</p>
+                                            @endif
+                                        </div>
+                                    @endif
+                                    
+                                    @if($slide->link)
+                                        </a>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                        
+                        <!-- Controles -->
+                        <button class="carousel-control-prev" type="button" data-bs-target="#heroSlider" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#heroSlider" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Próximo</span>
+                        </button>
+                    </div>
+                @else
+                    <!-- Fallback quando não há slides -->
+                    <div class="text-center animate-fade-in-up" style="animation-delay: 0.6s;">
+                        <i class="fas fa-landmark" style="font-size: 12rem; opacity: 0.1;"></i>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
 </section>
 
-<!-- Acesso Rápido -->
+<!-- Acesso Rápido e Calendário -->
 <section class="py-5">
     <div class="container">
+        <div class="row g-5">
+            <!-- Acesso Rápido (4/5 do espaço) -->
+            <div class="col-lg-8">
+                <div class="text-center mb-5">
+                    <h2 class="section-title">Acesso Rápido</h2>
+                    <p class="text-muted">Encontre rapidamente o que você precisa</p>
+                </div>
+                
+                @if($acessosRapidos->count() > 0)
+                    <div class="row g-3 justify-content-center">
+                        @foreach($acessosRapidos as $acesso)
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                                <a href="{{ $acesso->getUrlFormatada() }}" 
+                                   class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
+                                   target="{{ $acesso->getTarget() }}"
+                                   data-bg-color="{{ $acesso->cor_botao ?? '#007bff' }}"
+                                   data-text-color="{{ $acesso->cor_fonte ?? '#ffffff' }}">
+                                    <i class="{{ $acesso->icone ?? 'fas fa-link' }} mb-2 acesso-rapido-icon"></i>
+                                    <span class="fw-bold text-center acesso-rapido-title">{{ $acesso->nome }}</span>
+                                    @if($acesso->descricao)
+                                        <small class="text-center mt-1 opacity-75 acesso-rapido-desc">{{ Str::limit($acesso->descricao, 30) }}</small>
+                                    @endif
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <!-- Fallback para quando não há acessos rápidos cadastrados -->
+                    <div class="row g-3 justify-content-center">
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                            <a href="{{ route('vereadores.index') }}" 
+                               class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
+                               style="background-color: #007bff; color: white; border: 2px solid #007bff;">
+                                <i class="fas fa-users mb-2" style="font-size: 2.5rem;"></i>
+                                <span class="fw-bold text-center" style="font-size: 0.9rem; line-height: 1.2;">Vereadores</span>
+                                <small class="text-center mt-1 opacity-75" style="font-size: 0.75rem;">Representantes eleitos</small>
+                            </a>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                            <a href="#" 
+                               class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
+                               style="background-color: #28a745; color: white; border: 2px solid #28a745;">
+                                <i class="fas fa-gavel mb-2" style="font-size: 2.5rem;"></i>
+                                <span class="fw-bold text-center" style="font-size: 0.9rem; line-height: 1.2;">Projetos de Lei</span>
+                                <small class="text-center mt-1 opacity-75" style="font-size: 0.75rem;">Em tramitação</small>
+                            </a>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                            <a href="{{ route('calendario.agenda') }}" 
+                               class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
+                               style="background-color: #dc3545; color: white; border: 2px solid #dc3545;">
+                                <i class="fas fa-calendar-alt mb-2" style="font-size: 2.5rem;"></i>
+                                <span class="fw-bold text-center" style="font-size: 0.9rem; line-height: 1.2;">Sessões</span>
+                                <small class="text-center mt-1 opacity-75" style="font-size: 0.75rem;">Calendário e atas</small>
+                            </a>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                            <a href="{{ route('transparencia.index') }}" 
+                               class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
+                               style="background-color: #6f42c1; color: white; border: 2px solid #6f42c1;">
+                                <i class="fas fa-eye mb-2" style="font-size: 2.5rem;"></i>
+                                <span class="fw-bold text-center" style="font-size: 0.9rem; line-height: 1.2;">Transparência</span>
+                                <small class="text-center mt-1 opacity-75" style="font-size: 0.75rem;">Portal da transparência</small>
+                            </a>
+                        </div>
+                    </div>
+                @endif
+            </div>
+            
+            <!-- Mini Calendário (1/5 do espaço) -->
+            <div class="col-lg-4">
+                @include('components.mini-calendario')
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Últimas Notícias -->
+<section class="py-5 bg-light">
+    <div class="container">
         <div class="text-center mb-5">
-            <h2 class="section-title">Acesso Rápido</h2>
-            <p class="text-muted">Encontre rapidamente o que você precisa</p>
+            <h2 class="section-title">Últimas Notícias</h2>
+            <p class="text-muted">Fique por dentro das atividades da Câmara</p>
         </div>
         
-        @if($acessosRapidos->count() > 0)
-            <div class="row g-3 justify-content-center">
-                @foreach($acessosRapidos as $acesso)
-                    <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                        <a href="{{ $acesso->getUrlFormatada() }}" 
-                           class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
-                           target="{{ $acesso->getTarget() }}"
-                           data-bg-color="{{ $acesso->cor_botao ?? '#007bff' }}"
-                           data-text-color="{{ $acesso->cor_fonte ?? '#ffffff' }}">
-                            <i class="{{ $acesso->icone ?? 'fas fa-link' }} mb-2 acesso-rapido-icon"></i>
-                            <span class="fw-bold text-center acesso-rapido-title">{{ $acesso->nome }}</span>
-                            @if($acesso->descricao)
-                                <small class="text-center mt-1 opacity-75 acesso-rapido-desc">{{ Str::limit($acesso->descricao, 30) }}</small>
+        <div class="row g-4">
+            @forelse($ultimasNoticias as $noticia)
+                <div class="col-lg-4 col-md-6">
+                    <div class="card card-custom h-100">
+                        @if($noticia->imagem_destaque)
+                            <img src="{{ asset('storage/' . $noticia->imagem_destaque) }}" 
+                                 class="card-img-top" alt="{{ $noticia->titulo }}"
+                                 style="height: 200px; object-fit: cover;">
+                        @endif
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-primary text-white rounded-circle p-2 me-3">
+                                    <i class="fas fa-newspaper"></i>
+                                </div>
+                                <small class="text-muted">{{ $noticia->data_publicacao->format('d \d\e F, Y') }}</small>
+                            </div>
+                            @if($noticia->categoria)
+                                <span class="badge bg-primary mb-2">{{ ucfirst($noticia->categoria) }}</span>
                             @endif
-                        </a>
+                            <h5 class="card-title">{{ Str::limit($noticia->titulo, 60) }}</h5>
+                            <p class="card-text text-muted">
+                                {{ Str::limit(strip_tags($noticia->resumo ?: $noticia->conteudo), 100) }}
+                            </p>
+                            <a href="{{ route('noticias.show', $noticia->id) }}" class="btn btn-sm btn-outline-primary">
+                                Leia mais
+                                <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
                     </div>
-                @endforeach
-            </div>
-        @else
-            <!-- Fallback para quando não há acessos rápidos cadastrados -->
-            <div class="row g-3 justify-content-center">
-                <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                    <a href="{{ route('vereadores.index') }}" 
-                       class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
-                       style="background-color: #007bff; color: white; border: 2px solid #007bff;">
-                        <i class="fas fa-users mb-2" style="font-size: 2.5rem;"></i>
-                        <span class="fw-bold text-center" style="font-size: 0.9rem; line-height: 1.2;">Vereadores</span>
-                        <small class="text-center mt-1 opacity-75" style="font-size: 0.75rem;">Representantes eleitos</small>
-                    </a>
                 </div>
-                
-                <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                    <a href="#" 
-                       class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
-                       style="background-color: #28a745; color: white; border: 2px solid #28a745;">
-                        <i class="fas fa-gavel mb-2" style="font-size: 2.5rem;"></i>
-                        <span class="fw-bold text-center" style="font-size: 0.9rem; line-height: 1.2;">Projetos de Lei</span>
-                        <small class="text-center mt-1 opacity-75" style="font-size: 0.75rem;">Em tramitação</small>
-                    </a>
+            @empty
+                <!-- Fallback caso não haja notícias -->
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Nenhuma notícia disponível no momento</h5>
+                        <p class="text-muted">As últimas notícias da Câmara Municipal aparecerão aqui.</p>
+                    </div>
                 </div>
-                
-                <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                    <a href="#" 
-                       class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
-                       style="background-color: #dc3545; color: white; border: 2px solid #dc3545;">
-                        <i class="fas fa-calendar-alt mb-2" style="font-size: 2.5rem;"></i>
-                        <span class="fw-bold text-center" style="font-size: 0.9rem; line-height: 1.2;">Sessões</span>
-                        <small class="text-center mt-1 opacity-75" style="font-size: 0.75rem;">Calendário e atas</small>
-                    </a>
-                </div>
-                
-                <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                    <a href="#" 
-                       class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
-                       style="background-color: #6f42c1; color: white; border: 2px solid #6f42c1;">
-                        <i class="fas fa-eye mb-2" style="font-size: 2.5rem;"></i>
-                        <span class="fw-bold text-center" style="font-size: 0.9rem; line-height: 1.2;">Transparência</span>
-                        <small class="text-center mt-1 opacity-75" style="font-size: 0.75rem;">Portal da transparência</small>
-                    </a>
-                </div>
-            </div>
-        @endif
+            @endforelse
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{{ route('noticias.index') }}" class="btn btn-primary">
+                <i class="fas fa-newspaper me-2"></i>
+                Ver Todas as Notícias
+            </a>
+        </div>
     </div>
 </section>
 
@@ -125,82 +260,163 @@
             <p class="text-muted">Conheça os representantes eleitos pelo povo</p>
         </div>
         
-        <div class="row g-4 align-items-center">
-            <!-- Presidente em Destaque -->
-            @if($presidente)
-            <div class="col-lg-5">
-                <div class="card card-custom h-100 presidente-card">
-                    <div class="card-body text-center p-4">
-                        <div class="position-relative mb-4">
-                            <div class="presidente-photo-container">
-                                @if($presidente->foto)
-                                    <img src="{{ $presidente->foto }}" alt="{{ $presidente->nome }}" class="presidente-photo">
-                                @else
-                                    <div class="presidente-photo-placeholder">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="presidente-badge">
-                                <i class="fas fa-crown"></i>
-                                <span>PRESIDENTE</span>
-                            </div>
-                        </div>
-                        <h4 class="fw-bold text-primary mb-2">{{ $presidente->nome }}</h4>
-                        <p class="text-muted mb-3">
-                            <i class="fas fa-flag me-1"></i>
-                            {{ $presidente->partido }}
-                        </p>
-                        <p class="card-text text-muted mb-4">
-                            {{ Str::limit($presidente->biografia, 120) }}
-                        </p>
-                        <a href="{{ route('vereadores.show', $presidente->id) }}" class="btn btn-primary">
-                            <i class="fas fa-user me-2"></i>
-                            Ver Perfil Completo
-                        </a>
-                    </div>
-                </div>
-            </div>
-            @endif
-            
-            <!-- Demais Vereadores -->
-            <div class="col-lg-7">
-                <div class="row g-3">
-                    @foreach($vereadores as $vereador)
-                    <div class="col-md-6 col-sm-6">
-                        <div class="card card-custom h-100 vereador-mini-card">
-                            <div class="card-body text-center p-3">
-                                <div class="vereador-mini-photo-container mb-3">
-                                    @if($vereador->foto)
-                                        <img src="{{ $vereador->foto }}" alt="{{ $vereador->nome }}" class="vereador-mini-photo">
+        <!-- Carrossel Completo de Vereadores (incluindo Presidente) -->
+        <div class="vereadores-carrossel-completo">
+            <div class="carrossel-track">
+                <!-- Presidente como primeiro card do carrossel -->
+                @if($presidente)
+                <div class="vereador-slide">
+                    <div class="card card-custom h-100 presidente-card">
+                        <div class="card-body text-center p-3">
+                            <div class="position-relative mb-3">
+                                <div class="vereador-mini-photo-container">
+                                    @if($presidente->foto)
+                                        <img src="{{ $presidente->foto_url }}" alt="{{ $presidente->nome }}" class="vereador-mini-photo">
                                     @else
                                         <div class="vereador-mini-photo-placeholder">
                                             <i class="fas fa-user"></i>
                                         </div>
                                     @endif
                                 </div>
-                                <h6 class="fw-bold mb-1">{{ $vereador->nome }}</h6>
-                                <p class="text-muted small mb-3">
-                                    <i class="fas fa-flag me-1"></i>
-                                    {{ $vereador->partido }}
-                                </p>
-                                <a href="{{ route('vereadores.show', $vereador->id) }}" class="btn btn-sm btn-outline-primary">
+                                <div class="presidente-badge">
+                                    <i class="fas fa-crown"></i>
+                                    <span>PRESIDENTE</span>
+                                </div>
+                            </div>
+                            <h6 class="fw-bold mb-1">{{ $presidente->nome }}</h6>
+                            <p class="text-muted small mb-3">
+                                <i class="fas fa-flag me-1"></i>
+                                {{ $presidente->partido }}
+                            </p>
+                            <div class="d-flex gap-1 flex-column">
+                                <a href="{{ route('vereadores.show', $presidente->id) }}" class="btn btn-sm btn-outline-light">
                                     <i class="fas fa-eye me-1"></i>
                                     Ver Perfil
+                                </a>
+                                <a href="{{ route('calendario.agenda.vereador', $presidente->id) }}" class="btn btn-sm btn-outline-light">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    Ver Agenda
                                 </a>
                             </div>
                         </div>
                     </div>
-                    @endforeach
                 </div>
+                @endif
                 
-                <div class="text-center mt-4">
-                    <a href="{{ route('vereadores.index') }}" class="btn btn-outline-primary">
-                        <i class="fas fa-users me-2"></i>
-                        Ver Todos os Vereadores
-                    </a>
+                <!-- Outros Vereadores -->
+                @foreach($vereadores as $vereador)
+                <div class="vereador-slide">
+                    <div class="card card-custom h-100 vereador-mini-card">
+                        <div class="card-body text-center p-3">
+                            <div class="vereador-mini-photo-container mb-3">
+                                @if($vereador->foto)
+                                    <img src="{{ $vereador->foto_url }}" alt="{{ $vereador->nome }}" class="vereador-mini-photo">
+                                @else
+                                    <div class="vereador-mini-photo-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                @endif
+                            </div>
+                            <h6 class="fw-bold mb-1">{{ $vereador->nome }}</h6>
+                            <p class="text-muted small mb-3">
+                                <i class="fas fa-flag me-1"></i>
+                                {{ $vereador->partido }}
+                            </p>
+                            <div class="d-flex gap-1 flex-column">
+                                <a href="{{ route('vereadores.show', $vereador->id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i>
+                                    Ver Perfil
+                                </a>
+                                <a href="{{ route('calendario.agenda', ['vereador' => $vereador->id]) }}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    Ver Agenda
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                @endforeach
+                
+                <!-- Duplicar todos para efeito contínuo -->
+                @if($presidente)
+                <div class="vereador-slide">
+                    <div class="card card-custom h-100 presidente-card">
+                        <div class="card-body text-center p-3">
+                            <div class="position-relative mb-3">
+                                <div class="vereador-mini-photo-container">
+                                    @if($presidente->foto)
+                                        <img src="{{ $presidente->foto_url }}" alt="{{ $presidente->nome }}" class="vereador-mini-photo">
+                                    @else
+                                        <div class="vereador-mini-photo-placeholder">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="presidente-badge">
+                                    <i class="fas fa-crown"></i>
+                                    <span>PRESIDENTE</span>
+                                </div>
+                            </div>
+                            <h6 class="fw-bold mb-1">{{ $presidente->nome }}</h6>
+                            <p class="text-muted small mb-3">
+                                <i class="fas fa-flag me-1"></i>
+                                {{ $presidente->partido }}
+                            </p>
+                            <div class="d-flex gap-1 flex-column">
+                                <a href="{{ route('vereadores.show', $presidente->id) }}" class="btn btn-sm btn-outline-light">
+                                    <i class="fas fa-eye me-1"></i>
+                                    Ver Perfil
+                                </a>
+                                <a href="{{ route('calendario.agenda.vereador', $presidente->id) }}" class="btn btn-sm btn-outline-light">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    Ver Agenda
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+                
+                @foreach($vereadores as $vereador)
+                <div class="vereador-slide">
+                    <div class="card card-custom h-100 vereador-mini-card">
+                        <div class="card-body text-center p-3">
+                            <div class="vereador-mini-photo-container mb-3">
+                                @if($vereador->foto)
+                                    <img src="{{ $vereador->foto_url }}" alt="{{ $vereador->nome }}" class="vereador-mini-photo">
+                                @else
+                                    <div class="vereador-mini-photo-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                @endif
+                            </div>
+                            <h6 class="fw-bold mb-1">{{ $vereador->nome }}</h6>
+                            <p class="text-muted small mb-3">
+                                <i class="fas fa-flag me-1"></i>
+                                {{ $vereador->partido }}
+                            </p>
+                            <div class="d-flex gap-1 flex-column">
+                                <a href="{{ route('vereadores.show', $vereador->id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i>
+                                    Ver Perfil
+                                </a>
+                                <a href="{{ route('calendario.agenda', ['vereador' => $vereador->id]) }}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    Ver Agenda
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
             </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{{ route('vereadores.index') }}" class="btn btn-outline-primary">
+                <i class="fas fa-users me-2"></i>
+                Ver Todos os Vereadores
+            </a>
         </div>
     </div>
 </section>
@@ -417,88 +633,6 @@
 </section>
 @endif
 
-<!-- Últimas Notícias -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="section-title">Últimas Notícias</h2>
-            <p class="text-muted">Fique por dentro das atividades da Câmara</p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-lg-4 col-md-6">
-                <div class="card card-custom h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="bg-primary text-white rounded-circle p-2 me-3">
-                                <i class="fas fa-newspaper"></i>
-                            </div>
-                            <small class="text-muted">15 de Janeiro, 2024</small>
-                        </div>
-                        <h5 class="card-title">Nova Lei de Incentivo ao Empreendedorismo</h5>
-                        <p class="card-text text-muted">
-                            Projeto de lei que visa incentivar pequenos empreendedores foi aprovado em primeira votação...
-                        </p>
-                        <a href="#" class="btn btn-sm btn-outline-primary">
-                            Leia mais
-                            <i class="fas fa-arrow-right ms-1"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6">
-                <div class="card card-custom h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="bg-primary text-white rounded-circle p-2 me-3">
-                                <i class="fas fa-calendar"></i>
-                            </div>
-                            <small class="text-muted">12 de Janeiro, 2024</small>
-                        </div>
-                        <h5 class="card-title">Sessão Extraordinária Convocada</h5>
-                        <p class="card-text text-muted">
-                            Sessão extraordinária foi convocada para discussão do orçamento municipal para 2024...
-                        </p>
-                        <a href="#" class="btn btn-sm btn-outline-primary">
-                            Leia mais
-                            <i class="fas fa-arrow-right ms-1"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6">
-                <div class="card card-custom h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="bg-primary text-white rounded-circle p-2 me-3">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <small class="text-muted">10 de Janeiro, 2024</small>
-                        </div>
-                        <h5 class="card-title">Audiência Pública sobre Mobilidade Urbana</h5>
-                        <p class="card-text text-muted">
-                            População é convidada a participar de audiência sobre o novo plano de mobilidade urbana...
-                        </p>
-                        <a href="#" class="btn btn-sm btn-outline-primary">
-                            Leia mais
-                            <i class="fas fa-arrow-right ms-1"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="text-center mt-4">
-            <a href="#" class="btn btn-primary">
-                <i class="fas fa-newspaper me-2"></i>
-                Ver Todas as Notícias
-            </a>
-        </div>
-    </div>
-</section>
-
 <!-- Números da Câmara -->
 <section class="py-5">
     <div class="container">
@@ -650,10 +784,7 @@
                 <h3 class="fw-bold mb-3 text-primary text-center">Previsão do Tempo</h3>
                 <div class="d-flex justify-content-center">
                     <div style="width: 100%; max-width: 100%; overflow: hidden;">
-                        <a class="weatherwidget-io" href="https://forecast7.com/pt/-23d55-46d64/sao-paulo/" data-label_1="SÃO PAULO" data-label_2="BRASIL" data-mode="Forecast" data-theme="pure" data-accent="#007bff" data-textcolor="#333333" data-suncolor="#FFA500" data-cloudcolor="#d4edda" data-cloudanimate="true" data-days="5">SÃO PAULO BRASIL</a>
-                        <script>
-                        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
-                        </script>
+                        <div id="ww_f3e29fa144d25" v='1.3' loc='id' a='{"t":"responsive","lang":"pt","sl_lpl":1,"ids":["wl4875"],"font":"Arial","sl_ics":"one_a","sl_sot":"celsius","cl_bkg":"#303F9F","cl_font":"#FFFFFF","cl_cloud":"#FFFFFF","cl_persp":"#81D4FA","cl_sun":"#FFC107","cl_moon":"#FFC107","cl_thund":"#FF5722","cl_odd":"#0000000a"}'>Mais previsões: <a href="https://tempolongo.com/rio_de_janeiro_tempo_25_dias/" id="ww_f3e29fa144d25_u" target="_blank">Weather Rio de Janeiro 30 days</a></div><script async src="https://app3.weatherwidget.org/js/?id=ww_f3e29fa144d25"></script>
                     </div>
                 </div>
             </div>

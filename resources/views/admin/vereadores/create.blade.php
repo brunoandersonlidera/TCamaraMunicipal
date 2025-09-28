@@ -236,9 +236,9 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="facebook" class="form-label">Facebook</label>
-                        <input type="url" class="form-control @error('redes_sociais.facebook') is-invalid @enderror" 
+                        <input type="text" class="form-control @error('redes_sociais.facebook') is-invalid @enderror" 
                                id="facebook" name="redes_sociais[facebook]" value="{{ old('redes_sociais.facebook') }}" 
-                               placeholder="https://facebook.com/usuario">
+                               placeholder="https://facebook.com/usuario ou @usuario">
                         @error('redes_sociais.facebook')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -247,9 +247,9 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="instagram" class="form-label">Instagram</label>
-                        <input type="url" class="form-control @error('redes_sociais.instagram') is-invalid @enderror" 
+                        <input type="text" class="form-control @error('redes_sociais.instagram') is-invalid @enderror" 
                                id="instagram" name="redes_sociais[instagram]" value="{{ old('redes_sociais.instagram') }}" 
-                               placeholder="https://instagram.com/usuario">
+                               placeholder="https://instagram.com/usuario ou @usuario">
                         @error('redes_sociais.instagram')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -261,9 +261,9 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="twitter" class="form-label">Twitter</label>
-                        <input type="url" class="form-control @error('redes_sociais.twitter') is-invalid @enderror" 
+                        <input type="text" class="form-control @error('redes_sociais.twitter') is-invalid @enderror" 
                                id="twitter" name="redes_sociais[twitter]" value="{{ old('redes_sociais.twitter') }}" 
-                               placeholder="https://twitter.com/usuario">
+                               placeholder="https://twitter.com/usuario ou @usuario">
                         @error('redes_sociais.twitter')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -272,9 +272,9 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="linkedin" class="form-label">LinkedIn</label>
-                        <input type="url" class="form-control @error('redes_sociais.linkedin') is-invalid @enderror" 
+                        <input type="text" class="form-control @error('redes_sociais.linkedin') is-invalid @enderror" 
                                id="linkedin" name="redes_sociais[linkedin]" value="{{ old('redes_sociais.linkedin') }}" 
-                               placeholder="https://linkedin.com/in/usuario">
+                               placeholder="https://linkedin.com/in/usuario ou nome-usuario">
                         @error('redes_sociais.linkedin')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

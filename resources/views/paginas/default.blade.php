@@ -1,0 +1,224 @@
+@extends('layouts.app')
+
+@section('title', $pageTitle ?? $pagina->titulo)
+
+@if(isset($metaDescription))
+@section('meta-description', $metaDescription)
+@endif
+
+@if(isset($metaKeywords))
+@section('meta-keywords', $metaKeywords)
+@endif
+
+@push('styles')
+<style>
+    .page-content {
+        line-height: 1.8;
+    }
+    .page-content h1, .page-content h2, .page-content h3, 
+    .page-content h4, .page-content h5, .page-content h6 {
+        color: #2c3e50;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+    .page-content h1 { font-size: 2.5rem; }
+    .page-content h2 { font-size: 2rem; }
+    .page-content h3 { font-size: 1.75rem; }
+    .page-content h4 { font-size: 1.5rem; }
+    .page-content h5 { font-size: 1.25rem; }
+    .page-content h6 { font-size: 1.1rem; }
+    
+    .page-content p {
+        margin-bottom: 1.5rem;
+        text-align: justify;
+    }
+    
+    .page-content ul, .page-content ol {
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+    }
+    
+    .page-content li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-content blockquote {
+        border-left: 4px solid #007bff;
+        padding-left: 1.5rem;
+        margin: 2rem 0;
+        font-style: italic;
+        color: #6c757d;
+    }
+    
+    .page-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        margin: 1.5rem 0;
+    }
+    
+    .page-content table {
+        width: 100%;
+        margin: 1.5rem 0;
+        border-collapse: collapse;
+    }
+    
+    .page-content table th,
+    .page-content table td {
+        padding: 0.75rem;
+        border: 1px solid #dee2e6;
+        text-align: left;
+    }
+    
+    .page-content table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+    
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 3rem;
+        border-radius: 0 0 50px 50px;
+    }
+    
+    .content-card {
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .last-updated {
+        background: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+        padding: 1rem 2rem;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+</style>
+@endpush
+
+@section('content')
+<div class="container-fluid px-0">
+    <!-- Header da Página -->
+    <div class="page-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <!-- Breadcrumb -->
+                    @if(isset($breadcrumb) && count($breadcrumb) > 0)
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb bg-transparent p-0 mb-0">
+                            @foreach($breadcrumb as $item)
+                                @if($loop->last)
+                                    <li class="breadcrumb-item active text-white" aria-current="page">
+                                        {{ $item['title'] }}
+                                    </li>
+                                @else
+                                    <li class="breadcrumb-item">
+                                        <a href="{{ $item['url'] }}" class="text-white-50 text-decoration-none">
+                                            {{ $item['title'] }}
+                                        </a>
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ol>
+                    </nav>
+                    @endif
+                    
+                    <div class="text-center">
+                        <h1 class="display-4 mb-3 fw-bold">
+                            {{ $pagina->titulo }}
+                        </h1>
+                        @if($pagina->descricao)
+                        <p class="lead mb-0 opacity-75">
+                            {{ $pagina->descricao }}
+                        </p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="content-card">
+                    <div class="p-4 p-md-5">
+                        <div class="page-content">
+                            {!! $pagina->conteudo !!}
+                        </div>
+                    </div>
+                    
+                    <!-- Informações de Atualização -->
+                    <div class="last-updated">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <i class="fas fa-clock me-2"></i>
+                                Última atualização: {{ $pagina->updated_at->format('d/m/Y \à\s H:i') }}
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                @if($pagina->configuracoes && isset($pagina->configuracoes['mostrar_compartilhar']) && $pagina->configuracoes['mostrar_compartilhar'])
+                                <div class="share-buttons">
+                                    <span class="me-2">Compartilhar:</span>
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->fullUrl()) }}" 
+                                       target="_blank" class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </a>
+                                    <a href="https://twitter.com/intent/tweet?url={{ urlencode(request()->fullUrl()) }}&text={{ urlencode($pagina->titulo) }}" 
+                                       target="_blank" class="btn btn-sm btn-outline-info me-1">
+                                        <i class="fab fa-twitter"></i>
+                                    </a>
+                                    <a href="https://wa.me/?text={{ urlencode($pagina->titulo . ' - ' . request()->fullUrl()) }}" 
+                                       target="_blank" class="btn btn-sm btn-outline-success">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Adicionar classes Bootstrap às tabelas do conteúdo
+    const tables = document.querySelectorAll('.page-content table');
+    tables.forEach(table => {
+        table.classList.add('table', 'table-striped', 'table-hover');
+        
+        // Envolver tabela em div responsiva
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('table-responsive');
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+    });
+    
+    // Adicionar classes aos links
+    const links = document.querySelectorAll('.page-content a');
+    links.forEach(link => {
+        if (!link.classList.contains('btn')) {
+            link.classList.add('text-decoration-none');
+        }
+    });
+    
+    // Lazy loading para imagens
+    const images = document.querySelectorAll('.page-content img');
+    images.forEach(img => {
+        img.setAttribute('loading', 'lazy');
+        img.classList.add('img-fluid');
+    });
+});
+</script>
+@endpush

@@ -183,11 +183,19 @@
                     </div>
                 </div>
                 
-                @if($vereador->comissoes && count($vereador->comissoes) > 0)
+                @php
+                    $comissoes = $vereador->comissoes;
+                    if (is_string($comissoes)) {
+                        $comissoes = json_decode($comissoes, true) ?? [];
+                    } elseif (!is_array($comissoes)) {
+                        $comissoes = [];
+                    }
+                @endphp
+                @if($comissoes && count($comissoes) > 0)
                     <div class="mb-3">
                         <label class="form-label fw-bold">Comissões:</label>
                         <div class="d-flex flex-wrap gap-2">
-                            @foreach($vereador->comissoes as $comissao)
+                            @foreach($comissoes as $comissao)
                                 <span class="badge bg-secondary">{{ $comissao }}</span>
                             @endforeach
                         </div>
@@ -197,30 +205,39 @@
         </div>
         
         <!-- Redes Sociais -->
-        @if($vereador->redes_sociais && count(array_filter($vereador->redes_sociais)) > 0)
+        @php
+            $redes_sociais = $vereador->redes_sociais;
+            // Garantir que seja sempre um array
+            if (is_string($redes_sociais)) {
+                $redes_sociais = json_decode($redes_sociais, true) ?? [];
+            } elseif (!is_array($redes_sociais)) {
+                $redes_sociais = [];
+            }
+        @endphp
+        @if($redes_sociais && count(array_filter($redes_sociais)) > 0)
             <div class="admin-card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="fas fa-share-alt"></i> Redes Sociais</h5>
                 </div>
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-3">
-                        @if(!empty($vereador->redes_sociais['facebook']))
-                            <a href="{{ $vereador->redes_sociais['facebook'] }}" target="_blank" class="btn btn-outline-primary">
+                        @if(!empty($redes_sociais['facebook']))
+                            <a href="{{ $redes_sociais['facebook'] }}" target="_blank" class="btn btn-outline-primary">
                                 <i class="fab fa-facebook"></i> Facebook
                             </a>
                         @endif
-                        @if(!empty($vereador->redes_sociais['instagram']))
-                            <a href="{{ $vereador->redes_sociais['instagram'] }}" target="_blank" class="btn btn-outline-danger">
+                        @if(!empty($redes_sociais['instagram']))
+                            <a href="{{ $redes_sociais['instagram'] }}" target="_blank" class="btn btn-outline-danger">
                                 <i class="fab fa-instagram"></i> Instagram
                             </a>
                         @endif
-                        @if(!empty($vereador->redes_sociais['twitter']))
-                            <a href="{{ $vereador->redes_sociais['twitter'] }}" target="_blank" class="btn btn-outline-info">
+                        @if(!empty($redes_sociais['twitter']))
+                            <a href="{{ $redes_sociais['twitter'] }}" target="_blank" class="btn btn-outline-info">
                                 <i class="fab fa-twitter"></i> Twitter
                             </a>
                         @endif
-                        @if(!empty($vereador->redes_sociais['linkedin']))
-                            <a href="{{ $vereador->redes_sociais['linkedin'] }}" target="_blank" class="btn btn-outline-primary">
+                        @if(!empty($redes_sociais['linkedin']))
+                            <a href="{{ $redes_sociais['linkedin'] }}" target="_blank" class="btn btn-outline-primary">
                                 <i class="fab fa-linkedin"></i> LinkedIn
                             </a>
                         @endif

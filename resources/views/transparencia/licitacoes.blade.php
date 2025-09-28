@@ -183,19 +183,19 @@
                                                 @endif
                                             </td>
                                             <td class="text-center">
-                                                @if($licitacao->data_publicacao)
-                                                    {{ $licitacao->data_publicacao->format('d/m/Y') }}
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
-                                            <td class="text-center">
-                                                @if($licitacao->data_abertura)
-                                                    {{ $licitacao->data_abertura->format('d/m/Y H:i') }}
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
+                                @if($licitacao->data_publicacao)
+                                    {{ $licitacao->data_publicacao->format('d/m/Y') }}
+                                @else
+                                    <span class="text-muted">Não informado</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($licitacao->data_abertura)
+                                    {{ $licitacao->data_abertura->format('d/m/Y H:i') }}
+                                @else
+                                    <span class="text-muted">Não informado</span>
+                                @endif
+                            </td>
                                             <td>
                                                 @if($licitacao->vencedor)
                                                     <div class="fw-bold">{{ Str::limit($licitacao->vencedor, 25) }}</div>
@@ -252,7 +252,7 @@
                                         de {{ $licitacoes->total() }} registros
                                     </div>
                                     <div>
-                                        {{ $licitacoes->appends(request()->query())->links() }}
+                                        {{ $licitacoes->appends(request()->query())->links('pagination::bootstrap-5') }}
                                     </div>
                                 </div>
                             </div>

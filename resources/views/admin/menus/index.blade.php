@@ -167,9 +167,11 @@
                 </div>
 
                 <!-- Paginação -->
+                @if($menus->hasPages())
                 <div class="d-flex justify-content-center mt-4">
-                    {{ $menus->links() }}
+                    {{ $menus->links('pagination::bootstrap-5') }}
                 </div>
+                @endif
             @else
                 <div class="text-center py-5">
                     <i class="fas fa-bars fa-3x text-muted mb-3"></i>

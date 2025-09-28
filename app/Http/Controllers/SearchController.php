@@ -11,6 +11,8 @@ use App\Models\Sessao;
 use App\Models\Licitacao;
 use App\Models\Receita;
 use App\Models\Despesa;
+use App\Models\Contrato;
+use App\Models\PaginaConteudo;
 use Illuminate\Support\Facades\DB;
 
 class SearchController extends Controller
@@ -53,6 +55,9 @@ class SearchController extends Controller
             case 'transparencia':
                 $results = $this->searchTransparencia($query);
                 break;
+            case 'paginas':
+                $results = $this->searchPaginas($query);
+                break;
             default:
                 $results = $this->searchAll($query);
                 break;
@@ -72,6 +77,10 @@ class SearchController extends Controller
     private function searchAll($query)
     {
         $results = collect();
+
+        // Buscar palavras-chave (seções do sistema) - prioridade máxima
+        $keywords = $this->searchKeywords($query);
+        $results = $results->merge($keywords);
 
         // Buscar notícias
         $noticias = $this->searchNoticias($query)->take(5);
@@ -93,6 +102,14 @@ class SearchController extends Controller
         $sessoes = $this->searchSessoes($query)->take(5);
         $results = $results->merge($sessoes);
 
+        // Buscar contratos
+        $contratos = $this->searchContratos($query)->take(5);
+        $results = $results->merge($contratos);
+
+        // Buscar páginas institucionais
+        $paginas = $this->searchPaginas($query)->take(5);
+        $results = $results->merge($paginas);
+
         return $results->sortByDesc('relevance');
     }
 
@@ -101,7 +118,7 @@ class SearchController extends Controller
      */
     private function searchNoticias($query)
     {
-        return Noticia::where('status', 'publicada')
+        return Noticia::where('status', 'publicado')
             ->where(function($q) use ($query) {
                 $q->where('titulo', 'LIKE', "%{$query}%")
                   ->orWhere('conteudo', 'LIKE', "%{$query}%")
@@ -286,7 +303,49 @@ class SearchController extends Controller
                 ];
             });
 
-        return $results->merge($receitas)->merge($despesas)->merge($licitacoes);
+        // Buscar contratos
+        $contratos = $this->searchContratos($query);
+
+        return $results->merge($receitas)->merge($despesas)->merge($licitacoes)->merge($contratos);
+    }
+
+    /**
+     * Busca em contratos
+     */
+    private function searchContratos($query)
+    {
+        return Contrato::publicos()
+            ->where(function($q) use ($query) {
+                $q->where('numero', 'LIKE', "%{$query}%")
+                  ->orWhere('objeto', 'LIKE', "%{$query}%")
+                  ->orWhere('contratado', 'LIKE', "%{$query}%")
+                  ->orWhere('cnpj_cpf_contratado', 'LIKE', "%{$query}%")
+                  ->orWhere('observacoes', 'LIKE', "%{$query}%")
+                  ->orWhere('observacoes_transparencia', 'LIKE', "%{$query}%")
+                  ->orWhere('processo', 'LIKE', "%{$query}%")
+                  ->orWhereHas('tipoContrato', function($q) use ($query) {
+                      $q->where('nome', 'LIKE', "%{$query}%");
+                  })
+                  ->orWhereHas('aditivos', function($q) use ($query) {
+                      $q->where('numero', 'LIKE', "%{$query}%")
+                        ->orWhere('objeto', 'LIKE', "%{$query}%")
+                        ->orWhere('tipo', 'LIKE', "%{$query}%")
+                        ->orWhere('justificativa', 'LIKE', "%{$query}%")
+                        ->orWhere('observacoes', 'LIKE', "%{$query}%");
+                  });
+            })
+            ->get()
+            ->map(function($item) use ($query) {
+                return [
+                    'type' => 'contrato',
+                    'title' => "Contrato nº {$item->numero}",
+                    'content' => $this->highlightText("Contratado: {$item->contratado} - Objeto: {$item->objeto}", $query),
+                    'url' => route('transparencia.contratos.show', $item->id),
+                    'date' => $item->data_assinatura,
+                    'relevance' => $this->calculateRelevance($item->numero . ' ' . $item->objeto . ' ' . $item->contratado, $query),
+                    'category' => 'Contratos'
+                ];
+            });
     }
 
     /**
@@ -299,6 +358,58 @@ class SearchController extends Controller
         }
 
         return preg_replace('/(' . preg_quote($query, '/') . ')/i', '<mark>$1</mark>', $text);
+    }
+
+    /**
+     * Busca em páginas institucionais
+     */
+    private function searchPaginas($query)
+    {
+        $paginas = PaginaConteudo::ativo()
+            ->where(function($q) use ($query) {
+                $q->where('titulo', 'LIKE', "%{$query}%")
+                  ->orWhere('descricao', 'LIKE', "%{$query}%")
+                  ->orWhere('conteudo', 'LIKE', "%{$query}%")
+                  ->orWhere('slug', 'LIKE', "%{$query}%");
+            })
+            ->get();
+
+        return $paginas->map(function($pagina) use ($query) {
+            // Determina qual campo teve o match para destacar
+            $content = '';
+            $highlightField = '';
+            
+            if (stripos($pagina->titulo, $query) !== false) {
+                $content = $this->highlightText($pagina->titulo, $query);
+                $highlightField = 'titulo';
+            } elseif (stripos($pagina->descricao, $query) !== false) {
+                $content = $this->highlightText($pagina->descricao, $query);
+                $highlightField = 'descricao';
+            } elseif (stripos($pagina->conteudo, $query) !== false) {
+                // Para conteúdo, mostra um trecho relevante
+                $content = $this->highlightText(strip_tags(substr($pagina->conteudo, 0, 200)), $query) . '...';
+                $highlightField = 'conteudo';
+            } else {
+                $content = $pagina->descricao ?: strip_tags(substr($pagina->conteudo, 0, 150)) . '...';
+            }
+
+            // Calcula relevância
+            $relevance = $this->calculateRelevance(
+                $pagina->titulo . ' ' . $pagina->descricao . ' ' . $pagina->conteudo, 
+                $query
+            );
+
+            return [
+                'type' => 'pagina',
+                'title' => $pagina->titulo,
+                'content' => $content,
+                'url' => route('paginas.show', $pagina->slug),
+                'date' => $pagina->updated_at,
+                'relevance' => $relevance,
+                'category' => 'Páginas Institucionais',
+                'highlight_field' => $highlightField
+            ];
+        });
     }
 
     /**
@@ -360,6 +471,9 @@ class SearchController extends Controller
             case 'transparencia':
                 $results = $this->searchTransparencia($query);
                 break;
+            case 'keywords':
+                $results = $this->searchKeywords($query);
+                break;
             default:
                 $results = $this->searchAll($query);
                 break;
@@ -369,5 +483,234 @@ class SearchController extends Controller
             'results' => $results->take($limit)->values(),
             'total' => $results->count()
         ]);
+    }
+
+    /**
+     * Busca por palavras-chave que direcionam para seções específicas
+     */
+    private function searchKeywords($query)
+    {
+        $keywords = [
+            // Transparência
+            'transparencia' => [
+                'url' => '/transparencia',
+                'title' => 'Portal da Transparência',
+                'description' => 'Acesse informações sobre receitas, despesas, licitações, contratos e folha de pagamento da Câmara Municipal.'
+            ],
+            'licitacoes' => [
+                'url' => '/transparencia/licitacoes',
+                'title' => 'Licitações',
+                'description' => 'Consulte todas as licitações da Câmara Municipal, incluindo editais, documentos e resultados.'
+            ],
+            'licitacao' => [
+                'url' => '/transparencia/licitacoes',
+                'title' => 'Licitações',
+                'description' => 'Consulte todas as licitações da Câmara Municipal, incluindo editais, documentos e resultados.'
+            ],
+            'contratos' => [
+                'url' => '/transparencia/contratos',
+                'title' => 'Contratos',
+                'description' => 'Visualize todos os contratos firmados pela Câmara Municipal, incluindo aditivos e fiscalizações.'
+            ],
+            'contrato' => [
+                'url' => '/transparencia/contratos',
+                'title' => 'Contratos',
+                'description' => 'Visualize todos os contratos firmados pela Câmara Municipal, incluindo aditivos e fiscalizações.'
+            ],
+            'receitas' => [
+                'url' => '/transparencia/receitas',
+                'title' => 'Receitas',
+                'description' => 'Consulte as receitas da Câmara Municipal organizadas por categoria e período.'
+            ],
+            'receita' => [
+                'url' => '/transparencia/receitas',
+                'title' => 'Receitas',
+                'description' => 'Consulte as receitas da Câmara Municipal organizadas por categoria e período.'
+            ],
+            'despesas' => [
+                'url' => '/transparencia/despesas',
+                'title' => 'Despesas',
+                'description' => 'Acompanhe as despesas da Câmara Municipal detalhadas por categoria e fornecedor.'
+            ],
+            'despesa' => [
+                'url' => '/transparencia/despesas',
+                'title' => 'Despesas',
+                'description' => 'Acompanhe as despesas da Câmara Municipal detalhadas por categoria e fornecedor.'
+            ],
+            'folha' => [
+                'url' => '/transparencia/folha-pagamento',
+                'title' => 'Folha de Pagamento',
+                'description' => 'Consulte a folha de pagamento dos servidores da Câmara Municipal.'
+            ],
+            'folha-pagamento' => [
+                'url' => '/transparencia/folha-pagamento',
+                'title' => 'Folha de Pagamento',
+                'description' => 'Consulte a folha de pagamento dos servidores da Câmara Municipal.'
+            ],
+            'salarios' => [
+                'url' => '/transparencia/folha-pagamento',
+                'title' => 'Folha de Pagamento',
+                'description' => 'Consulte a folha de pagamento dos servidores da Câmara Municipal.'
+            ],
+            'financeiro' => [
+                'url' => '/transparencia/financeiro',
+                'title' => 'Relatórios Financeiros',
+                'description' => 'Acesse relatórios financeiros detalhados da Câmara Municipal.'
+            ],
+
+            // Vereadores
+            'vereadores' => [
+                'url' => '/vereadores',
+                'title' => 'Vereadores',
+                'description' => 'Conheça os vereadores da Câmara Municipal, suas biografias e proposições.'
+            ],
+            'vereador' => [
+                'url' => '/vereadores',
+                'title' => 'Vereadores',
+                'description' => 'Conheça os vereadores da Câmara Municipal, suas biografias e proposições.'
+            ],
+            'parlamentares' => [
+                'url' => '/vereadores',
+                'title' => 'Vereadores',
+                'description' => 'Conheça os vereadores da Câmara Municipal, suas biografias e proposições.'
+            ],
+
+            // Sessões
+            'sessoes' => [
+                'url' => '/sessoes',
+                'title' => 'Sessões',
+                'description' => 'Acompanhe as sessões da Câmara Municipal, incluindo pautas, atas e transmissões.'
+            ],
+            'sessao' => [
+                'url' => '/sessoes',
+                'title' => 'Sessões',
+                'description' => 'Acompanhe as sessões da Câmara Municipal, incluindo pautas, atas e transmissões.'
+            ],
+            'plenarias' => [
+                'url' => '/sessoes',
+                'title' => 'Sessões',
+                'description' => 'Acompanhe as sessões da Câmara Municipal, incluindo pautas, atas e transmissões.'
+            ],
+            'plenaria' => [
+                'url' => '/sessoes',
+                'title' => 'Sessões',
+                'description' => 'Acompanhe as sessões da Câmara Municipal, incluindo pautas, atas e transmissões.'
+            ],
+            'calendario' => [
+                'url' => '/sessoes/calendario',
+                'title' => 'Calendário de Sessões',
+                'description' => 'Consulte o calendário com todas as sessões programadas da Câmara Municipal.'
+            ],
+            'ao-vivo' => [
+                'url' => '/ao-vivo',
+                'title' => 'Transmissão ao Vivo',
+                'description' => 'Assista às sessões da Câmara Municipal em tempo real.'
+            ],
+            'transmissao' => [
+                'url' => '/ao-vivo',
+                'title' => 'Transmissão ao Vivo',
+                'description' => 'Assista às sessões da Câmara Municipal em tempo real.'
+            ],
+            'tv-camara' => [
+                'url' => '/tv-camara',
+                'title' => 'TV Câmara',
+                'description' => 'Acesse o canal de televisão da Câmara Municipal.'
+            ],
+
+            // Ouvidoria e ESIC
+            'ouvidoria' => [
+                'url' => '/ouvidoria',
+                'title' => 'Ouvidoria',
+                'description' => 'Entre em contato com a Ouvidoria da Câmara Municipal para manifestações e sugestões.'
+            ],
+            'esic' => [
+                'url' => '/esic',
+                'title' => 'ESIC - Sistema de Informações ao Cidadão',
+                'description' => 'Solicite informações públicas através do Sistema Eletrônico de Informações ao Cidadão.'
+            ],
+            'lai' => [
+                'url' => '/esic',
+                'title' => 'Lei de Acesso à Informação',
+                'description' => 'Solicite informações públicas através do Sistema Eletrônico de Informações ao Cidadão.'
+            ],
+
+            // Páginas institucionais
+            'historia' => [
+                'url' => '/sobre/historia',
+                'title' => 'História da Câmara',
+                'description' => 'Conheça a história e trajetória da Câmara Municipal.'
+            ],
+            'estrutura' => [
+                'url' => '/sobre/estrutura',
+                'title' => 'Estrutura Organizacional',
+                'description' => 'Veja a estrutura organizacional da Câmara Municipal.'
+            ],
+            'regimento' => [
+                'url' => '/sobre/regimento',
+                'title' => 'Regimento Interno',
+                'description' => 'Consulte o regimento interno da Câmara Municipal.'
+            ],
+            'missao' => [
+                'url' => '/sobre/missao',
+                'title' => 'Missão e Valores',
+                'description' => 'Conheça a missão, visão e valores da Câmara Municipal.'
+            ],
+            'contato' => [
+                'url' => '/contato',
+                'title' => 'Contato',
+                'description' => 'Entre em contato com a Câmara Municipal.'
+            ],
+
+            // Cartas de Serviço
+            'cartas-servico' => [
+                'url' => '/cartas-servico',
+                'title' => 'Cartas de Serviço',
+                'description' => 'Consulte as cartas de serviço oferecidos pela Câmara Municipal.'
+            ],
+            'servicos' => [
+                'url' => '/cartas-servico',
+                'title' => 'Serviços',
+                'description' => 'Consulte os serviços oferecidos pela Câmara Municipal.'
+            ]
+        ];
+
+        $query = strtolower(trim($query));
+        $results = collect();
+
+        foreach ($keywords as $keyword => $data) {
+            // Busca exata
+            if ($keyword === $query) {
+                $results->push([
+                    'type' => 'keyword',
+                    'title' => $data['title'],
+                    'content' => $data['description'],
+                    'url' => url($data['url']),
+                    'date' => now(),
+                    'relevance' => 100,
+                    'category' => 'Seção do Sistema',
+                    'highlight_field' => 'title'
+                ]);
+            }
+            // Busca parcial
+            elseif (str_contains($keyword, $query) || str_contains($query, $keyword)) {
+                $relevance = 50;
+                if (str_starts_with($keyword, $query)) {
+                    $relevance = 80;
+                }
+                
+                $results->push([
+                    'type' => 'keyword',
+                    'title' => $data['title'],
+                    'content' => $data['description'],
+                    'url' => url($data['url']),
+                    'date' => now(),
+                    'relevance' => $relevance,
+                    'category' => 'Seção do Sistema',
+                    'highlight_field' => 'title'
+                ]);
+            }
+        }
+
+        return $results->sortByDesc('relevance');
     }
 }

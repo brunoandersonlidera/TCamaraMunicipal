@@ -1,8 +1,8 @@
 @props(['titulo', 'menus'])
 
 <div class="col-lg-3 col-md-6 mb-4">
-    <h5>{{ $titulo }}</h5>
-    <ul class="list-unstyled">
+    <h5 class="footer-title">{{ $titulo }}</h5>
+    <ul class="list-unstyled footer-menu">
         @foreach($menus as $menu)
             @if($menu->podeExibir())
                 @if($menu->tipo === 'divider')

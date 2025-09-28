@@ -137,7 +137,7 @@ class Menu extends Model
                     return auth()->check();
                 case 'admin_only':
                     // Só exibe para administradores
-                    return auth()->check() && auth()->user()->is_admin;
+                    return auth()->check() && auth()->user()->isAdmin();
             }
         }
 

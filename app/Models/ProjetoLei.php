@@ -18,6 +18,7 @@ class ProjetoLei extends Model
         'numero',
         'ano',
         'tipo',
+        'titulo',
         'ementa',
         'justificativa',
         'texto_integral',
@@ -26,6 +27,10 @@ class ProjetoLei extends Model
         'data_aprovacao',
         'data_publicacao',
         'autor_id',
+        'tipo_autoria',
+        'autor_nome',
+        'dados_iniciativa_popular',
+        'comite_iniciativa_popular_id',
         'relator_id',
         'comissao_responsavel',
         'urgencia',
@@ -35,7 +40,9 @@ class ProjetoLei extends Model
         'votacao_resultado',
         'lei_numero',
         'lei_data_sancao',
-        'slug'
+        'slug',
+        'tags',
+        'legislatura'
     ];
 
     protected $casts = [
@@ -46,7 +53,9 @@ class ProjetoLei extends Model
         'urgencia' => 'boolean',
         'anexos' => 'array',
         'tramitacao' => 'array',
-        'votacao_resultado' => 'array'
+        'votacao_resultado' => 'array',
+        'tags' => 'array',
+        'dados_iniciativa_popular' => 'array'
     ];
 
     protected $dates = [
@@ -84,6 +93,73 @@ class ProjetoLei extends Model
     {
         return $this->belongsToMany(Vereador::class, 'projeto_lei_coautor')
                     ->withTimestamps();
+    }
+
+    public function comiteIniciativaPopular()
+    {
+        return $this->belongsTo(ComiteIniciativaPopular::class, 'comite_iniciativa_popular_id');
+    }
+
+    // Métodos para diferentes tipos de autoria
+    public function getAutorCompleto()
+    {
+        switch ($this->tipo_autoria) {
+            case 'vereador':
+                return $this->autor ? $this->autor->nome : 'Vereador não encontrado';
+            case 'prefeito':
+                return 'Prefeito Municipal';
+            case 'comissao':
+                return $this->autor_nome ?: 'Comissão da Câmara';
+            case 'iniciativa_popular':
+                if ($this->comiteIniciativaPopular) {
+                    return $this->comiteIniciativaPopular->nome;
+                }
+                return $this->autor_nome ?: 'Iniciativa Popular';
+            default:
+                return $this->autor_nome ?: 'Autor não definido';
+        }
+    }
+
+    public function getDetalhesIniciativaPopular()
+    {
+        if ($this->tipo_autoria === 'iniciativa_popular') {
+            // Prioriza dados do comitê se existir
+            if ($this->comiteIniciativaPopular) {
+                return [
+                    'responsavel' => $this->comiteIniciativaPopular->nome,
+                    'assinaturas' => $this->comiteIniciativaPopular->numero_assinaturas,
+                    'minimo_assinaturas' => $this->comiteIniciativaPopular->minimo_assinaturas,
+                    'status' => $this->comiteIniciativaPopular->status,
+                    'email' => $this->comiteIniciativaPopular->email,
+                    'telefone' => $this->comiteIniciativaPopular->telefone,
+                ];
+            }
+            // Fallback para dados JSON antigos
+            if ($this->dados_iniciativa_popular) {
+                return $this->dados_iniciativa_popular;
+            }
+        }
+        return null;
+    }
+
+    public function isIniciativaPopular()
+    {
+        return $this->tipo_autoria === 'iniciativa_popular';
+    }
+
+    public function isAutoriaExecutivo()
+    {
+        return $this->tipo_autoria === 'prefeito';
+    }
+
+    public function isAutoriaComissao()
+    {
+        return $this->tipo_autoria === 'comissao';
+    }
+
+    public function isAutoriaVereador()
+    {
+        return $this->tipo_autoria === 'vereador';
     }
 
     // Scopes
@@ -145,6 +221,31 @@ class ProjetoLei extends Model
     public function scopeComissao($query, $comissao)
     {
         return $query->where('comissao_responsavel', $comissao);
+    }
+
+    public function scopeTipoAutoria($query, $tipoAutoria)
+    {
+        return $query->where('tipo_autoria', $tipoAutoria);
+    }
+
+    public function scopeIniciativaPopular($query)
+    {
+        return $query->where('tipo_autoria', 'iniciativa_popular');
+    }
+
+    public function scopeAutoriaExecutivo($query)
+    {
+        return $query->where('tipo_autoria', 'prefeito');
+    }
+
+    public function scopeAutoriaComissao($query)
+    {
+        return $query->where('tipo_autoria', 'comissao');
+    }
+
+    public function scopeAutoriaVereador($query)
+    {
+        return $query->where('tipo_autoria', 'vereador');
     }
 
     // Accessors

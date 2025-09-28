@@ -85,3 +85,507 @@
     outline: 2px solid #0066cc;
     outline-offset: 2px;
 }
+
+/* ========================================
+   ESTILOS PARA SLIDER DO HERO SECTION
+   ======================================== */
+
+/* Container do slider */
+.hero-slider {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    background: #f8f9fa;
+}
+
+/* Imagens do slider */
+.hero-slide-image {
+    height: 450px;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.3s ease;
+}
+
+/* Efeito hover nas imagens */
+.hero-slide-image:hover {
+    transform: scale(1.02);
+}
+
+/* Indicadores personalizados */
+.hero-slider .carousel-indicators {
+    bottom: 15px;
+    margin-bottom: 0;
+}
+
+.hero-slider .carousel-indicators button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.5);
+    background-color: transparent;
+    margin: 0 4px;
+    transition: all 0.3s ease;
+}
+
+.hero-slider .carousel-indicators button.active {
+    background-color: rgba(255,255,255,0.9);
+    border-color: rgba(255,255,255,0.9);
+    transform: scale(1.2);
+}
+
+/* Controles de navegação */
+.hero-slider .carousel-control-prev,
+.hero-slider .carousel-control-next {
+    width: 50px;
+    height: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.hero-slider .carousel-control-prev {
+    left: 15px;
+}
+
+.hero-slider .carousel-control-next {
+    right: 15px;
+}
+
+.hero-slider .carousel-control-prev:hover,
+.hero-slider .carousel-control-next:hover {
+    background: rgba(0,0,0,0.7);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.hero-slider .carousel-control-prev-icon,
+.hero-slider .carousel-control-next-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Legendas dos slides */
+.hero-slider .carousel-caption {
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 30px 20px 20px;
+    text-align: left;
+}
+
+.hero-slider .carousel-caption h5 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero-slider .carousel-caption p {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+    opacity: 0.9;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Altura mínima para o hero section */
+.min-vh-75 {
+    min-height: 50vh;
+}
+
+/* Responsividade do slider */
+/* Tablets e dispositivos médios */
+@media (max-width: 992px) {
+    .hero-slide-image {
+        height: 350px;
+    }
+    
+    .hero-slider {
+        margin-top: 2rem;
+    }
+    
+    .min-vh-75 {
+        min-height: auto;
+        padding: 2rem 0;
+    }
+}
+
+/* Tablets pequenos e smartphones grandes */
+@media (max-width: 768px) {
+    .hero-slide-image {
+        height: 300px;
+    }
+    
+    .hero-slider .carousel-control-prev,
+    .hero-slider .carousel-control-next {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .hero-slider .carousel-control-prev {
+        left: 10px;
+    }
+    
+    .hero-slider .carousel-control-next {
+        right: 10px;
+    }
+    
+    .hero-slider .carousel-caption {
+        padding: 20px 15px 15px;
+    }
+    
+    .hero-slider .carousel-caption h5 {
+        font-size: 1.1rem;
+        line-height: 1.3;
+    }
+    
+    .hero-slider .carousel-caption p {
+        font-size: 0.8rem;
+        line-height: 1.4;
+    }
+    
+    /* Melhor espaçamento dos indicadores em tablets */
+    .hero-slider .carousel-indicators button {
+        width: 10px;
+        height: 10px;
+        margin: 0 3px;
+    }
+    
+    /* Ajuste do hero section para tablets */
+    .min-vh-75 {
+        min-height: auto;
+        padding: 2.5rem 0;
+    }
+}
+
+/* Smartphones */
+@media (max-width: 576px) {
+    .hero-slide-image {
+        height: 250px;
+    }
+    
+    .hero-slider .carousel-control-prev,
+    .hero-slider .carousel-control-next {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .hero-slider .carousel-control-prev-icon,
+    .hero-slider .carousel-control-next-icon {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .hero-slider .carousel-caption {
+        padding: 15px 10px 10px;
+    }
+    
+    .hero-slider .carousel-caption h5 {
+        font-size: 1rem;
+        line-height: 1.2;
+        margin-bottom: 5px;
+    }
+    
+    .hero-slider .carousel-caption p {
+        font-size: 0.75rem;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    /* Indicadores menores para smartphones */
+    .hero-slider .carousel-indicators {
+        bottom: 10px;
+    }
+    
+    .hero-slider .carousel-indicators button {
+        width: 8px;
+        height: 8px;
+        margin: 0 2px;
+    }
+    
+    .min-vh-75 {
+        min-height: auto;
+        padding: 2rem 0;
+    }
+    
+    /* Ajuste do texto do hero para smartphones */
+    .hero-section .display-4 {
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+    
+    .hero-section .lead {
+        font-size: 1rem;
+        line-height: 1.4;
+    }
+}
+
+/* Smartphones muito pequenos */
+@media (max-width: 400px) {
+    .hero-slide-image {
+        height: 220px;
+    }
+    
+    .hero-slider .carousel-control-prev,
+    .hero-slider .carousel-control-next {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .hero-slider .carousel-control-prev-icon,
+    .hero-slider .carousel-control-next-icon {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .hero-slider .carousel-caption h5 {
+        font-size: 0.9rem;
+    }
+    
+    .hero-slider .carousel-caption p {
+        font-size: 0.7rem;
+    }
+    
+    .hero-section .display-4 {
+        font-size: 1.75rem;
+    }
+    
+    .hero-section .lead {
+        font-size: 0.95rem;
+    }
+    
+    /* Botões do hero menores em telas muito pequenas */
+    .hero-section .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Animações de transição */
+.carousel-item {
+    transition: transform 0.6s ease-in-out;
+}
+
+/* Efeitos de transição personalizados */
+.hero-slider[data-transition="fade"] .carousel-item {
+    opacity: 0;
+    transition: opacity 0.6s ease-in-out;
+}
+
+.hero-slider[data-transition="fade"] .carousel-item.active {
+    opacity: 1;
+}
+
+.hero-slider[data-transition="slide"] .carousel-item {
+    transform: translateX(100%);
+    transition: transform 0.6s ease-in-out;
+}
+
+.hero-slider[data-transition="slide"] .carousel-item.active {
+    transform: translateX(0);
+}
+
+/* Estados de carregamento */
+.hero-slider .carousel-item img {
+    background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
+                linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+                linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+/* ========================================
+   ESTILOS PARA CARROSSEL DE VEREADORES
+   ======================================== */
+
+/* Seção Vereadores - Carrossel Completo */
+.vereadores-carrossel-completo {
+    overflow: hidden;
+    position: relative;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    min-height: 520px;
+    padding: 1.5rem;
+}
+
+/* Track do carrossel */
+.carrossel-track {
+    display: flex;
+    gap: 1.5rem;
+    animation: scrollHorizontal 45s linear infinite;
+    width: fit-content;
+}
+
+/* Pausar animação ao hover */
+.vereadores-carrossel:hover .carrossel-track {
+    animation-play-state: paused;
+}
+
+/* Slides individuais */
+.vereador-slide {
+    flex: 0 0 340px;
+    height: 100%;
+}
+
+/* Cards dos vereadores no carrossel */
+.vereadores-carrossel .vereador-slide .vereador-mini-card {
+    transition: all 0.4s ease;
+    border: none;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    height: auto !important;
+    min-height: 480px !important;
+    border-radius: 20px;
+}
+
+.vereadores-carrossel .vereador-slide .vereador-mini-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+/* Card body dos vereadores com melhor espaçamento */
+.vereadores-carrossel .vereador-slide .vereador-mini-card .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2rem 1.5rem !important;
+    min-height: 400px !important;
+}
+
+/* Animação de scroll horizontal */
+@keyframes scrollHorizontal {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-3060px); /* 9 cards * 340px */
+    }
+}
+
+/* Responsividade para o carrossel */
+@media (max-width: 1200px) {
+    .vereadores-carrossel-completo {
+        min-height: 500px;
+        padding: 20px;
+    }
+    
+    .carrossel-track {
+        animation-duration: 42s;
+    }
+    
+    .vereador-slide {
+        flex: 0 0 300px;
+    }
+    
+    .vereadores-carrossel .vereador-slide .vereador-mini-card {
+        min-height: 420px !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .vereadores-carrossel-completo {
+        min-height: 450px;
+        padding: 20px;
+    }
+    
+    .vereador-slide {
+        flex: 0 0 280px;
+    }
+    
+    .carrossel-track {
+        animation-duration: 40s;
+    }
+    
+    .vereadores-carrossel .vereador-slide .vereador-mini-card {
+        min-height: 400px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .vereadores-carrossel-completo {
+        padding: 15px;
+        min-height: 400px;
+    }
+    
+    .vereador-slide {
+        flex: 0 0 260px;
+    }
+    
+    .carrossel-track {
+        gap: 1rem;
+        animation-duration: 35s;
+    }
+    
+    .vereadores-carrossel {
+        padding: 1rem;
+    }
+    
+    .vereadores-carrossel .vereador-slide .vereador-mini-card {
+        min-height: 380px !important;
+    }
+    
+    .vereadores-carrossel .vereador-slide .vereador-mini-card .card-body {
+        padding: 1.5rem 1rem !important;
+        min-height: 320px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .vereadores-container {
+        gap: 1rem;
+    }
+    
+    .vereadores-carrossel {
+        padding: 0.5rem;
+    }
+    
+    .vereador-slide {
+        flex: 0 0 260px;
+    }
+    
+    .carrossel-track {
+        gap: 0.5rem;
+        animation-duration: 20s;
+    }
+}
+
+@media (max-width: 576px) {
+    .vereador-slide {
+        flex: 0 0 240px;
+    }
+    
+    .carrossel-track {
+        animation-duration: 15s;
+    }
+}
+
+/* Efeitos visuais adicionais */
+.vereadores-carrossel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 100%;
+    background: linear-gradient(to right, rgba(248,249,250,0.8), transparent);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.vereadores-carrossel::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50px;
+    height: 100%;
+    background: linear-gradient(to left, rgba(248,249,250,0.8), transparent);
+    z-index: 1;
+    pointer-events: none;
+}

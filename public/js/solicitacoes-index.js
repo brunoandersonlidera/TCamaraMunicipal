@@ -16,14 +16,46 @@ function toggleView(view) {
     if (view === 'table') {
         tableView.style.display = 'block';
         cardsView.style.display = 'none';
-        btnTable.classList.add('active');
-        btnCards.classList.remove('active');
+        
+        // Verificação de segurança para classList
+        if (btnTable && btnTable.classList) {
+            try {
+                btnTable.classList.add('active');
+            } catch (error) {
+                console.warn('Erro ao adicionar classe active ao btnTable:', error);
+            }
+        }
+        
+        if (btnCards && btnCards.classList) {
+            try {
+                btnCards.classList.remove('active');
+            } catch (error) {
+                console.warn('Erro ao remover classe active do btnCards:', error);
+            }
+        }
+        
         localStorage.setItem('solicitacoes_view', 'table');
     } else {
         tableView.style.display = 'none';
         cardsView.style.display = 'block';
-        btnCards.classList.add('active');
-        btnTable.classList.remove('active');
+        
+        // Verificação de segurança para classList
+        if (btnCards && btnCards.classList) {
+            try {
+                btnCards.classList.add('active');
+            } catch (error) {
+                console.warn('Erro ao adicionar classe active ao btnCards:', error);
+            }
+        }
+        
+        if (btnTable && btnTable.classList) {
+            try {
+                btnTable.classList.remove('active');
+            } catch (error) {
+                console.warn('Erro ao remover classe active do btnTable:', error);
+            }
+        }
+        
         localStorage.setItem('solicitacoes_view', 'cards');
     }
 }

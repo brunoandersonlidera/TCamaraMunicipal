@@ -7,17 +7,55 @@ function toggleView(view) {
     const tableBtn = document.getElementById('tableViewBtn');
     const cardsBtn = document.getElementById('cardsViewBtn');
     
+    // Verificar se os elementos existem antes de manipulá-los
+    if (!tableView || !cardsView || !tableBtn || !cardsBtn) {
+        console.warn('Elementos de visualização não encontrados');
+        return;
+    }
+    
     if (view === 'table') {
         tableView.style.display = 'block';
         cardsView.style.display = 'none';
-        tableBtn.classList.add('active');
-        cardsBtn.classList.remove('active');
+        
+        // Verificação de segurança para classList
+        if (tableBtn && tableBtn.classList) {
+            try {
+                tableBtn.classList.add('active');
+            } catch (error) {
+                console.warn('Erro ao adicionar classe active ao tableBtn:', error);
+            }
+        }
+        
+        if (cardsBtn && cardsBtn.classList) {
+            try {
+                cardsBtn.classList.remove('active');
+            } catch (error) {
+                console.warn('Erro ao remover classe active do cardsBtn:', error);
+            }
+        }
+        
         localStorage.setItem('sessoes_view', 'table');
     } else {
         tableView.style.display = 'none';
         cardsView.style.display = 'block';
-        tableBtn.classList.remove('active');
-        cardsBtn.classList.add('active');
+        
+        // Verificação de segurança para classList
+        if (tableBtn && tableBtn.classList) {
+            try {
+                tableBtn.classList.remove('active');
+            } catch (error) {
+                console.warn('Erro ao remover classe active do tableBtn:', error);
+            }
+        }
+        
+        if (cardsBtn && cardsBtn.classList) {
+            try {
+                cardsBtn.classList.add('active');
+            } catch (error) {
+                console.warn('Erro ao adicionar classe active ao cardsBtn:', error);
+            }
+        }
+        
         localStorage.setItem('sessoes_view', 'cards');
     }
 }

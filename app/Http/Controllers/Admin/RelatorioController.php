@@ -242,7 +242,7 @@ class RelatorioController extends Controller
         $periodo = $request->get('periodo', '30');
         $dataInicio = now()->subDays($periodo);
 
-        $projetos = ProjetoLei::with(['autor', 'vereadores'])
+        $projetos = ProjetoLei::with(['autor', 'coautores'])
                              ->where('created_at', '>=', $dataInicio)
                              ->orderBy('created_at', 'desc')
                              ->paginate(50);
@@ -305,10 +305,10 @@ class RelatorioController extends Controller
         $estatisticas = [
             'total' => $noticias->total(),
             'publicadas' => Noticia::where('data_publicacao', '>=', $dataInicio)
-                                  ->where('publicado', true)
+                                  ->where('status', 'publicado')
                                   ->count(),
             'rascunhos' => Noticia::where('created_at', '>=', $dataInicio)
-                                 ->where('publicado', false)
+                                 ->where('status', 'rascunho')
                                  ->count(),
             'por_categoria' => Noticia::where('data_publicacao', '>=', $dataInicio)
                                      ->whereNotNull('categoria')

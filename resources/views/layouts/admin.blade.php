@@ -17,10 +17,15 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Custom CSS -->
+    <!-- CSS Direto -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin-styles.css') }}">
     <link rel="stylesheet" href="{{ asset('css/tipos-sessao.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/leis-formatacao.css') }}">
+    
+    <!-- JavaScript Direto -->
+    <script src="{{ asset('js/admin-layout.js') }}" defer></script>
     
     @stack('styles')
 </head>
@@ -85,9 +90,37 @@
                 </div>
                 
                 <div class="nav-item">
+                    <a href="{{ route('admin.comites-iniciativa-popular.index') }}" class="nav-link {{ request()->routeIs('admin.comites-iniciativa-popular.*') ? 'active' : '' }}">
+                        <i class="fas fa-users"></i>
+                        Comitês de Iniciativa Popular
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.leis.index') }}" class="nav-link {{ request()->routeIs('admin.leis.*') ? 'active' : '' }}">
+                        <i class="fas fa-balance-scale"></i>
+                        Leis
+                    </a>
+                </div>
+                
+                <div class="nav-item">
                     <a href="{{ route('admin.documentos.index') }}" class="nav-link {{ request()->routeIs('admin.documentos.*') ? 'active' : '' }}">
                         <i class="fas fa-folder-open"></i>
                         Documentos
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.eventos.index') }}" class="nav-link {{ request()->routeIs('admin.eventos.*') ? 'active' : '' }}">
+                        <i class="fas fa-calendar-alt"></i>
+                        Eventos/Agenda
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.paginas-conteudo.index') }}" class="nav-link {{ request()->routeIs('admin.paginas-conteudo.*') ? 'active' : '' }}">
+                        <i class="fas fa-file-text"></i>
+                        Páginas Institucionais
                     </a>
                 </div>
             </div>
@@ -121,6 +154,20 @@
                     <a href="{{ route('admin.licitacoes.index') }}" class="nav-link {{ request()->routeIs('admin.licitacoes.*') ? 'active' : '' }}">
                         <i class="fas fa-gavel"></i>
                         Licitações
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.tipos-contrato.index') }}" class="nav-link {{ request()->routeIs('admin.tipos-contrato.*') ? 'active' : '' }}">
+                        <i class="fas fa-tags"></i>
+                        Tipos de Contrato
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.contratos.index') }}" class="nav-link {{ request()->routeIs('admin.contratos.*') ? 'active' : '' }}">
+                        <i class="fas fa-handshake"></i>
+                        Contratos
                     </a>
                 </div>
             </div>
@@ -161,11 +208,32 @@
                         Menus
                     </a>
                 </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.configuracao-geral.index') }}" class="nav-link {{ request()->routeIs('admin.configuracao-geral.*') ? 'active' : '' }}">
+                        <i class="fas fa-cogs"></i>
+                        Configurações Gerais
+                    </a>
+                </div>
             </div>
             
             <!-- Site -->
             <div class="nav-section">
                 <div class="nav-section-title">Site</div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.slides.index') }}" class="nav-link {{ request()->routeIs('admin.slides.*') ? 'active' : '' }}">
+                        <i class="fas fa-images"></i>
+                        Slides Hero
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.hero-config.index') }}" class="nav-link {{ request()->routeIs('admin.hero-config.*') ? 'active' : '' }}">
+                        <i class="fas fa-cog"></i>
+                        Config. Hero
+                    </a>
+                </div>
                 
                 <div class="nav-item">
                     <a href="{{ route('admin.acesso-rapido.index') }}" class="nav-link {{ request()->routeIs('admin.acesso-rapido.*') ? 'active' : '' }}">
@@ -269,10 +337,16 @@
         </div>
     </main>
     
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- jQuery Mask Plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Custom JS -->
+    <!-- Custom JS (não processados pelo Vite) -->
     <script src="{{ asset('js/tipos-sessao.js') }}"></script>
     <script src="{{ asset('js/admin-events.js') }}"></script>
     <script src="{{ asset('js/admin-layout.js') }}"></script>

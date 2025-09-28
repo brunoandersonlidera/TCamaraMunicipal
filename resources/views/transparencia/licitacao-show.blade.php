@@ -94,7 +94,7 @@
                             @if($licitacao->data_publicacao)
                                 {{ $licitacao->data_publicacao->format('d/m/Y') }}
                             @else
-                                <span class="text-muted">-</span>
+                                <span class="text-muted">Não informado</span>
                             @endif
                         </div>
                         <div class="col-lg-6 mb-3">
@@ -102,7 +102,7 @@
                             @if($licitacao->data_abertura)
                                 {{ $licitacao->data_abertura->format('d/m/Y H:i') }}
                             @else
-                                <span class="text-muted">-</span>
+                                <span class="text-muted">Não informado</span>
                             @endif
                         </div>
                         <div class="col-lg-6 mb-3">
@@ -221,7 +221,7 @@
                                                 <div><strong>Arquivo:</strong> {{ Str::limit($documento->arquivo_original, 25) }}</div>
                                                 <div><strong>Tipo:</strong> {{ ucfirst(str_replace('_', ' ', $documento->tipo_documento)) }}</div>
                                                 <div><strong>Tamanho:</strong> {{ number_format($documento->tamanho / 1024, 1) }} KB</div>
-                                                <div><strong>Enviado em:</strong> {{ $documento->created_at->format('d/m/Y H:i') }}</div>
+                                                <div><strong>Enviado em:</strong> {{ $documento->created_at ? $documento->created_at->format('d/m/Y H:i') : 'Não informado' }}</div>
                                             </div>
                                         </div>
                                     </div>

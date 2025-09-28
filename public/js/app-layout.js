@@ -28,13 +28,26 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeSmoothScrolling() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            
+            // Verifica se é realmente uma âncora interna (começa com #)
+            if (!href || !href.startsWith('#') || href.length <= 1) {
+                return; // Deixa o comportamento padrão do link
+            }
+            
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+            
+            try {
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            } catch (error) {
+                console.warn('Erro ao tentar fazer scroll suave para:', href, error);
+                // Em caso de erro, deixa o comportamento padrão
             }
         });
     });
@@ -51,8 +64,12 @@ function initializeScrollAnimations() {
 
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate-fade-in-up');
+            if (entry.isIntersecting && entry.target && entry.target.classList) {
+                try {
+                    entry.target.classList.add('animate-fade-in-up');
+                } catch (error) {
+                    console.warn('Erro ao adicionar classe de animação:', error);
+                }
             }
         });
     }, observerOptions);
@@ -117,28 +134,44 @@ function initializeDropdowns() {
             
             // Fechar outros dropdowns abertos
             dropdowns.forEach(otherDropdown => {
-                if (otherDropdown !== dropdown) {
-                    otherDropdown.classList.remove('show');
-                    const otherMenu = otherDropdown.querySelector('.dropdown-menu');
-                    if (otherMenu) {
-                        otherMenu.classList.remove('show');
+                if (otherDropdown !== dropdown && otherDropdown && otherDropdown.classList) {
+                    try {
+                        otherDropdown.classList.remove('show');
+                        const otherMenu = otherDropdown.querySelector('.dropdown-menu');
+                        if (otherMenu && otherMenu.classList) {
+                            otherMenu.classList.remove('show');
+                        }
+                    } catch (error) {
+                        console.warn('Erro ao fechar dropdown:', error);
                     }
                 }
             });
             
             // Mostrar dropdown atual
-            dropdown.classList.add('show');
-            if (dropdownMenu) {
-                dropdownMenu.classList.add('show');
+            if (dropdown && dropdown.classList) {
+                try {
+                    dropdown.classList.add('show');
+                    if (dropdownMenu && dropdownMenu.classList) {
+                        dropdownMenu.classList.add('show');
+                    }
+                } catch (error) {
+                    console.warn('Erro ao mostrar dropdown:', error);
+                }
             }
         });
         
         // Implementar hover para esconder dropdown com delay
         dropdown.addEventListener('mouseleave', function() {
             hoverTimeout = setTimeout(() => {
-                dropdown.classList.remove('show');
-                if (dropdownMenu) {
-                    dropdownMenu.classList.remove('show');
+                if (dropdown && dropdown.classList) {
+                    try {
+                        dropdown.classList.remove('show');
+                        if (dropdownMenu && dropdownMenu.classList) {
+                            dropdownMenu.classList.remove('show');
+                        }
+                    } catch (error) {
+                        console.warn('Erro ao esconder dropdown:', error);
+                    }
                 }
             }, 150); // Pequeno delay para melhor UX
         });
@@ -151,8 +184,16 @@ function initializeDropdowns() {
             
             dropdownMenu.addEventListener('mouseleave', function() {
                 hoverTimeout = setTimeout(() => {
-                    dropdown.classList.remove('show');
-                    dropdownMenu.classList.remove('show');
+                    if (dropdown && dropdown.classList) {
+                        try {
+                            dropdown.classList.remove('show');
+                            if (dropdownMenu && dropdownMenu.classList) {
+                                dropdownMenu.classList.remove('show');
+                            }
+                        } catch (error) {
+                            console.warn('Erro ao esconder dropdown menu:', error);
+                        }
+                    }
                 }, 150);
             });
         }
@@ -214,29 +255,49 @@ function initializeMobileAccordion() {
         const allCollapses = document.querySelectorAll('.mobile-accordion-collapse');
         
         allButtons.forEach(btn => {
-            if (btn !== button) {
-                btn.setAttribute('aria-expanded', 'false');
-                btn.classList.remove('active');
+            if (btn !== button && btn && btn.classList) {
+                try {
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.classList.remove('active');
+                } catch (error) {
+                    console.warn('Erro ao fechar botão do acordeão:', error);
+                }
             }
         });
         
         allCollapses.forEach(collapse => {
-            if (collapse !== targetCollapse) {
-                collapse.classList.remove('show');
+            if (collapse !== targetCollapse && collapse && collapse.classList) {
+                try {
+                    collapse.classList.remove('show');
+                } catch (error) {
+                    console.warn('Erro ao fechar collapse do acordeão:', error);
+                }
             }
         });
         
         // Toggle do acordeão atual
         if (isExpanded) {
             // Fechar
-            button.setAttribute('aria-expanded', 'false');
-            button.classList.remove('active');
-            targetCollapse.classList.remove('show');
+            if (button && button.classList && targetCollapse && targetCollapse.classList) {
+                try {
+                    button.setAttribute('aria-expanded', 'false');
+                    button.classList.remove('active');
+                    targetCollapse.classList.remove('show');
+                } catch (error) {
+                    console.warn('Erro ao fechar acordeão:', error);
+                }
+            }
         } else {
             // Abrir
-            button.setAttribute('aria-expanded', 'true');
-            button.classList.add('active');
-            targetCollapse.classList.add('show');
+            if (button && button.classList && targetCollapse && targetCollapse.classList) {
+                try {
+                    button.setAttribute('aria-expanded', 'true');
+                    button.classList.add('active');
+                    targetCollapse.classList.add('show');
+                } catch (error) {
+                    console.warn('Erro ao abrir acordeão:', error);
+                }
+            }
         }
         
         // Adicionar animação suave
@@ -255,12 +316,24 @@ function initializeMobileAccordion() {
             const allCollapses = document.querySelectorAll('.mobile-accordion-collapse');
             
             allButtons.forEach(btn => {
-                btn.setAttribute('aria-expanded', 'false');
-                btn.classList.remove('active');
+                if (btn && btn.classList) {
+                    try {
+                        btn.setAttribute('aria-expanded', 'false');
+                        btn.classList.remove('active');
+                    } catch (error) {
+                        console.warn('Erro ao fechar botão do acordeão:', error);
+                    }
+                }
             });
             
             allCollapses.forEach(collapse => {
-                collapse.classList.remove('show');
+                if (collapse && collapse.classList) {
+                    try {
+                        collapse.classList.remove('show');
+                    } catch (error) {
+                        console.warn('Erro ao fechar collapse do acordeão:', error);
+                    }
+                }
             });
         }
     });
@@ -278,12 +351,24 @@ function initializeMobileAccordion() {
                     const allCollapses = document.querySelectorAll('.mobile-accordion-collapse');
                     
                     allButtons.forEach(btn => {
-                        btn.setAttribute('aria-expanded', 'false');
-                        btn.classList.remove('active');
+                        if (btn && btn.classList) {
+                            try {
+                                btn.setAttribute('aria-expanded', 'false');
+                                btn.classList.remove('active');
+                            } catch (error) {
+                                console.warn('Erro ao fechar botão do acordeão:', error);
+                            }
+                        }
                     });
                     
                     allCollapses.forEach(collapse => {
-                        collapse.classList.remove('show');
+                        if (collapse && collapse.classList) {
+                            try {
+                                collapse.classList.remove('show');
+                            } catch (error) {
+                                console.warn('Erro ao fechar collapse do acordeão:', error);
+                            }
+                        }
                     });
                 }, 100);
             }

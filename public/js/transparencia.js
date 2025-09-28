@@ -171,7 +171,14 @@ class PortalTransparencia {
         const statsCards = document.querySelectorAll('.stats-card');
         statsCards.forEach((card, index) => {
             setTimeout(() => {
-                card.classList.add('fade-in-up');
+                // Verificação de segurança para classList
+                if (card && card.classList) {
+                    try {
+                        card.classList.add('fade-in-up');
+                    } catch (error) {
+                        console.warn('Erro ao adicionar classe fade-in-up ao card:', error);
+                    }
+                }
             }, index * 200);
         });
 
@@ -179,7 +186,14 @@ class PortalTransparencia {
         const navButtons = document.querySelectorAll('.nav-quick-access .btn');
         navButtons.forEach((btn, index) => {
             setTimeout(() => {
-                btn.classList.add('fade-in-up');
+                // Verificação de segurança para classList
+                if (btn && btn.classList) {
+                    try {
+                        btn.classList.add('fade-in-up');
+                    } catch (error) {
+                        console.warn('Erro ao adicionar classe fade-in-up ao btn:', error);
+                    }
+                }
             }, (index * 100) + 800);
         });
     }

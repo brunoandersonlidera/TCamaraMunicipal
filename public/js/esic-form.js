@@ -182,21 +182,37 @@ document.addEventListener('DOMContentLoaded', function() {
     function showFieldError(field, message) {
         clearFieldError(field);
         
-        field.classList.add('is-invalid');
+        if (field && field.classList) {
+            try {
+                field.classList.add('is-invalid');
+            } catch (error) {
+                console.warn('Erro ao adicionar classe de erro:', error);
+            }
+        }
         
         const errorDiv = document.createElement('div');
         errorDiv.className = 'invalid-feedback';
         errorDiv.textContent = message;
         
-        field.parentNode.appendChild(errorDiv);
+        if (field && field.parentNode) {
+            field.parentNode.appendChild(errorDiv);
+        }
     }
 
     function clearFieldError(field) {
-        field.classList.remove('is-invalid');
+        if (field && field.classList) {
+            try {
+                field.classList.remove('is-invalid');
+            } catch (error) {
+                console.warn('Erro ao remover classe de erro:', error);
+            }
+        }
         
-        const errorDiv = field.parentNode.querySelector('.invalid-feedback');
-        if (errorDiv) {
-            errorDiv.remove();
+        if (field && field.parentNode) {
+            const errorDiv = field.parentNode.querySelector('.invalid-feedback');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
         }
     }
 
@@ -217,11 +233,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 counterDiv.textContent = `${currentLength}/${maxLength} caracteres`;
                 
                 if (remaining < 100) {
-                    counterDiv.classList.add('text-warning');
-                    counterDiv.classList.remove('text-muted');
+                    if (counterDiv && counterDiv.classList) {
+                        try {
+                            counterDiv.classList.add('text-warning');
+                            counterDiv.classList.remove('text-muted');
+                        } catch (error) {
+                            console.warn('Erro ao alterar classe do contador:', error);
+                        }
+                    }
                 } else {
-                    counterDiv.classList.add('text-muted');
-                    counterDiv.classList.remove('text-warning');
+                    if (counterDiv && counterDiv.classList) {
+                        try {
+                            counterDiv.classList.add('text-muted');
+                            counterDiv.classList.remove('text-warning');
+                        } catch (error) {
+                            console.warn('Erro ao alterar classe do contador:', error);
+                        }
+                    }
                 }
             }
 

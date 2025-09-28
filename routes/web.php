@@ -9,10 +9,15 @@ use App\Http\Controllers\OuvidoriaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TransparenciaController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\CalendarioController;
+use App\Http\Controllers\LicitacaoDocumentoController;
+use App\Http\Controllers\Admin\EventosController;
+use App\Http\Controllers\LeisController;
 use App\Models\Vereador;
 use App\Models\User;
 use App\Models\Sessao;
 use App\Models\AcessoRapido;
+use App\Models\Noticia;
 
 Route::get('/', function () {
     // Buscar presidente e vereadores para a página inicial
@@ -61,8 +66,20 @@ Route::get('/', function () {
     
     // Buscar acessos rápidos ativos para a página inicial
     $acessosRapidos = AcessoRapido::ativos()->ordenados()->get();
+    
+    // Buscar slides ativos para o hero section
+    $slides = \App\Models\Slide::ativos()->ordenados()->get();
+    
+    // Buscar configurações do hero section
+    $heroConfig = \App\Models\HeroConfiguration::getActive();
+    
+    // Buscar últimas notícias para a página inicial
+    $ultimasNoticias = Noticia::publicadas()
+                             ->recentes()
+                             ->limit(3)
+                             ->get();
         
-    return view('welcome', compact('presidente', 'vereadores', 'totalVereadores', 'projetos', 'sessoes', 'leis', 'sessoesGravadas', 'sessaoAoVivo', 'sessaoDestaque', 'acessosRapidos'));
+    return view('welcome', compact('presidente', 'vereadores', 'totalVereadores', 'projetos', 'sessoes', 'leis', 'sessoesGravadas', 'sessaoAoVivo', 'sessaoDestaque', 'acessosRapidos', 'slides', 'heroConfig', 'ultimasNoticias'));
 })->name('home');
 
 // Rotas de Autenticação
@@ -104,6 +121,15 @@ Route::get('/esqueci-minha-senha', [App\Http\Controllers\PasswordResetController
 Route::post('/esqueci-minha-senha', [App\Http\Controllers\PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::get('/redefinir-senha/{token}', [App\Http\Controllers\PasswordResetController::class, 'showResetForm'])->name('password.reset');
 Route::post('/redefinir-senha', [App\Http\Controllers\PasswordResetController::class, 'reset'])->name('password.update');
+
+// Rotas públicas de notícias
+Route::get('/noticias', [App\Http\Controllers\NoticiaController::class, 'index'])->name('noticias.index');
+Route::get('/noticias/{id}', [App\Http\Controllers\NoticiaController::class, 'show'])->name('noticias.show');
+
+// Rotas públicas para projetos de lei
+Route::get('/projetos-lei', [App\Http\Controllers\ProjetoLeiController::class, 'index'])->name('projetos-lei.index');
+Route::get('/projetos-lei/{projetoLei}', [App\Http\Controllers\ProjetoLeiController::class, 'show'])->name('projetos-lei.show');
+Route::get('/projetos-lei/{projetoLei}/download/{tipo}', [App\Http\Controllers\ProjetoLeiController::class, 'download'])->name('projetos-lei.download');
 
 // Rotas da área do usuário (requer autenticação)
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -161,26 +187,31 @@ Route::get('/cartas-servico', [App\Http\Controllers\CartaServicoController::clas
 Route::get('/cartas-servico/{slug}', [App\Http\Controllers\CartaServicoController::class, 'showPublico'])->name('cartas-servico.show');
 
 // Rotas dos vereadores (públicas)
-Route::get('/vereadores', [VereadorController::class, 'index'])->name('vereadores.index');
+Route::get('/vereadores', [\App\Http\Controllers\VereadorController::class, 'index'])->name('vereadores.index');
 Route::get('/vereadores/{id}', [VereadorController::class, 'show'])->name('vereadores.show');
 
 // Rotas das sessões (públicas)
 Route::get('/sessoes', [SessaoController::class, 'index'])->name('sessoes.index');
 Route::get('/tv-camara', [SessaoController::class, 'tvCamara'])->name('tv-camara');
+Route::get('/sessoes/calendario', [SessaoController::class, 'calendario'])->name('sessoes.calendario');
+Route::get('/ao-vivo', [SessaoController::class, 'aoVivo'])->name('sessoes.ao-vivo');
 Route::get('/sessoes/{sessao}', [SessaoController::class, 'show'])->name('sessoes.show');
 Route::get('/sessoes/{sessao}/ata/download', [SessaoController::class, 'downloadAta'])->name('sessoes.download-ata');
 Route::get('/sessoes/{sessao}/pauta/download', [SessaoController::class, 'downloadPauta'])->name('sessoes.download-pauta');
-Route::get('/sessoes/calendario', [SessaoController::class, 'calendario'])->name('sessoes.calendario');
-Route::get('/ao-vivo', [SessaoController::class, 'aoVivo'])->name('sessoes.ao-vivo');
 
 // Rotas do Portal da Transparência (públicas)
 Route::prefix('transparencia')->name('transparencia.')->group(function () {
     Route::get('/', [TransparenciaController::class, 'index'])->name('index');
     Route::get('/receitas', [TransparenciaController::class, 'receitas'])->name('receitas');
     Route::get('/despesas', [TransparenciaController::class, 'despesas'])->name('despesas');
+    Route::get('/financeiro', [TransparenciaController::class, 'financeiro'])->name('financeiro');
     Route::get('/licitacoes', [TransparenciaController::class, 'licitacoes'])->name('licitacoes');
     Route::get('/licitacoes/{licitacao}', [TransparenciaController::class, 'showLicitacao'])->name('licitacoes.show');
     Route::get('/licitacoes/{licitacao}/documento/{documento}/download', [LicitacaoDocumentoController::class, 'download'])->name('licitacoes.documento.download');
+    Route::get('/contratos', [TransparenciaController::class, 'contratos'])->name('contratos');
+    Route::get('/contratos/{contrato}', [TransparenciaController::class, 'showContrato'])->name('contratos.show');
+    Route::get('/contratos/{contrato}/download', [TransparenciaController::class, 'downloadContratoArquivo'])->name('contratos.download');
+    Route::get('/contratos/{contrato}/aditivos/{aditivo}/download', [TransparenciaController::class, 'downloadAditivoArquivo'])->name('contratos.aditivos.download');
     Route::get('/folha-pagamento', [TransparenciaController::class, 'folhaPagamento'])->name('folha-pagamento');
     Route::get('/exportar/{tipo}', [TransparenciaController::class, 'exportar'])->name('exportar');
     Route::get('/api/evolucao-mensal', [TransparenciaController::class, 'evolucaoMensalJson'])->name('api.evolucao-mensal');
@@ -195,13 +226,43 @@ Route::get('/licitacao/documento/{documento}/visualizar', [App\Http\Controllers\
 Route::get('/busca', [SearchController::class, 'search'])->name('search');
 Route::get('/api/busca', [SearchController::class, 'api'])->name('search.api');
 
+// Rotas de API para o Calendário
+Route::prefix('api')->name('api.')->group(function () {
+    Route::get('/eventos', [CalendarioController::class, 'buscarEventos'])->name('eventos');
+    Route::get('/eventos/estatisticas', [CalendarioController::class, 'estatisticas'])->name('eventos.estatisticas');
+    Route::get('/eventos/proximos', [CalendarioController::class, 'proximosEventos'])->name('eventos.proximos');
+});
+
+// Rota raiz do calendário - redireciona para agenda
+Route::get('/calendario', function () {
+    return redirect()->route('calendario.agenda');
+})->name('calendario');
+
+// Rotas do Calendário (públicas)
+Route::prefix('calendario')->name('calendario.')->group(function () {
+    Route::get('/mini', [CalendarioController::class, 'miniCalendario'])->name('mini');
+    Route::get('/agenda', [CalendarioController::class, 'agenda'])->name('agenda');
+    Route::get('/agenda/vereador/{vereador}', [CalendarioController::class, 'agendaVereador'])->name('agenda.vereador');
+    Route::get('/eventos', [CalendarioController::class, 'buscarEventos'])->name('eventos');
+    Route::get('/evento/{evento}', [CalendarioController::class, 'show'])->name('evento.show');
+    Route::get('/buscar', [CalendarioController::class, 'buscar'])->name('buscar');
+    Route::get('/exportar.ics', [CalendarioController::class, 'exportarIcs'])->name('exportar.ics');
+    
+    // Rotas para usuários logados
+    Route::middleware(['auth', 'verified'])->group(function () {
+        Route::get('/meus-eventos', [CalendarioController::class, 'meusEventos'])->name('meus-eventos');
+        Route::get('/meus-eventos/dados', [CalendarioController::class, 'getEventosEsicUsuario'])->name('meus-eventos.dados');
+    });
+});
+
 // Rotas administrativas (protegidas por middleware de admin)
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('admin.dashboard');
     
     // Vereadores - CRUD Administrativo
     Route::resource('vereadores', App\Http\Controllers\Admin\VereadorController::class, [
-        'as' => 'admin'
+        'as' => 'admin',
+        'parameters' => ['vereadores' => 'vereador']
     ]);
     Route::patch('/vereadores/{vereador}/toggle-status', [App\Http\Controllers\Admin\VereadorController::class, 'toggleStatus'])
          ->name('admin.vereadores.toggle-status');
@@ -242,10 +303,22 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     // Rotas administrativas para projetos de lei
     Route::resource('projetos-lei', App\Http\Controllers\Admin\ProjetoLeiController::class, [
-        'as' => 'admin'
+        'as' => 'admin',
+        'parameters' => ['projetos-lei' => 'projetoLei']
     ]);
     Route::patch('projetos-lei/{projetoLei}/toggle-status', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'toggleStatus'])->name('admin.projetos-lei.toggle-status');
     Route::get('projetos-lei/{projetoLei}/download/{tipo}', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'download'])->name('admin.projetos-lei.download');
+
+    // Rotas administrativas para comitês de iniciativa popular
+    Route::resource('comites-iniciativa-popular', App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, [
+        'as' => 'admin',
+        'parameters' => ['comites-iniciativa-popular' => 'comite']
+    ]);
+    Route::patch('comites-iniciativa-popular/{comite}/toggle-status', [App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, 'toggleStatus'])->name('admin.comites-iniciativa-popular.toggle-status');
+    Route::get('comites-iniciativa-popular/{comite}/download/{documento}', [App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, 'download'])->name('admin.comites-iniciativa-popular.download');
+    Route::patch('comites-iniciativa-popular/{comite}/validar', [App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, 'validar'])->name('admin.comites-iniciativa-popular.validar');
+    Route::patch('comites-iniciativa-popular/{comite}/rejeitar', [App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, 'rejeitar'])->name('admin.comites-iniciativa-popular.rejeitar');
+    Route::patch('comites-iniciativa-popular/{comite}/arquivar', [App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, 'arquivar'])->name('admin.comites-iniciativa-popular.arquivar');
 
     // Rotas administrativas para documentos
     Route::resource('documentos', App\Http\Controllers\Admin\DocumentoController::class, [
@@ -282,6 +355,25 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     ]);
     Route::patch('cartas-servico/{cartaServico}/alterar-status', [App\Http\Controllers\CartaServicoController::class, 'alterarStatus'])->name('admin.cartas-servico.alterar-status');
     Route::get('cartas-servico/{cartaServico}/anexo/{indice}', [App\Http\Controllers\CartaServicoController::class, 'downloadAnexo'])->name('admin.cartas-servico.download-anexo');
+
+    // Rotas administrativas para eventos do calendário
+    Route::resource('eventos', App\Http\Controllers\Admin\EventosController::class, [
+        'as' => 'admin'
+    ]);
+    Route::patch('eventos/{evento}/toggle-status', [App\Http\Controllers\Admin\EventosController::class, 'toggleStatus'])->name('admin.eventos.toggle-status');
+    Route::patch('eventos/{evento}/toggle-destaque', [App\Http\Controllers\Admin\EventosController::class, 'toggleDestaque'])->name('admin.eventos.toggle-destaque');
+    Route::post('eventos/{evento}/duplicate', [App\Http\Controllers\Admin\EventosController::class, 'duplicate'])->name('admin.eventos.duplicate');
+    Route::get('eventos/exportar-csv', [App\Http\Controllers\Admin\EventosController::class, 'exportarCsv'])->name('admin.eventos.exportar-csv');
+    Route::post('eventos/sincronizar', [App\Http\Controllers\Admin\EventosController::class, 'sincronizar'])->name('admin.eventos.sincronizar');
+    Route::get('eventos/dashboard', [App\Http\Controllers\Admin\EventosController::class, 'dashboard'])->name('admin.eventos.dashboard');
+
+    // Rotas administrativas para páginas de conteúdo
+    Route::resource('paginas-conteudo', App\Http\Controllers\Admin\PaginaConteudoController::class, [
+        'as' => 'admin',
+        'parameters' => ['paginas-conteudo' => 'pagina']
+    ]);
+    Route::patch('paginas-conteudo/{pagina}/toggle-status', [App\Http\Controllers\Admin\PaginaConteudoController::class, 'toggleStatus'])->name('admin.paginas-conteudo.toggle-status');
+
     Route::post('cartas-servico/{cartaServico}/duplicar', [App\Http\Controllers\CartaServicoController::class, 'duplicar'])->name('admin.cartas-servico.duplicar');
     Route::get('cartas-servico-relatorio', [App\Http\Controllers\CartaServicoController::class, 'relatorio'])->name('admin.cartas-servico.relatorio');
     Route::get('cartas-servico-exportar', [App\Http\Controllers\CartaServicoController::class, 'exportar'])->name('admin.cartas-servico.exportar');
@@ -327,6 +419,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('configuracoes/logs', [App\Http\Controllers\Admin\ConfiguracaoController::class, 'logs'])->name('admin.configuracoes.logs');
     Route::post('configuracoes/clear-logs', [App\Http\Controllers\Admin\ConfiguracaoController::class, 'clearLogs'])->name('admin.configuracoes.clear-logs');
 
+    // Rotas administrativas para configurações gerais (brasão, logo, contatos)
+    Route::resource('configuracao-geral', App\Http\Controllers\Admin\ConfiguracaoGeralController::class, [
+        'as' => 'admin'
+    ]);
+
     // Rotas administrativas para menus
     Route::resource('menus', App\Http\Controllers\Admin\MenuController::class, [
         'as' => 'admin'
@@ -350,9 +447,70 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::patch('acesso-rapido/{acessoRapido}/toggle-status', [App\Http\Controllers\Admin\AcessoRapidoController::class, 'toggleStatus'])->name('admin.acesso-rapido.toggle-status');
     Route::post('acesso-rapido/update-order', [App\Http\Controllers\Admin\AcessoRapidoController::class, 'updateOrder'])->name('admin.acesso-rapido.update-order');
     
+    // Rotas administrativas para tipos de contrato
+    Route::resource('tipos-contrato', App\Http\Controllers\Admin\TipoContratoController::class, [
+        'as' => 'admin',
+        'parameters' => ['tipos-contrato' => 'tipoContrato']
+    ]);
+    Route::patch('tipos-contrato/{tipoContrato}/toggle-status', [App\Http\Controllers\Admin\TipoContratoController::class, 'toggleStatus'])->name('admin.tipos-contrato.toggle-status');
+    
+    // Rotas administrativas para contratos
+    Route::resource('contratos', App\Http\Controllers\Admin\ContratoController::class, [
+        'as' => 'admin'
+    ]);
+    Route::patch('contratos/{contrato}/toggle-status', [App\Http\Controllers\Admin\ContratoController::class, 'toggleStatus'])->name('admin.contratos.toggle-status');
+    Route::get('contratos/{contrato}/download', [App\Http\Controllers\Admin\ContratoController::class, 'download'])->name('admin.contratos.download');
+    Route::delete('contratos/{contrato}/remove-arquivo', [App\Http\Controllers\Admin\ContratoController::class, 'removeArquivo'])->name('admin.contratos.remove-arquivo');
+    Route::get('contratos/{contrato}/aditivos', [App\Http\Controllers\Admin\ContratoController::class, 'aditivos'])->name('admin.contratos.aditivos');
+    Route::post('contratos/{contrato}/aditivos', [App\Http\Controllers\Admin\ContratoController::class, 'storeAditivo'])->name('admin.contratos.aditivos.store');
+    Route::get('contratos/{contrato}/aditivos/{aditivo}', [App\Http\Controllers\Admin\ContratoController::class, 'showAditivo'])->name('admin.contratos.aditivos.show');
+    Route::get('contratos/{contrato}/aditivos/{aditivo}/edit', [App\Http\Controllers\Admin\ContratoController::class, 'editAditivo'])->name('admin.contratos.aditivos.edit');
+    Route::put('contratos/{contrato}/aditivos/{aditivo}', [App\Http\Controllers\Admin\ContratoController::class, 'updateAditivo'])->name('admin.contratos.aditivos.update');
+    Route::delete('contratos/{contrato}/aditivos/{aditivo}', [App\Http\Controllers\Admin\ContratoController::class, 'destroyAditivo'])->name('admin.contratos.aditivos.destroy');
+    Route::get('contratos/{contrato}/aditivos/{aditivo}/download', [App\Http\Controllers\Admin\ContratoController::class, 'downloadAditivo'])->name('admin.contratos.aditivos.download');
+    
+    Route::post('contratos/{contrato}/fiscalizacoes', [App\Http\Controllers\Admin\ContratoController::class, 'storeFiscalizacao'])->name('admin.contratos.fiscalizacoes.store');
+    Route::get('contratos/{contrato}/fiscalizacoes/{fiscalizacao}/download', [App\Http\Controllers\Admin\ContratoController::class, 'downloadFiscalizacaoPdf'])->name('admin.contratos.fiscalizacoes.download');
+    
+    // Rotas administrativas para slides do hero section
+    Route::resource('slides', App\Http\Controllers\Admin\SlideController::class, [
+        'as' => 'admin'
+    ]);
+    Route::patch('slides/{slide}/toggle-status', [App\Http\Controllers\Admin\SlideController::class, 'toggleStatus'])->name('admin.slides.toggle-status');
+    
+    // Rotas administrativas para configurações do hero section
+    Route::get('hero-config', [App\Http\Controllers\Admin\HeroConfigurationController::class, 'index'])->name('admin.hero-config.index');
+    Route::get('hero-config/edit', [App\Http\Controllers\Admin\HeroConfigurationController::class, 'edit'])->name('admin.hero-config.edit');
+    Route::put('hero-config', [App\Http\Controllers\Admin\HeroConfigurationController::class, 'update'])->name('admin.hero-config.update');
+    
     // Futuras rotas administrativas podem ser adicionadas aqui
     // Route::resource('users', UserController::class);
     // Route::resource('noticias', NoticiaController::class);
+});
+
+// ========================================
+// ROTAS DO SISTEMA DE LEIS
+// ========================================
+
+// Rotas públicas para visualização de leis
+Route::prefix('leis')->name('leis.')->group(function () {
+    Route::get('/', [LeisController::class, 'index'])->name('index');
+    Route::get('/download/{id}', [LeisController::class, 'downloadPdf'])->name('download');
+    Route::get('/{slug}', [LeisController::class, 'show'])->name('show');
+});
+
+// Rota AJAX para busca de leis (integração com motor de busca geral)
+Route::get('/api/leis/buscar', [LeisController::class, 'buscarAjax'])->name('leis.buscar.ajax');
+
+// Rotas administrativas para gestão de leis (protegidas por autenticação)
+Route::middleware(['auth'])->prefix('admin/leis')->name('admin.leis.')->group(function () {
+    Route::get('/', [LeisController::class, 'index'])->name('index');
+    Route::get('/create', [LeisController::class, 'create'])->name('create');
+    Route::post('/', [LeisController::class, 'store'])->name('store');
+    Route::get('/{id}', [LeisController::class, 'adminShow'])->name('show');
+    Route::get('/{id}/edit', [LeisController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [LeisController::class, 'update'])->name('update');
+    Route::delete('/{id}', [LeisController::class, 'destroy'])->name('destroy');
 });
 
 // Rotas para servir arquivos CSS e JS
@@ -375,3 +533,24 @@ Route::get('/js/{file}', function ($file) {
     }
     abort(404);
 })->where('file', '.*\.js');
+
+// Rota pública para download de PDF de fiscalização
+Route::get('/contratos/{contrato}/fiscalizacoes/{fiscalizacao}/pdf', [App\Http\Controllers\Admin\ContratoController::class, 'downloadFiscalizacaoPdfPublico'])->name('contratos.fiscalizacoes.pdf.publico');
+
+// Páginas institucionais dinâmicas
+Route::get('/pagina/{slug}', [App\Http\Controllers\PaginaController::class, 'show'])->name('paginas.show');
+
+// Páginas institucionais (rotas antigas mantidas para compatibilidade)
+Route::get('/sobre/historia', [App\Http\Controllers\PaginaController::class, 'historia'])->name('paginas.historia');
+Route::get('/sobre/estrutura', [App\Http\Controllers\PaginaController::class, 'estrutura'])->name('paginas.estrutura');
+Route::get('/sobre/regimento', [App\Http\Controllers\PaginaController::class, 'regimento'])->name('paginas.regimento');
+Route::get('/sobre/missao', [App\Http\Controllers\PaginaController::class, 'missao'])->name('paginas.missao');
+Route::get('/contato', [App\Http\Controllers\PaginaController::class, 'contato'])->name('paginas.contato');
+
+// Rota temporária para testar estilos de paginação
+Route::get('/test-pagination', function () {
+    return view('test-pagination');
+});
+
+// SEO - Sitemap
+Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');

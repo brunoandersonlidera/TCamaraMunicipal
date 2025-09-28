@@ -13,7 +13,13 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 function toggleSidebar() {
     const sidebar = document.getElementById('adminSidebar');
-    sidebar.classList.toggle('show');
+    if (sidebar && sidebar.classList) {
+        try {
+            sidebar.classList.toggle('show');
+        } catch (error) {
+            console.warn('Erro ao alternar sidebar:', error);
+        }
+    }
 }
 
 /**
@@ -26,9 +32,15 @@ function initializeSidebar() {
         const menuBtn = document.querySelector('.mobile-menu-btn');
         
         if (window.innerWidth <= 768 && 
+            sidebar && menuBtn &&
             !sidebar.contains(event.target) && 
-            !menuBtn.contains(event.target)) {
-            sidebar.classList.remove('show');
+            !menuBtn.contains(event.target) &&
+            sidebar.classList) {
+            try {
+                sidebar.classList.remove('show');
+            } catch (error) {
+                console.warn('Erro ao fechar sidebar:', error);
+            }
         }
     });
 }

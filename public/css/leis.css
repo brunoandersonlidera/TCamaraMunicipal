@@ -1,0 +1,828 @@
+/* ===================================
+   SISTEMA DE LEIS - ESTILOS CSS
+   =================================== */
+
+/* ===================================
+   VARIÁVEIS CSS
+   =================================== */
+:root {
+    --lei-primary: #2c5aa0;
+    --lei-secondary: #6c757d;
+    --lei-success: #198754;
+    --lei-danger: #dc3545;
+    --lei-warning: #ffc107;
+    --lei-info: #0dcaf0;
+    --lei-light: #f8f9fa;
+    --lei-dark: #212529;
+    
+    /* Cores específicas para tipos de lei */
+    --lei-ordinaria: #2c5aa0;
+    --lei-complementar: #198754;
+    --lei-resolucao: #fd7e14;
+    --lei-decreto: #6f42c1;
+    --lei-organica: #dc3545;
+    --lei-emenda: #e83e8c;
+    
+    /* Sombras */
+    --lei-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --lei-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --lei-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+    
+    /* Transições */
+    --lei-transition: all 0.3s ease;
+    --lei-transition-fast: all 0.15s ease;
+}
+
+/* ===================================
+   HERO SECTION
+   =================================== */
+.hero-section-leis {
+    background: linear-gradient(135deg, var(--lei-primary) 0%, #1e3a5f 100%);
+    color: white;
+    padding: 4rem 0 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section-leis::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-title i {
+    margin-right: 1rem;
+    color: var(--lei-warning);
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 2;
+}
+
+/* ===================================
+   SEÇÃO DE FILTROS
+   =================================== */
+.filtros-section {
+    padding: 2rem 0;
+    background-color: var(--lei-light);
+    border-bottom: 1px solid #dee2e6;
+}
+
+.filtros-card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    box-shadow: var(--lei-shadow);
+    border: 1px solid #e9ecef;
+}
+
+.filtros-card .form-label {
+    font-weight: 600;
+    color: var(--lei-dark);
+    margin-bottom: 0.5rem;
+}
+
+.filtros-card .form-label i {
+    margin-right: 0.5rem;
+    color: var(--lei-primary);
+}
+
+.filtros-card .form-control,
+.filtros-card .form-select {
+    border-radius: 0.5rem;
+    border: 1px solid #ced4da;
+    transition: var(--lei-transition-fast);
+}
+
+.filtros-card .form-control:focus,
+.filtros-card .form-select:focus {
+    border-color: var(--lei-primary);
+    box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.25);
+}
+
+/* ===================================
+   SEÇÃO DE RESULTADOS
+   =================================== */
+.resultados-section {
+    padding: 2rem 0 4rem;
+}
+
+.resultados-info {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--lei-shadow-sm);
+    border: 1px solid #e9ecef;
+}
+
+.resultados-count {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--lei-dark);
+}
+
+.filtros-ativos {
+    color: var(--lei-info);
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.resultados-paginacao-info {
+    color: var(--lei-secondary);
+    font-size: 0.9rem;
+}
+
+/* ===================================
+   GRID DE LEIS
+   =================================== */
+.leis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.lei-card {
+    background: white;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: var(--lei-shadow);
+    border: 1px solid #e9ecef;
+    transition: var(--lei-transition);
+    position: relative;
+}
+
+.lei-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--lei-shadow-lg);
+}
+
+.lei-card-header {
+    background: linear-gradient(135deg, var(--lei-light) 0%, #e9ecef 100%);
+    padding: 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.lei-numero {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--lei-dark);
+}
+
+.lei-card-body {
+    padding: 1.5rem;
+}
+
+.lei-titulo {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.lei-titulo a {
+    color: var(--lei-dark);
+    text-decoration: none;
+    transition: var(--lei-transition-fast);
+}
+
+.lei-titulo a:hover {
+    color: var(--lei-primary);
+}
+
+.lei-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.lei-data,
+.lei-autoria {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--lei-secondary);
+}
+
+.lei-data i,
+.lei-autoria i {
+    margin-right: 0.5rem;
+    color: var(--lei-primary);
+}
+
+.lei-descricao {
+    color: #495057;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.lei-card-footer {
+    padding: 1rem 1.5rem;
+    background-color: var(--lei-light);
+    border-top: 1px solid #dee2e6;
+}
+
+.lei-acoes {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ===================================
+   BADGES DE TIPO
+   =================================== */
+.badge-tipo {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-lei-ordinaria {
+    background-color: var(--lei-ordinaria);
+    color: white;
+}
+
+.badge-lei-complementar {
+    background-color: var(--lei-complementar);
+    color: white;
+}
+
+.badge-resolucao {
+    background-color: var(--lei-resolucao);
+    color: white;
+}
+
+.badge-decreto-legislativo {
+    background-color: var(--lei-decreto);
+    color: white;
+}
+
+.badge-lei-organica {
+    background-color: var(--lei-organica);
+    color: white;
+}
+
+.badge-emenda-a-lei-organica {
+    background-color: var(--lei-emenda);
+    color: white;
+}
+
+/* ===================================
+   ESTADO VAZIO
+   =================================== */
+.estado-vazio {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: var(--lei-shadow-sm);
+}
+
+.estado-vazio-icon {
+    font-size: 4rem;
+    color: var(--lei-secondary);
+    margin-bottom: 2rem;
+}
+
+.estado-vazio h3 {
+    color: var(--lei-dark);
+    margin-bottom: 1rem;
+}
+
+.estado-vazio p {
+    color: var(--lei-secondary);
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* ===================================
+   PAGINAÇÃO
+   =================================== */
+.paginacao-section {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+}
+
+.pagination {
+    --bs-pagination-color: var(--lei-primary);
+    --bs-pagination-hover-color: var(--lei-primary);
+    --bs-pagination-focus-color: var(--lei-primary);
+    --bs-pagination-active-bg: var(--lei-primary);
+    --bs-pagination-active-border-color: var(--lei-primary);
+}
+
+/* ===================================
+   DETALHES DA LEI
+   =================================== */
+.breadcrumb-section {
+    background-color: var(--lei-light);
+    padding: 1rem 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.breadcrumb {
+    margin-bottom: 0;
+    background: none;
+    padding: 0;
+}
+
+.breadcrumb-item a {
+    color: var(--lei-primary);
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+
+.lei-detalhes-section {
+    padding: 2rem 0 4rem;
+}
+
+.lei-detalhes-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: var(--lei-shadow);
+    border: 1px solid #e9ecef;
+    margin-bottom: 2rem;
+}
+
+.lei-header {
+    text-align: center;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--lei-light);
+    margin-bottom: 2rem;
+}
+
+.lei-tipo-badge {
+    margin-bottom: 1rem;
+}
+
+.lei-header .lei-titulo {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--lei-dark);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+}
+
+.lei-header .lei-numero {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--lei-primary);
+}
+
+.lei-meta {
+    background-color: var(--lei-light);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.meta-item:last-child {
+    margin-bottom: 0;
+}
+
+.meta-item i {
+    margin-right: 0.75rem;
+    color: var(--lei-primary);
+    width: 20px;
+    text-align: center;
+}
+
+.meta-item strong {
+    margin-right: 0.5rem;
+}
+
+.lei-ementa,
+.lei-conteudo,
+.lei-observacoes {
+    margin-bottom: 2.5rem;
+}
+
+.lei-ementa h3,
+.lei-conteudo h3,
+.lei-observacoes h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--lei-dark);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.lei-ementa h3 i,
+.lei-conteudo h3 i,
+.lei-observacoes h3 i {
+    margin-right: 0.75rem;
+    color: var(--lei-primary);
+}
+
+.ementa-content,
+.conteudo-text,
+.observacoes-content {
+    background-color: var(--lei-light);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    line-height: 1.8;
+    color: #495057;
+    border-left: 4px solid var(--lei-primary);
+}
+
+.lei-acoes {
+    background-color: var(--lei-light);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* ===================================
+   SIDEBAR
+   =================================== */
+.sidebar-card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--lei-shadow-sm);
+    border: 1px solid #e9ecef;
+}
+
+.sidebar-card h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--lei-dark);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-card h4 i {
+    margin-right: 0.75rem;
+    color: var(--lei-primary);
+}
+
+.navegacao-links .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    color: var(--lei-dark);
+    text-decoration: none;
+    transition: var(--lei-transition-fast);
+    border: 1px solid transparent;
+}
+
+.navegacao-links .nav-link:hover {
+    background-color: var(--lei-light);
+    border-color: var(--lei-primary);
+    color: var(--lei-primary);
+}
+
+.navegacao-links .nav-link i {
+    margin-right: 0.75rem;
+    width: 16px;
+    text-align: center;
+}
+
+.navegacao-links .nav-link small {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--lei-secondary);
+    margin-top: 0.25rem;
+}
+
+.lei-relacionada {
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: var(--lei-transition-fast);
+}
+
+.lei-relacionada:hover {
+    border-color: var(--lei-primary);
+    box-shadow: var(--lei-shadow-sm);
+}
+
+.lei-relacionada a {
+    display: block;
+    padding: 1rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.relacionada-tipo {
+    margin-bottom: 0.5rem;
+}
+
+.relacionada-titulo {
+    font-weight: 600;
+    color: var(--lei-dark);
+    margin-bottom: 0.5rem;
+}
+
+.relacionada-descricao {
+    font-size: 0.9rem;
+    color: var(--lei-secondary);
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.relacionada-data {
+    font-size: 0.8rem;
+    color: var(--lei-info);
+}
+
+.estatisticas {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.estatistica-item {
+    text-align: center;
+    padding: 1rem;
+    background-color: var(--lei-light);
+    border-radius: 0.5rem;
+}
+
+.estatistica-numero {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--lei-primary);
+    line-height: 1;
+}
+
+.estatistica-label {
+    font-size: 0.9rem;
+    color: var(--lei-secondary);
+    margin-top: 0.25rem;
+}
+
+/* ===================================
+   MODAL DE COMPARTILHAMENTO
+   =================================== */
+.compartilhamento-social h6 {
+    margin-bottom: 1rem;
+    color: var(--lei-dark);
+}
+
+.social-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.social-buttons .btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+/* ===================================
+   LOADING OVERLAY
+   =================================== */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-overlay.show {
+    display: flex;
+}
+
+.loading-spinner {
+    text-align: center;
+    color: white;
+}
+
+.loading-text {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+}
+
+/* ===================================
+   ÁREA ADMINISTRATIVA
+   =================================== */
+.table .badge-tipo {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.75rem;
+}
+
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* ===================================
+   RESPONSIVIDADE
+   =================================== */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .filtros-card {
+        padding: 1.5rem;
+    }
+    
+    .leis-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .lei-card-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .lei-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .lei-acoes {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .lei-detalhes-card {
+        padding: 1.5rem;
+    }
+    
+    .lei-header .lei-titulo {
+        font-size: 1.5rem;
+    }
+    
+    .social-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .estatisticas {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section-leis {
+        padding: 2rem 0 1.5rem;
+    }
+    
+    .filtros-section {
+        padding: 1rem 0;
+    }
+    
+    .filtros-card {
+        padding: 1rem;
+    }
+    
+    .resultados-section {
+        padding: 1rem 0 2rem;
+    }
+    
+    .resultados-info {
+        padding: 1rem;
+    }
+    
+    .lei-detalhes-section {
+        padding: 1rem 0 2rem;
+    }
+    
+    .sidebar-card {
+        padding: 1rem;
+    }
+    
+    .estatisticas {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===================================
+   ANIMAÇÕES
+   =================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.lei-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* ===================================
+   IMPRESSÃO
+   =================================== */
+@media print {
+    .hero-section-leis,
+    .filtros-section,
+    .lei-acoes,
+    .sidebar-card,
+    .breadcrumb-section {
+        display: none !important;
+    }
+    
+    .lei-detalhes-card {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .lei-header {
+        border-bottom: 2px solid #000;
+    }
+    
+    .badge-tipo {
+        border: 1px solid #000;
+        color: #000 !important;
+        background: white !important;
+    }
+}
+
+/* ===================================
+   ACESSIBILIDADE
+   =================================== */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus styles */
+.lei-card:focus-within,
+.lei-titulo a:focus,
+.nav-link:focus,
+.btn:focus {
+    outline: 2px solid var(--lei-primary);
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .lei-card {
+        border: 2px solid;
+    }
+    
+    .badge-tipo {
+        border: 1px solid;
+    }
+}

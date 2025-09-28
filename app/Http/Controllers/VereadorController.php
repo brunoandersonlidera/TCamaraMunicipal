@@ -12,9 +12,7 @@ class VereadorController extends Controller
      */
     public function index()
     {
-        $vereadores = Vereador::ativos()
-            ->orderBy('nome_parlamentar')
-            ->get();
+        $vereadores = Vereador::all();
             
         return view('vereadores.index', compact('vereadores'));
     }

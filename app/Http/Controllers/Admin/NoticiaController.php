@@ -31,9 +31,9 @@ class NoticiaController extends Controller
         
         if ($request->filled('status')) {
             if ($request->status === 'publicado') {
-                $query->where('publicado', true);
+                $query->where('status', 'publicado');
             } elseif ($request->status === 'rascunho') {
-                $query->where('publicado', false);
+                $query->where('status', 'rascunho');
             }
         }
         

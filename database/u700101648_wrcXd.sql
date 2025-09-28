@@ -1,0 +1,2359 @@
+/*M!999999\- enable the sandbox mode */ 
+-- MariaDB dump 10.19-11.8.3-MariaDB, for Linux (x86_64)
+--
+-- Host: localhost    Database: u700101648_wrcXd
+-- ------------------------------------------------------
+-- Server version	11.8.3-MariaDB-log
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*M!100616 SET @OLD_NOTE_VERBOSITY=@@NOTE_VERBOSITY, NOTE_VERBOSITY=0 */;
+
+--
+-- Table structure for table `acesso_rapido`
+--
+
+DROP TABLE IF EXISTS `acesso_rapido`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `acesso_rapido` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `descricao` varchar(255) DEFAULT NULL,
+  `url` varchar(255) NOT NULL,
+  `icone` varchar(255) NOT NULL DEFAULT 'fas fa-link',
+  `cor_botao` varchar(255) NOT NULL DEFAULT '#007bff',
+  `cor_fonte` varchar(255) NOT NULL DEFAULT '#ffffff',
+  `ordem` int(11) NOT NULL DEFAULT 0,
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `abrir_nova_aba` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `acesso_rapido`
+--
+
+/*!40000 ALTER TABLE `acesso_rapido` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `acesso_rapido` VALUES
+(1,'Vereadores','Conheça os vereadores e suas propostas','/vereadores','fas fa-users','#2563eb','#ffffff',1,1,0,'2025-09-26 08:24:31','2025-09-26 08:24:31'),
+(2,'Projetos de Lei','Acompanhe os projetos em tramitação','/projetos-lei','fas fa-gavel','#059669','#ffffff',2,1,0,'2025-09-26 08:24:31','2025-09-26 08:24:31'),
+(3,'Sessões','Calendário e atas das sessões plenárias','/sessoes','fas fa-calendar-alt','#dc2626','#ffffff',3,1,0,'2025-09-26 08:24:31','2025-09-26 08:24:31'),
+(4,'Transparência','Portal da transparência e acesso à informação','/transparencia','fas fa-eye','#7c3aed','#ffffff',4,1,0,'2025-09-26 08:24:31','2025-09-26 08:24:31'),
+(5,'E-SIC','Sistema Eletrônico do Serviço de Informação ao Cidadão','/esic','fas fa-info-circle','#ea580c','#ffffff',5,1,0,'2025-09-26 08:24:31','2025-09-26 08:24:31'),
+(6,'Ouvidoria','Canal de comunicação com o cidadão','/ouvidoria','fas fa-comments','#0891b2','#ffffff',6,1,0,'2025-09-26 08:24:31','2025-09-26 08:24:31');
+/*!40000 ALTER TABLE `acesso_rapido` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `cache`
+--
+
+DROP TABLE IF EXISTS `cache`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cache` (
+  `key` varchar(255) NOT NULL,
+  `value` mediumtext NOT NULL,
+  `expiration` int(11) NOT NULL,
+  PRIMARY KEY (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `cache`
+--
+
+/*!40000 ALTER TABLE `cache` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `cache` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `cache_locks`
+--
+
+DROP TABLE IF EXISTS `cache_locks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cache_locks` (
+  `key` varchar(255) NOT NULL,
+  `owner` varchar(255) NOT NULL,
+  `expiration` int(11) NOT NULL,
+  PRIMARY KEY (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `cache_locks`
+--
+
+/*!40000 ALTER TABLE `cache_locks` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `cache_locks` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `carta_servico_avaliacoes`
+--
+
+DROP TABLE IF EXISTS `carta_servico_avaliacoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `carta_servico_avaliacoes` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `carta_servico_id` bigint(20) unsigned NOT NULL,
+  `nome_avaliador` varchar(255) DEFAULT NULL,
+  `email_avaliador` varchar(255) DEFAULT NULL,
+  `nota` int(10) unsigned NOT NULL,
+  `comentario` text DEFAULT NULL,
+  `ip_avaliador` varchar(255) DEFAULT NULL,
+  `aprovado` tinyint(1) NOT NULL DEFAULT 0,
+  `data_aprovacao` datetime DEFAULT NULL,
+  `aprovado_por` bigint(20) unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `carta_servico_avaliacoes_aprovado_por_foreign` (`aprovado_por`),
+  KEY `carta_servico_avaliacoes_carta_servico_id_aprovado_index` (`carta_servico_id`,`aprovado`),
+  KEY `carta_servico_avaliacoes_nota_index` (`nota`),
+  CONSTRAINT `carta_servico_avaliacoes_aprovado_por_foreign` FOREIGN KEY (`aprovado_por`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `carta_servico_avaliacoes_carta_servico_id_foreign` FOREIGN KEY (`carta_servico_id`) REFERENCES `carta_servicos` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `carta_servico_avaliacoes`
+--
+
+/*!40000 ALTER TABLE `carta_servico_avaliacoes` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `carta_servico_avaliacoes` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `carta_servico_categorias`
+--
+
+DROP TABLE IF EXISTS `carta_servico_categorias`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `carta_servico_categorias` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `icone` varchar(255) DEFAULT NULL,
+  `cor` varchar(7) NOT NULL DEFAULT '#007bff',
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `ordem_exibicao` int(11) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `carta_servico_categorias_ativo_index` (`ativo`),
+  KEY `carta_servico_categorias_ordem_exibicao_index` (`ordem_exibicao`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `carta_servico_categorias`
+--
+
+/*!40000 ALTER TABLE `carta_servico_categorias` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `carta_servico_categorias` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `carta_servicos`
+--
+
+DROP TABLE IF EXISTS `carta_servicos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `carta_servicos` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `codigo_servico` varchar(20) NOT NULL,
+  `nome_servico` varchar(255) NOT NULL,
+  `descricao` text NOT NULL,
+  `categoria` enum('acesso_informacao','ouvidoria','transparencia','participacao_social','servicos_administrativos') NOT NULL,
+  `base_legal` text NOT NULL,
+  `requisitos` text NOT NULL,
+  `documentos_necessarios` text NOT NULL,
+  `prazo_atendimento_dias` int(11) NOT NULL,
+  `custo` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `forma_prestacao` text NOT NULL,
+  `canais_atendimento` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`canais_atendimento`)),
+  `horario_funcionamento` text NOT NULL,
+  `endereco_atendimento` text DEFAULT NULL,
+  `telefone_contato` varchar(255) DEFAULT NULL,
+  `email_contato` varchar(255) DEFAULT NULL,
+  `orgao_responsavel` varchar(255) NOT NULL,
+  `setor_responsavel` varchar(255) NOT NULL,
+  `responsavel_tecnico` varchar(255) NOT NULL,
+  `responsavel_aprovacao` varchar(255) NOT NULL,
+  `compromissos_qualidade` text NOT NULL,
+  `mecanismos_comunicacao` text NOT NULL,
+  `procedimentos_reclamacao` text NOT NULL,
+  `outras_informacoes` text DEFAULT NULL,
+  `legislacao_aplicavel` text NOT NULL,
+  `versao` varchar(10) NOT NULL DEFAULT '1.0',
+  `data_vigencia` date NOT NULL,
+  `data_revisao` date DEFAULT NULL,
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `publicado` tinyint(1) NOT NULL DEFAULT 0,
+  `criado_por` bigint(20) unsigned DEFAULT NULL,
+  `atualizado_por` bigint(20) unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `carta_servicos_codigo_servico_unique` (`codigo_servico`),
+  KEY `carta_servicos_criado_por_foreign` (`criado_por`),
+  KEY `carta_servicos_atualizado_por_foreign` (`atualizado_por`),
+  KEY `carta_servicos_categoria_ativo_index` (`categoria`,`ativo`),
+  KEY `carta_servicos_codigo_servico_index` (`codigo_servico`),
+  KEY `carta_servicos_publicado_ativo_index` (`publicado`,`ativo`),
+  CONSTRAINT `carta_servicos_atualizado_por_foreign` FOREIGN KEY (`atualizado_por`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `carta_servicos_criado_por_foreign` FOREIGN KEY (`criado_por`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `carta_servicos`
+--
+
+/*!40000 ALTER TABLE `carta_servicos` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `carta_servicos` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `configuracao_gerais`
+--
+
+DROP TABLE IF EXISTS `configuracao_gerais`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `configuracao_gerais` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `chave` varchar(255) NOT NULL,
+  `valor` text DEFAULT NULL,
+  `tipo` varchar(255) NOT NULL DEFAULT 'texto',
+  `descricao` text DEFAULT NULL,
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `configuracao_gerais_chave_unique` (`chave`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `configuracao_gerais`
+--
+
+/*!40000 ALTER TABLE `configuracao_gerais` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `configuracao_gerais` VALUES
+(1,'brasao_camara','images/brasao-teste.svg','imagem','Brasão da Câmara Municipal exibido no header',1,'2025-09-26 07:56:26','2025-09-26 07:57:01'),
+(2,'logo_footer','images/logo-footer-teste.svg','imagem','Logo da Câmara Municipal exibida no footer',1,'2025-09-26 07:56:26','2025-09-26 07:57:12'),
+(3,'endereco_camara','Rua Principal, 123 - Centro - Cidade/UF - CEP: 12345-678','texto','Endereço completo da Câmara Municipal',1,'2025-09-26 07:56:26','2025-09-26 07:56:26'),
+(4,'telefone_camara','(11) 1234-5678','telefone','Telefone principal da Câmara Municipal',1,'2025-09-26 07:56:26','2025-09-26 07:56:26'),
+(5,'email_camara','contato@camara.gov.br','email','E-mail principal da Câmara Municipal',1,'2025-09-26 07:56:26','2025-09-26 07:56:26'),
+(6,'direitos_autorais','© 2025 Câmara Municipal. Todos os direitos reservados.','texto','Texto de direitos autorais exibido no footer',1,'2025-09-26 07:56:26','2025-09-26 07:56:26'),
+(7,'nome_camara','Câmara Municipal','texto','Nome oficial da Câmara Municipal',1,'2025-09-26 07:56:26','2025-09-26 07:56:26');
+/*!40000 ALTER TABLE `configuracao_gerais` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `contrato_aditivos`
+--
+
+DROP TABLE IF EXISTS `contrato_aditivos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `contrato_aditivos` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `contrato_id` bigint(20) unsigned NOT NULL,
+  `numero` varchar(255) NOT NULL,
+  `tipo` enum('prazo','valor','prazo_valor','objeto') NOT NULL,
+  `objeto` text NOT NULL,
+  `valor_aditivo` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `prazo_adicional_dias` int(11) NOT NULL DEFAULT 0,
+  `data_assinatura` date NOT NULL,
+  `data_inicio_vigencia` date NOT NULL,
+  `data_fim_vigencia` date DEFAULT NULL,
+  `justificativa` text NOT NULL,
+  `observacoes` text DEFAULT NULL,
+  `arquivo_aditivo` varchar(255) DEFAULT NULL,
+  `arquivo_aditivo_original` varchar(255) DEFAULT NULL,
+  `publico` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `contrato_aditivos_contrato_id_numero_index` (`contrato_id`,`numero`),
+  KEY `contrato_aditivos_tipo_index` (`tipo`),
+  KEY `contrato_aditivos_data_assinatura_index` (`data_assinatura`),
+  CONSTRAINT `contrato_aditivos_contrato_id_foreign` FOREIGN KEY (`contrato_id`) REFERENCES `contratos` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `contrato_aditivos`
+--
+
+/*!40000 ALTER TABLE `contrato_aditivos` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `contrato_aditivos` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `contrato_fiscalizacaos`
+--
+
+DROP TABLE IF EXISTS `contrato_fiscalizacaos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `contrato_fiscalizacaos` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `contrato_id` bigint(20) unsigned NOT NULL,
+  `numero_relatorio` varchar(255) DEFAULT NULL,
+  `data_fiscalizacao` date NOT NULL,
+  `data_fim_vigencia` date DEFAULT NULL,
+  `fiscal_responsavel` varchar(255) NOT NULL,
+  `numero_portaria` varchar(255) DEFAULT NULL,
+  `data_portaria` date DEFAULT NULL,
+  `tipo_fiscalizacao` enum('rotina','especial','denuncia','auditoria') NOT NULL,
+  `objeto_fiscalizacao` text NOT NULL,
+  `observacoes_encontradas` text NOT NULL,
+  `status_execucao` enum('conforme','nao_conforme','parcialmente_conforme') NOT NULL,
+  `recomendacoes` text DEFAULT NULL,
+  `providencias_adotadas` text DEFAULT NULL,
+  `prazo_regularizacao` date DEFAULT NULL,
+  `status_regularizacao` enum('pendente','em_andamento','regularizado','nao_aplicavel') NOT NULL DEFAULT 'nao_aplicavel',
+  `arquivo_relatorio` varchar(255) DEFAULT NULL,
+  `arquivo_relatorio_original` varchar(255) DEFAULT NULL,
+  `arquivo_pdf` varchar(255) DEFAULT NULL,
+  `arquivo_pdf_original` varchar(255) DEFAULT NULL,
+  `publico` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `contrato_fiscalizacaos_contrato_id_data_fiscalizacao_index` (`contrato_id`,`data_fiscalizacao`),
+  KEY `contrato_fiscalizacaos_tipo_fiscalizacao_index` (`tipo_fiscalizacao`),
+  KEY `contrato_fiscalizacaos_status_execucao_index` (`status_execucao`),
+  KEY `contrato_fiscalizacaos_status_regularizacao_index` (`status_regularizacao`),
+  CONSTRAINT `contrato_fiscalizacaos_contrato_id_foreign` FOREIGN KEY (`contrato_id`) REFERENCES `contratos` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `contrato_fiscalizacaos`
+--
+
+/*!40000 ALTER TABLE `contrato_fiscalizacaos` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `contrato_fiscalizacaos` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `contratos`
+--
+
+DROP TABLE IF EXISTS `contratos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `contratos` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `tipo_contrato_id` bigint(20) unsigned NOT NULL,
+  `numero` varchar(255) NOT NULL,
+  `processo` varchar(255) DEFAULT NULL,
+  `objeto` text NOT NULL,
+  `contratado` varchar(255) NOT NULL,
+  `cnpj_cpf_contratado` varchar(255) DEFAULT NULL,
+  `valor_inicial` decimal(15,2) NOT NULL,
+  `valor_atual` decimal(15,2) NOT NULL,
+  `data_assinatura` date NOT NULL,
+  `data_inicio` date NOT NULL,
+  `data_fim` date NOT NULL,
+  `data_fim_atual` date DEFAULT NULL,
+  `status` enum('ativo','suspenso','encerrado','rescindido') NOT NULL DEFAULT 'ativo',
+  `observacoes` text DEFAULT NULL,
+  `observacoes_transparencia` text DEFAULT NULL,
+  `arquivo_contrato` varchar(255) DEFAULT NULL,
+  `arquivo_contrato_original` varchar(255) DEFAULT NULL,
+  `publico` tinyint(1) NOT NULL DEFAULT 1,
+  `ano_referencia` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `contratos_numero_unique` (`numero`),
+  KEY `contratos_tipo_contrato_id_foreign` (`tipo_contrato_id`),
+  KEY `contratos_status_publico_index` (`status`,`publico`),
+  KEY `contratos_ano_referencia_index` (`ano_referencia`),
+  KEY `contratos_data_inicio_data_fim_index` (`data_inicio`,`data_fim`),
+  CONSTRAINT `contratos_tipo_contrato_id_foreign` FOREIGN KEY (`tipo_contrato_id`) REFERENCES `tipo_contratos` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `contratos`
+--
+
+/*!40000 ALTER TABLE `contratos` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `contratos` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `despesas`
+--
+
+DROP TABLE IF EXISTS `despesas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `despesas` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `numero_empenho` varchar(255) NOT NULL,
+  `codigo_despesa` varchar(255) NOT NULL,
+  `descricao` varchar(255) NOT NULL,
+  `categoria` varchar(255) NOT NULL,
+  `funcao` varchar(255) NOT NULL,
+  `subfuncao` varchar(255) DEFAULT NULL,
+  `programa` varchar(255) DEFAULT NULL,
+  `elemento_despesa` varchar(255) NOT NULL,
+  `favorecido` varchar(255) NOT NULL,
+  `cnpj_cpf_favorecido` varchar(255) DEFAULT NULL,
+  `valor_empenhado` decimal(15,2) NOT NULL,
+  `valor_liquidado` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `valor_pago` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `data_empenho` date NOT NULL,
+  `data_liquidacao` date DEFAULT NULL,
+  `data_pagamento` date DEFAULT NULL,
+  `mes_referencia` int(11) NOT NULL,
+  `ano_referencia` int(11) NOT NULL,
+  `modalidade_licitacao` varchar(255) DEFAULT NULL,
+  `numero_processo` varchar(255) DEFAULT NULL,
+  `observacoes` text DEFAULT NULL,
+  `status` enum('empenhado','liquidado','pago','cancelado') NOT NULL DEFAULT 'empenhado',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `despesas_numero_empenho_unique` (`numero_empenho`),
+  KEY `despesas_ano_referencia_mes_referencia_index` (`ano_referencia`,`mes_referencia`),
+  KEY `despesas_categoria_index` (`categoria`),
+  KEY `despesas_favorecido_index` (`favorecido`),
+  KEY `despesas_status_index` (`status`),
+  KEY `despesas_data_empenho_index` (`data_empenho`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `despesas`
+--
+
+/*!40000 ALTER TABLE `despesas` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `despesas` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `documentos`
+--
+
+DROP TABLE IF EXISTS `documentos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `documentos` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `titulo` varchar(255) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `tipo` enum('ata','lei','decreto','resolucao','portaria','edital','contrato','balancete','relatorio','outros') NOT NULL,
+  `categoria` varchar(255) DEFAULT NULL,
+  `arquivo_path` varchar(255) NOT NULL,
+  `arquivo_nome_original` varchar(255) NOT NULL,
+  `arquivo_mime_type` varchar(255) NOT NULL,
+  `arquivo_tamanho` bigint(20) NOT NULL,
+  `numero_documento` varchar(255) DEFAULT NULL,
+  `data_documento` date NOT NULL,
+  `data_publicacao` date DEFAULT NULL,
+  `status` enum('rascunho','publicado','arquivado') NOT NULL DEFAULT 'publicado',
+  `usuario_upload_id` bigint(20) unsigned NOT NULL,
+  `downloads` int(11) NOT NULL DEFAULT 0,
+  `tags` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`tags`)),
+  `observacoes` text DEFAULT NULL,
+  `publico` tinyint(1) NOT NULL DEFAULT 1,
+  `hash_arquivo` varchar(255) DEFAULT NULL,
+  `legislatura` int(11) DEFAULT NULL,
+  `metadados` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`metadados`)),
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `documentos_usuario_upload_id_foreign` (`usuario_upload_id`),
+  KEY `documentos_tipo_status_index` (`tipo`,`status`),
+  KEY `documentos_data_documento_publico_index` (`data_documento`,`publico`),
+  KEY `documentos_categoria_index` (`categoria`),
+  KEY `documentos_numero_documento_index` (`numero_documento`),
+  CONSTRAINT `documentos_usuario_upload_id_foreign` FOREIGN KEY (`usuario_upload_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `documentos`
+--
+
+/*!40000 ALTER TABLE `documentos` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `documentos` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `esic_movimentacoes`
+--
+
+DROP TABLE IF EXISTS `esic_movimentacoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `esic_movimentacoes` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `esic_solicitacao_id` bigint(20) unsigned NOT NULL,
+  `usuario_id` bigint(20) unsigned DEFAULT NULL,
+  `status` enum('aberta','em_analise','aguardando_informacoes','respondida','negada','parcialmente_atendida','recurso_solicitado','recurso_em_analise','recurso_deferido','recurso_indeferido','finalizada','arquivada') NOT NULL,
+  `descricao` text NOT NULL,
+  `anexos` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`anexos`)),
+  `data_movimentacao` datetime NOT NULL,
+  `ip_usuario` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `esic_movimentacoes_usuario_id_foreign` (`usuario_id`),
+  KEY `esic_movimentacoes_esic_solicitacao_id_data_movimentacao_index` (`esic_solicitacao_id`,`data_movimentacao`),
+  KEY `esic_movimentacoes_status_index` (`status`),
+  CONSTRAINT `esic_movimentacoes_esic_solicitacao_id_foreign` FOREIGN KEY (`esic_solicitacao_id`) REFERENCES `esic_solicitacoes` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `esic_movimentacoes_usuario_id_foreign` FOREIGN KEY (`usuario_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `esic_movimentacoes`
+--
+
+/*!40000 ALTER TABLE `esic_movimentacoes` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `esic_movimentacoes` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `esic_solicitacoes`
+--
+
+DROP TABLE IF EXISTS `esic_solicitacoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `esic_solicitacoes` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `protocolo` varchar(255) NOT NULL,
+  `nome_solicitante` varchar(255) NOT NULL,
+  `email_solicitante` varchar(255) NOT NULL,
+  `telefone_solicitante` varchar(255) DEFAULT NULL,
+  `cpf_solicitante` varchar(255) DEFAULT NULL,
+  `tipo_pessoa` enum('fisica','juridica') NOT NULL DEFAULT 'fisica',
+  `cnpj_solicitante` varchar(255) DEFAULT NULL,
+  `endereco_solicitante` text DEFAULT NULL,
+  `categoria` enum('informacao','documento','dados','outros') NOT NULL,
+  `assunto` varchar(255) NOT NULL,
+  `descricao` longtext NOT NULL,
+  `forma_recebimento` enum('email','presencial','correios') NOT NULL DEFAULT 'email',
+  `endereco_resposta` text DEFAULT NULL,
+  `status` enum('pendente','em_analise','respondida','negada','parcialmente_atendida','recurso','finalizada') NOT NULL DEFAULT 'pendente',
+  `arquivada` tinyint(1) NOT NULL DEFAULT 0,
+  `arquivada_em` timestamp NULL DEFAULT NULL,
+  `data_limite_resposta` date NOT NULL,
+  `resposta` longtext DEFAULT NULL,
+  `data_resposta` timestamp NULL DEFAULT NULL,
+  `anexos_solicitacao` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`anexos_solicitacao`)),
+  `anexos_resposta` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`anexos_resposta`)),
+  `responsavel_id` bigint(20) unsigned DEFAULT NULL,
+  `justificativa_negativa` text DEFAULT NULL,
+  `recurso_solicitado` tinyint(1) NOT NULL DEFAULT 0,
+  `recurso_justificativa` text DEFAULT NULL,
+  `recurso_resposta` longtext DEFAULT NULL,
+  `tramitacao` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`tramitacao`)),
+  `observacoes_internas` text DEFAULT NULL,
+  `prazo_prorrogacao_dias` int(11) NOT NULL DEFAULT 0,
+  `justificativa_prorrogacao` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `esic_solicitacoes_protocolo_unique` (`protocolo`),
+  KEY `esic_solicitacoes_responsavel_id_foreign` (`responsavel_id`),
+  KEY `esic_solicitacoes_status_data_limite_resposta_index` (`status`,`data_limite_resposta`),
+  KEY `esic_solicitacoes_categoria_status_index` (`categoria`,`status`),
+  KEY `esic_solicitacoes_tipo_pessoa_index` (`tipo_pessoa`),
+  KEY `esic_solicitacoes_user_id_foreign` (`user_id`),
+  CONSTRAINT `esic_solicitacoes_responsavel_id_foreign` FOREIGN KEY (`responsavel_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `esic_solicitacoes_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `esic_solicitacoes`
+--
+
+/*!40000 ALTER TABLE `esic_solicitacoes` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `esic_solicitacoes` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `esic_usuarios`
+--
+
+DROP TABLE IF EXISTS `esic_usuarios`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `esic_usuarios` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `cpf` varchar(14) NOT NULL,
+  `rg` varchar(20) DEFAULT NULL,
+  `data_nascimento` date NOT NULL,
+  `telefone` varchar(20) DEFAULT NULL,
+  `celular` varchar(20) NOT NULL,
+  `cep` varchar(10) NOT NULL,
+  `logradouro` varchar(255) NOT NULL,
+  `numero` varchar(10) NOT NULL,
+  `complemento` varchar(255) DEFAULT NULL,
+  `bairro` varchar(255) NOT NULL,
+  `cidade` varchar(255) NOT NULL,
+  `estado` varchar(2) NOT NULL,
+  `ativo` tinyint(1) NOT NULL DEFAULT 0,
+  `token_ativacao` varchar(255) DEFAULT NULL,
+  `token_ativacao_expires_at` timestamp NULL DEFAULT NULL,
+  `password_reset_token` varchar(255) DEFAULT NULL,
+  `password_reset_expires_at` timestamp NULL DEFAULT NULL,
+  `aceite_termos` tinyint(1) NOT NULL DEFAULT 0,
+  `aceite_termos_at` timestamp NULL DEFAULT NULL,
+  `aceite_lgpd` tinyint(1) NOT NULL DEFAULT 0,
+  `aceite_lgpd_at` timestamp NULL DEFAULT NULL,
+  `ultimo_acesso` timestamp NULL DEFAULT NULL,
+  `ip_cadastro` varchar(45) DEFAULT NULL,
+  `user_agent_cadastro` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `esic_usuarios_email_unique` (`email`),
+  UNIQUE KEY `esic_usuarios_cpf_unique` (`cpf`),
+  KEY `esic_usuarios_email_ativo_index` (`email`,`ativo`),
+  KEY `esic_usuarios_cpf_ativo_index` (`cpf`,`ativo`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `esic_usuarios`
+--
+
+/*!40000 ALTER TABLE `esic_usuarios` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `esic_usuarios` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `eventos`
+--
+
+DROP TABLE IF EXISTS `eventos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `eventos` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `titulo` varchar(255) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `tipo` enum('sessao_plenaria','audiencia_publica','reuniao_comissao','votacao','licitacao','agenda_vereador','ato_vereador','data_comemorativa','prazo_esic','outro') NOT NULL,
+  `data_evento` date NOT NULL,
+  `hora_inicio` time DEFAULT NULL,
+  `hora_fim` time DEFAULT NULL,
+  `local` varchar(255) DEFAULT NULL,
+  `observacoes` text DEFAULT NULL,
+  `destaque` tinyint(1) NOT NULL DEFAULT 0,
+  `cor_destaque` varchar(7) NOT NULL DEFAULT '#007bff',
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `vereador_id` bigint(20) unsigned DEFAULT NULL,
+  `sessao_id` bigint(20) unsigned DEFAULT NULL,
+  `licitacao_id` bigint(20) unsigned DEFAULT NULL,
+  `esic_solicitacao_id` bigint(20) unsigned DEFAULT NULL,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `eventos_data_evento_index` (`data_evento`),
+  KEY `eventos_tipo_index` (`tipo`),
+  KEY `eventos_data_evento_tipo_index` (`data_evento`,`tipo`),
+  KEY `eventos_ativo_data_evento_index` (`ativo`,`data_evento`),
+  KEY `eventos_vereador_id_foreign` (`vereador_id`),
+  KEY `eventos_sessao_id_foreign` (`sessao_id`),
+  KEY `eventos_licitacao_id_foreign` (`licitacao_id`),
+  KEY `eventos_esic_solicitacao_id_foreign` (`esic_solicitacao_id`),
+  KEY `eventos_user_id_foreign` (`user_id`),
+  CONSTRAINT `eventos_esic_solicitacao_id_foreign` FOREIGN KEY (`esic_solicitacao_id`) REFERENCES `esic_solicitacoes` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `eventos_licitacao_id_foreign` FOREIGN KEY (`licitacao_id`) REFERENCES `licitacoes` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `eventos_sessao_id_foreign` FOREIGN KEY (`sessao_id`) REFERENCES `sessoes` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `eventos_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `eventos_vereador_id_foreign` FOREIGN KEY (`vereador_id`) REFERENCES `vereadores` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=118 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `eventos`
+--
+
+/*!40000 ALTER TABLE `eventos` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `eventos` VALUES
+(1,'Sessão Ordinária - Discussão do Orçamento 2025','Discussão e votação do projeto de lei orçamentária anual para o exercício de 2025.','sessao_plenaria','2025-09-30','14:00:00','18:00:00','Plenário da Câmara Municipal',NULL,1,'#dc3545',1,NULL,1,NULL,NULL,NULL,'2025-09-27 00:28:01','2025-09-27 00:28:01'),
+(2,'Sessão Extraordinária - Aprovação de Convênios','Sessão extraordinária para aprovação de convênios com o Estado e União.','sessao_plenaria','2025-10-04','09:00:00','12:00:00','Plenário da Câmara Municipal',NULL,0,'#007bff',1,NULL,2,NULL,NULL,NULL,'2025-09-27 00:28:01','2025-09-27 00:28:01'),
+(3,'Audiência Pública - Plano Diretor Municipal','Audiência pública para discussão das alterações propostas no Plano Diretor Municipal.','audiencia_publica','2025-10-07','19:00:00','21:00:00','Auditório da Câmara Municipal',NULL,1,'#fd7e14',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:28:01','2025-09-27 00:28:01'),
+(4,'Audiência Pública - Saúde Municipal','Prestação de contas e discussão sobre os investimentos em saúde pública municipal.','audiencia_publica','2025-10-12','14:30:00','17:00:00','Auditório da Câmara Municipal',NULL,0,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:28:01','2025-09-27 00:28:01'),
+(5,'Reunião da Comissão de Finanças','Análise dos projetos de lei relacionados ao orçamento e finanças municipais.','reuniao_comissao','2025-09-29','08:30:00','11:00:00','Sala da Comissão de Finanças',NULL,0,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:28:01','2025-09-27 00:28:01'),
+(6,'Reunião da Comissão de Obras e Serviços Públicos','Discussão sobre projetos de infraestrutura e melhorias urbanas.','reuniao_comissao','2025-10-02','14:00:00','16:30:00','Sala da Comissão de Obras',NULL,0,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:28:01','2025-09-27 00:28:01'),
+(7,'Atendimento ao Público - Vereador João Silva','Atendimento aos cidadãos para recebimento de demandas e sugestões.','agenda_vereador','2025-09-28','08:00:00','12:00:00','Gabinete do Vereador',NULL,0,'#007bff',1,1,NULL,NULL,NULL,NULL,'2025-09-27 00:28:01','2025-09-27 00:28:01'),
+(8,'Visita Técnica - Escola Municipal','Visita técnica à Escola Municipal para verificação das condições de infraestrutura.','agenda_vereador','2025-10-01','09:00:00','11:00:00','Escola Municipal Centro',NULL,0,'#007bff',1,2,NULL,NULL,NULL,NULL,'2025-09-27 00:28:01','2025-09-27 00:28:01'),
+(9,'Licitação - Aquisição de Equipamentos de Informática','Abertura de licitação para aquisição de equipamentos de informática para a Câmara.','licitacao','2025-10-09','10:00:00','12:00:00','Sala de Licitações',NULL,0,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:28:01','2025-09-27 00:28:01'),
+(10,'Dia do Servidor Público Municipal','Homenagem aos servidores públicos municipais pelos serviços prestados à comunidade.','data_comemorativa','2025-10-17','10:00:00','12:00:00','Plenário da Câmara Municipal',NULL,1,'#ffc107',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:28:01','2025-09-27 00:28:01'),
+(11,'Semana do Meio Ambiente','Abertura da Semana do Meio Ambiente com palestras e atividades educativas.','data_comemorativa','2025-10-22','14:00:00','17:00:00','Praça Central',NULL,0,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:28:01','2025-09-27 00:28:01'),
+(12,'Votação - Projeto de Lei Complementar nº 001/2024','Votação em segundo turno do Projeto de Lei Complementar sobre o Código Tributário Municipal.','votacao','2025-10-05','15:00:00','17:00:00','Plenário da Câmara Municipal',NULL,1,'#e83e8c',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:28:01','2025-09-27 00:28:01'),
+(13,'Sessão Solene - Posse dos Vereadores','Sessão solene de posse dos vereadores eleitos para a legislatura 2021-2024.','sessao_plenaria','2025-08-28','14:00:00','18:00:00','Plenário da Câmara Municipal',NULL,0,'#007bff',1,NULL,3,NULL,NULL,NULL,'2025-09-27 00:28:01','2025-09-27 00:28:01'),
+(14,'Confraternização Universal','Feriado nacional - Ano Novo','data_comemorativa','2025-01-01',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:43','2025-09-27 00:38:43'),
+(15,'Aniversário de São Paulo','Fundação da cidade de São Paulo','data_comemorativa','2025-01-25',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(16,'Dia de Iemanjá','Festa popular em homenagem à Rainha do Mar','data_comemorativa','2025-02-02',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(17,'Dia Internacional da Mulher','Celebração dos direitos da mulher','data_comemorativa','2025-03-08',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(18,'Dia da Escola','Valorização da educação','data_comemorativa','2025-03-15',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(19,'Dia Mundial da Água','Conscientização sobre a preservação da água','data_comemorativa','2025-03-22',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(20,'Dia Mundial da Saúde','Promoção da saúde pública','data_comemorativa','2025-04-07',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(21,'Dia Nacional do Livro Infantil','Incentivo à leitura infantil','data_comemorativa','2025-04-18',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(22,'Dia do Índio','Valorização da cultura indígena','data_comemorativa','2025-04-19',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(23,'Tiradentes','Feriado nacional - Inconfidência Mineira','data_comemorativa','2025-04-21',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(24,'Descobrimento do Brasil','Chegada dos portugueses ao Brasil','data_comemorativa','2025-04-22',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(25,'Dia Mundial do Livro','Promoção da leitura e literatura','data_comemorativa','2025-04-23',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(26,'Dia do Trabalhador','Feriado nacional - Dia do Trabalho','data_comemorativa','2025-05-01',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(27,'Dia das Mães','Homenagem às mães (segundo domingo de maio)','data_comemorativa','2025-05-08',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(28,'Abolição da Escravatura','Assinatura da Lei Áurea','data_comemorativa','2025-05-13',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(29,'Dia Nacional de Combate ao Abuso Sexual','Proteção de crianças e adolescentes','data_comemorativa','2025-05-18',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(30,'Dia Mundial sem Tabaco','Conscientização sobre os malefícios do tabaco','data_comemorativa','2025-05-31',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(31,'Dia Mundial do Meio Ambiente','Conscientização ambiental','data_comemorativa','2025-06-05',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(32,'Dia dos Namorados','Celebração do amor','data_comemorativa','2025-06-12',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(33,'Festa Junina - São João','Tradição cultural brasileira','data_comemorativa','2025-06-24',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(34,'Revolução Constitucionalista','Feriado estadual em São Paulo','data_comemorativa','2025-07-09',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(35,'Dia do Amigo','Celebração da amizade','data_comemorativa','2025-07-20',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(36,'Dia do Estudante','Valorização da educação','data_comemorativa','2025-08-11',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(37,'Dia do Folclore','Preservação da cultura popular','data_comemorativa','2025-08-22',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(38,'Dia Nacional de Combate ao Fumo','Prevenção ao tabagismo','data_comemorativa','2025-08-29',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(39,'Independência do Brasil','Feriado nacional - Grito do Ipiranga','data_comemorativa','2025-09-07',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(40,'Dia da Árvore','Conscientização ambiental','data_comemorativa','2025-09-21',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(41,'Início da Primavera','Equinócio de primavera','data_comemorativa','2025-09-22',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(42,'Dia Nacional de Combate ao Câncer Infantil','Conscientização sobre o câncer infantil','data_comemorativa','2025-09-23',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(43,'Dia Mundial dos Animais','Proteção animal','data_comemorativa','2025-10-04',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(44,'Dia Mundial dos Professores','Valorização do magistério','data_comemorativa','2025-10-05',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(45,'Nossa Senhora Aparecida','Feriado nacional - Padroeira do Brasil','data_comemorativa','2025-10-12',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(46,'Dia do Professor','Homenagem aos educadores','data_comemorativa','2025-10-15',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(47,'Dia Mundial da Alimentação','Combate à fome','data_comemorativa','2025-10-16',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(48,'Dia da Indústria','Desenvolvimento industrial','data_comemorativa','2025-10-17',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(49,'Dia das Bruxas (Halloween)','Tradição internacional','data_comemorativa','2025-10-31',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(50,'Finados','Feriado nacional - Dia dos Mortos','data_comemorativa','2025-11-02',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(51,'Proclamação da República','Feriado nacional - Fim do Império','data_comemorativa','2025-11-15',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(52,'Dia da Bandeira','Símbolo nacional','data_comemorativa','2025-11-19',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(53,'Dia da Consciência Negra','Valorização da cultura afro-brasileira','data_comemorativa','2025-11-20',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(54,'Dia Mundial de Combate à AIDS','Prevenção e conscientização','data_comemorativa','2025-12-01',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(55,'Dia Internacional da Pessoa com Deficiência','Inclusão social','data_comemorativa','2025-12-03',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(56,'Dia dos Direitos Humanos','Declaração Universal dos Direitos Humanos','data_comemorativa','2025-12-10',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(57,'Natal','Feriado nacional - Nascimento de Jesus Cristo','data_comemorativa','2025-12-25',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(58,'Réveillon','Passagem de ano','data_comemorativa','2025-12-31',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(59,'Aniversário do Município','Fundação da cidade - Ajustar data conforme município','data_comemorativa','2025-01-01',NULL,NULL,'Municipal','Data comemorativa municipal - Ajustar conforme necessário',1,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(60,'Dia do Servidor Municipal','Homenagem aos servidores públicos municipais','data_comemorativa','2025-03-15',NULL,NULL,'Municipal','Data comemorativa municipal - Ajustar conforme necessário',1,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(61,'Dia do Município','Celebração da emancipação política','data_comemorativa','2025-04-23',NULL,NULL,'Municipal','Data comemorativa municipal - Ajustar conforme necessário',1,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(62,'Festa do Padroeiro','Celebração religiosa local - Ajustar conforme padroeiro','data_comemorativa','2025-06-29',NULL,NULL,'Municipal','Data comemorativa municipal - Ajustar conforme necessário',1,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:44','2025-09-27 00:38:44'),
+(63,'Semana da Pátria Municipal','Atividades cívicas locais','data_comemorativa','2025-08-15',NULL,NULL,'Municipal','Data comemorativa municipal - Ajustar conforme necessário',1,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(64,'Semana da Criança','Atividades para o público infantil','data_comemorativa','2025-10-01',NULL,NULL,'Municipal','Data comemorativa municipal - Ajustar conforme necessário',1,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(65,'Dia da Música Municipal','Valorização da cultura musical local','data_comemorativa','2025-11-22',NULL,NULL,'Municipal','Data comemorativa municipal - Ajustar conforme necessário',1,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(66,'Confraternização Universal','Feriado nacional - Ano Novo','data_comemorativa','2026-01-01',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(67,'Aniversário de São Paulo','Fundação da cidade de São Paulo','data_comemorativa','2026-01-25',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(68,'Dia de Iemanjá','Festa popular em homenagem à Rainha do Mar','data_comemorativa','2026-02-02',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(69,'Dia Internacional da Mulher','Celebração dos direitos da mulher','data_comemorativa','2026-03-08',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(70,'Dia da Escola','Valorização da educação','data_comemorativa','2026-03-15',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(71,'Dia Mundial da Água','Conscientização sobre a preservação da água','data_comemorativa','2026-03-22',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(72,'Dia Mundial da Saúde','Promoção da saúde pública','data_comemorativa','2026-04-07',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(73,'Dia Nacional do Livro Infantil','Incentivo à leitura infantil','data_comemorativa','2026-04-18',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(74,'Dia do Índio','Valorização da cultura indígena','data_comemorativa','2026-04-19',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(75,'Tiradentes','Feriado nacional - Inconfidência Mineira','data_comemorativa','2026-04-21',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(76,'Descobrimento do Brasil','Chegada dos portugueses ao Brasil','data_comemorativa','2026-04-22',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(77,'Dia Mundial do Livro','Promoção da leitura e literatura','data_comemorativa','2026-04-23',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(78,'Dia do Trabalhador','Feriado nacional - Dia do Trabalho','data_comemorativa','2026-05-01',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(79,'Dia das Mães','Homenagem às mães (segundo domingo de maio)','data_comemorativa','2026-05-08',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(80,'Abolição da Escravatura','Assinatura da Lei Áurea','data_comemorativa','2026-05-13',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(81,'Dia Nacional de Combate ao Abuso Sexual','Proteção de crianças e adolescentes','data_comemorativa','2026-05-18',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(82,'Dia Mundial sem Tabaco','Conscientização sobre os malefícios do tabaco','data_comemorativa','2026-05-31',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(83,'Dia Mundial do Meio Ambiente','Conscientização ambiental','data_comemorativa','2026-06-05',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(84,'Dia dos Namorados','Celebração do amor','data_comemorativa','2026-06-12',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(85,'Festa Junina - São João','Tradição cultural brasileira','data_comemorativa','2026-06-24',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(86,'Revolução Constitucionalista','Feriado estadual em São Paulo','data_comemorativa','2026-07-09',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(87,'Dia do Amigo','Celebração da amizade','data_comemorativa','2026-07-20',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(88,'Dia do Estudante','Valorização da educação','data_comemorativa','2026-08-11',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(89,'Dia do Folclore','Preservação da cultura popular','data_comemorativa','2026-08-22',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(90,'Dia Nacional de Combate ao Fumo','Prevenção ao tabagismo','data_comemorativa','2026-08-29',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(91,'Independência do Brasil','Feriado nacional - Grito do Ipiranga','data_comemorativa','2026-09-07',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(92,'Dia da Árvore','Conscientização ambiental','data_comemorativa','2026-09-21',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(93,'Início da Primavera','Equinócio de primavera','data_comemorativa','2026-09-22',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(94,'Dia Nacional de Combate ao Câncer Infantil','Conscientização sobre o câncer infantil','data_comemorativa','2026-09-23',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(95,'Dia Mundial dos Animais','Proteção animal','data_comemorativa','2026-10-04',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(96,'Dia Mundial dos Professores','Valorização do magistério','data_comemorativa','2026-10-05',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(97,'Nossa Senhora Aparecida','Feriado nacional - Padroeira do Brasil','data_comemorativa','2026-10-12',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(98,'Dia do Professor','Homenagem aos educadores','data_comemorativa','2026-10-15',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(99,'Dia Mundial da Alimentação','Combate à fome','data_comemorativa','2026-10-16',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(100,'Dia da Indústria','Desenvolvimento industrial','data_comemorativa','2026-10-17',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(101,'Dia das Bruxas (Halloween)','Tradição internacional','data_comemorativa','2026-10-31',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(102,'Finados','Feriado nacional - Dia dos Mortos','data_comemorativa','2026-11-02',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(103,'Proclamação da República','Feriado nacional - Fim do Império','data_comemorativa','2026-11-15',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(104,'Dia da Bandeira','Símbolo nacional','data_comemorativa','2026-11-19',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(105,'Dia da Consciência Negra','Valorização da cultura afro-brasileira','data_comemorativa','2026-11-20',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(106,'Dia Mundial de Combate à AIDS','Prevenção e conscientização','data_comemorativa','2026-12-01',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(107,'Dia Internacional da Pessoa com Deficiência','Inclusão social','data_comemorativa','2026-12-03',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(108,'Dia dos Direitos Humanos','Declaração Universal dos Direitos Humanos','data_comemorativa','2026-12-10',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(109,'Natal','Feriado nacional - Nascimento de Jesus Cristo','data_comemorativa','2026-12-25',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',1,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(110,'Réveillon','Passagem de ano','data_comemorativa','2026-12-31',NULL,NULL,'Nacional','Data comemorativa nacional inserida automaticamente',0,'#28a745',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:45','2025-09-27 00:38:45'),
+(111,'Aniversário do Município','Fundação da cidade - Ajustar data conforme município','data_comemorativa','2026-01-01',NULL,NULL,'Municipal','Data comemorativa municipal - Ajustar conforme necessário',1,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:46','2025-09-27 00:38:46'),
+(112,'Dia do Servidor Municipal','Homenagem aos servidores públicos municipais','data_comemorativa','2026-03-15',NULL,NULL,'Municipal','Data comemorativa municipal - Ajustar conforme necessário',1,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:46','2025-09-27 00:38:46'),
+(113,'Dia do Município','Celebração da emancipação política','data_comemorativa','2026-04-23',NULL,NULL,'Municipal','Data comemorativa municipal - Ajustar conforme necessário',1,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:46','2025-09-27 00:38:46'),
+(114,'Festa do Padroeiro','Celebração religiosa local - Ajustar conforme padroeiro','data_comemorativa','2026-06-29',NULL,NULL,'Municipal','Data comemorativa municipal - Ajustar conforme necessário',1,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:46','2025-09-27 00:38:46'),
+(115,'Semana da Pátria Municipal','Atividades cívicas locais','data_comemorativa','2026-08-15',NULL,NULL,'Municipal','Data comemorativa municipal - Ajustar conforme necessário',1,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:46','2025-09-27 00:38:46'),
+(116,'Semana da Criança','Atividades para o público infantil','data_comemorativa','2026-10-01',NULL,NULL,'Municipal','Data comemorativa municipal - Ajustar conforme necessário',1,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:46','2025-09-27 00:38:46'),
+(117,'Dia da Música Municipal','Valorização da cultura musical local','data_comemorativa','2026-11-22',NULL,NULL,'Municipal','Data comemorativa municipal - Ajustar conforme necessário',1,'#007bff',1,NULL,NULL,NULL,NULL,NULL,'2025-09-27 00:38:46','2025-09-27 00:38:46');
+/*!40000 ALTER TABLE `eventos` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `failed_jobs`
+--
+
+DROP TABLE IF EXISTS `failed_jobs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `failed_jobs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `uuid` varchar(255) NOT NULL,
+  `connection` text NOT NULL,
+  `queue` text NOT NULL,
+  `payload` longtext NOT NULL,
+  `exception` longtext NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `failed_jobs`
+--
+
+/*!40000 ALTER TABLE `failed_jobs` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `failed_jobs` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `folha_pagamento`
+--
+
+DROP TABLE IF EXISTS `folha_pagamento`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `folha_pagamento` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `nome_servidor` varchar(255) NOT NULL,
+  `cargo` varchar(255) NOT NULL,
+  `lotacao` varchar(255) NOT NULL,
+  `vinculo` varchar(255) NOT NULL,
+  `regime_juridico` varchar(255) DEFAULT NULL,
+  `remuneracao_basica` decimal(10,2) NOT NULL,
+  `vantagens_pessoais` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `funcao_cargo` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `gratificacoes` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `adicionais` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `indenizacoes` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `descontos_obrigatorios` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `outros_descontos` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `remuneracao_liquida` decimal(10,2) NOT NULL,
+  `diarias` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `auxilios` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `vantagens_indenizatorias` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `mes_referencia` int(11) NOT NULL,
+  `ano_referencia` int(11) NOT NULL,
+  `data_admissao` date DEFAULT NULL,
+  `situacao` varchar(255) NOT NULL DEFAULT 'ativo',
+  `observacoes` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `folha_pagamento_ano_referencia_mes_referencia_index` (`ano_referencia`,`mes_referencia`),
+  KEY `folha_pagamento_cargo_index` (`cargo`),
+  KEY `folha_pagamento_lotacao_index` (`lotacao`),
+  KEY `folha_pagamento_vinculo_index` (`vinculo`),
+  KEY `folha_pagamento_situacao_index` (`situacao`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `folha_pagamento`
+--
+
+/*!40000 ALTER TABLE `folha_pagamento` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `folha_pagamento` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `hero_configurations`
+--
+
+DROP TABLE IF EXISTS `hero_configurations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `hero_configurations` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `titulo` varchar(255) NOT NULL DEFAULT 'Câmara Municipal',
+  `descricao` text NOT NULL DEFAULT 'Transparência, participação e representação democrática para nossa cidade.',
+  `botao_primario_texto` varchar(255) NOT NULL DEFAULT 'Transparência',
+  `botao_primario_link` varchar(255) NOT NULL DEFAULT '/transparencia',
+  `botao_primario_nova_aba` tinyint(1) NOT NULL DEFAULT 0,
+  `botao_secundario_texto` varchar(255) NOT NULL DEFAULT 'Vereadores',
+  `botao_secundario_link` varchar(255) NOT NULL DEFAULT '/vereadores',
+  `botao_secundario_nova_aba` tinyint(1) NOT NULL DEFAULT 0,
+  `mostrar_slider` tinyint(1) NOT NULL DEFAULT 1,
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `hero_configurations`
+--
+
+/*!40000 ALTER TABLE `hero_configurations` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `hero_configurations` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `job_batches`
+--
+
+DROP TABLE IF EXISTS `job_batches`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `job_batches` (
+  `id` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `total_jobs` int(11) NOT NULL,
+  `pending_jobs` int(11) NOT NULL,
+  `failed_jobs` int(11) NOT NULL,
+  `failed_job_ids` longtext NOT NULL,
+  `options` mediumtext DEFAULT NULL,
+  `cancelled_at` int(11) DEFAULT NULL,
+  `created_at` int(11) NOT NULL,
+  `finished_at` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `job_batches`
+--
+
+/*!40000 ALTER TABLE `job_batches` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `job_batches` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `jobs`
+--
+
+DROP TABLE IF EXISTS `jobs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `jobs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `queue` varchar(255) NOT NULL,
+  `payload` longtext NOT NULL,
+  `attempts` tinyint(3) unsigned NOT NULL,
+  `reserved_at` int(10) unsigned DEFAULT NULL,
+  `available_at` int(10) unsigned NOT NULL,
+  `created_at` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `jobs_queue_index` (`queue`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobs`
+--
+
+/*!40000 ALTER TABLE `jobs` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `jobs` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `leis`
+--
+
+DROP TABLE IF EXISTS `leis`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `leis` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `numero` varchar(255) NOT NULL,
+  `exercicio` year(4) NOT NULL,
+  `data` date NOT NULL,
+  `tipo` enum('Lei Ordinária','Lei Complementar','Resolução','Decreto Legislativo','Lei Orgânica','Emenda à Lei Orgânica') NOT NULL,
+  `titulo` varchar(255) NOT NULL,
+  `descricao` text NOT NULL,
+  `autoria` varchar(255) DEFAULT NULL,
+  `ementa` text DEFAULT NULL,
+  `arquivo_pdf` varchar(255) DEFAULT NULL,
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `observacoes` text DEFAULT NULL,
+  `slug` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `leis_slug_unique` (`slug`),
+  KEY `leis_tipo_exercicio_index` (`tipo`,`exercicio`),
+  KEY `leis_numero_exercicio_index` (`numero`,`exercicio`),
+  KEY `leis_data_index` (`data`),
+  KEY `leis_ativo_index` (`ativo`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `leis`
+--
+
+/*!40000 ALTER TABLE `leis` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `leis` VALUES
+(1,'1485',2025,'2025-09-16','Lei Ordinária','Lei Municipal nº 1.485 de 16 de setembro de 2025','Esta lei estabelece diretrizes importantes para o desenvolvimento municipal, abordando aspectos fundamentais da administração pública local e promovendo melhorias na qualidade dos serviços prestados à população.','Câmara Municipal','Dispõe sobre normas gerais para o município e dá outras providências.',NULL,1,'Lei de grande relevância para o município.','lei-municipal-1485-2025','2025-09-26 07:33:43','2025-09-26 07:33:43'),
+(2,'1486',2025,'2025-09-20','Lei Ordinária','Dispõe sobre a criação do Programa Municipal de Meio Ambiente','Esta lei cria o Programa Municipal de Meio Ambiente com o objetivo de promover a sustentabilidade, a educação ambiental e a preservação dos recursos naturais do município. O programa incluirá ações de reflorestamento, coleta seletiva e conscientização da população sobre a importância da preservação ambiental.','Vereador João Silva','Institui o Programa Municipal de Meio Ambiente e estabelece diretrizes para a preservação ambiental no município.',NULL,1,'Aprovada por unanimidade.','programa-municipal-meio-ambiente-1486-2025','2025-09-26 07:33:43','2025-09-26 07:33:43'),
+(3,'1487',2025,'2025-09-25','Lei Ordinária','Altera a Lei Municipal de Trânsito e Transporte','<p class=\"artigo\"><strong>Art. 1&ordm; </strong>Esta lei promove altera&ccedil;&otilde;es na legisla&ccedil;&atilde;o municipal de tr&acirc;nsito, estabelecendo novas regras para o transporte p&uacute;blico, criando ciclovias e melhorando a <span style=\"color: rgb(255, 0, 0);\"><strong>sinaliza&ccedil;&atilde;o urbana</strong></span>.</p>\r\n<p class=\"paragrafo\"><strong>&sect; 1&ordm; </strong>As mudan&ccedil;as visam reduzir o <span style=\"background-color: rgb(0, 255, 0);\">tr&acirc;nsito e promover meios</span> de transporte mais sustent&aacute;veis.</p>','Vereadora Maria Santos','Altera dispositivos da Lei Municipal de Trânsito e Transporte para melhorar a mobilidade urbana.',NULL,1,'Entrada em vigor em 60 dias.','alteracao-lei-transito-1487-2025','2025-09-26 07:33:43','2025-09-26 07:37:05'),
+(4,'45',2025,'2025-08-10','Lei Complementar','Código Tributário Municipal','Esta lei complementar estabelece o sistema tributário municipal, definindo os tributos de competência do município, suas bases de cálculo, alíquotas e procedimentos de arrecadação. Inclui disposições sobre IPTU, ISS, taxas municipais e contribuições de melhoria.','Poder Executivo','Institui o Código Tributário Municipal e estabelece normas gerais de direito tributário aplicáveis ao município.',NULL,1,'Substitui a legislação tributária anterior.','codigo-tributario-municipal-45-2025','2025-09-26 07:33:43','2025-09-26 07:33:43'),
+(5,'46',2025,'2025-08-15','Lei Complementar','Plano Diretor Municipal','O Plano Diretor Municipal é o instrumento básico da política de desenvolvimento e expansão urbana. Esta lei estabelece as diretrizes para o crescimento ordenado da cidade, definindo zonas de uso, parâmetros urbanísticos e instrumentos de política urbana.','Comissão Especial','Aprova o Plano Diretor Municipal e estabelece diretrizes para o desenvolvimento urbano.',NULL,1,'Elaborado com participação popular.','plano-diretor-municipal-46-2025','2025-09-26 07:33:43','2025-09-26 07:33:43'),
+(6,'12',2025,'2025-09-05','Resolução','Regimento Interno da Câmara Municipal','Esta resolução estabelece as normas de funcionamento da Câmara Municipal, definindo os procedimentos para as sessões, tramitação de projetos, funcionamento das comissões e demais atividades legislativas.','Mesa Diretora','Aprova o novo Regimento Interno da Câmara Municipal.',NULL,1,'Atualização do regimento anterior.','regimento-interno-camara-12-2025','2025-09-26 07:33:43','2025-09-26 07:33:43'),
+(7,'13',2025,'2025-09-12','Resolução','Criação da Comissão de Ética e Decoro Parlamentar','Esta resolução institui a Comissão de Ética e Decoro Parlamentar, órgão responsável por zelar pela observância dos princípios éticos e das normas de decoro parlamentar pelos membros da Câmara Municipal.','Vereador Carlos Oliveira','Cria a Comissão de Ética e Decoro Parlamentar e estabelece suas competências.',NULL,1,'Comissão permanente.','comissao-etica-decoro-13-2025','2025-09-26 07:33:43','2025-09-26 07:33:43'),
+(8,'8',2025,'2025-08-30','Decreto Legislativo','Concessão de Título de Cidadão Honorário','Este decreto legislativo reconhece os méritos e a contribuição do Sr. José da Silva para o desenvolvimento do município, concedendo-lhe o título de Cidadão Honorário em reconhecimento aos seus serviços prestados à comunidade.','Vereador Pedro Costa','Concede o título de Cidadão Honorário ao Sr. José da Silva pelos relevantes serviços prestados ao município.',NULL,1,'Cerimônia de entrega agendada.','titulo-cidadao-honorario-jose-silva-8-2025','2025-09-26 07:33:43','2025-09-26 07:33:43'),
+(9,'9',2025,'2025-09-02','Decreto Legislativo','Aprovação de Convênio com o Estado','Este decreto legislativo aprova o convênio firmado com o governo estadual para a execução de obras de pavimentação, drenagem e saneamento básico em diversos bairros do município, com investimento total de R$ 2.500.000,00.','Comissão de Finanças','Aprova o convênio celebrado entre o município e o governo estadual para execução de obras de infraestrutura.',NULL,1,'Contrapartida municipal de 20%.','aprovacao-convenio-estado-obras-9-2025','2025-09-26 07:33:43','2025-09-26 07:33:43'),
+(10,'1',2024,'2024-01-15','Lei Orgânica','Lei Orgânica do Município','A Lei Orgânica é a lei fundamental do município, estabelecendo sua organização política, administrativa e territorial. Define os poderes municipais, os direitos e deveres dos cidadãos, as competências do município e os princípios da administração pública local.','Câmara Municipal Constituinte','Lei Orgânica do Município, estabelecendo sua organização política e administrativa.',NULL,1,'Lei fundamental do município.','lei-organica-municipio-1-2024','2025-09-26 07:33:43','2025-09-26 07:33:43'),
+(11,'3',2025,'2025-07-22','Emenda à Lei Orgânica','Emenda à Lei Orgânica nº 03/2025','Esta emenda à Lei Orgânica Municipal modifica o artigo 45, incluindo novos dispositivos sobre transparência pública, acesso à informação e participação popular na gestão municipal, fortalecendo os mecanismos de controle social.','Vereadora Ana Paula','Altera o artigo 45 da Lei Orgânica Municipal para incluir disposições sobre transparência pública.',NULL,1,'Aprovada em dois turnos.','emenda-lei-organica-transparencia-3-2025','2025-09-26 07:33:43','2025-09-26 07:33:43'),
+(12,'1450',2024,'2024-12-10','Lei Ordinária','Lei Orçamentária Anual 2025','A Lei Orçamentária Anual estabelece as previsões de receitas e as autorizações de despesas para o exercício de 2025, contemplando os programas e ações do governo municipal para o próximo ano.','Poder Executivo','Estima a receita e fixa a despesa do município para o exercício financeiro de 2025.',NULL,1,'Orçamento aprovado no prazo legal.','lei-orcamentaria-anual-2025-1450-2024','2025-09-26 07:33:43','2025-09-26 07:33:43'),
+(13,'1420',2024,'2024-06-15','Lei Ordinária','Estatuto do Servidor Público Municipal','Este estatuto estabelece o regime jurídico dos servidores públicos municipais, definindo direitos, deveres, proibições, regime disciplinar e demais aspectos da relação funcional entre o servidor e a administração municipal.','Comissão de Administração','Dispõe sobre o regime jurídico dos servidores públicos municipais.',NULL,1,'Substitui legislação anterior.','estatuto-servidor-publico-municipal-1420-2024','2025-09-26 07:33:43','2025-09-26 07:33:43'),
+(14,'1380',2023,'2023-11-20','Lei Ordinária','Criação do Conselho Municipal de Educação','Esta lei institui o Conselho Municipal de Educação como órgão normativo, consultivo e de controle social do sistema municipal de ensino, definindo sua composição, competências e funcionamento.','Vereadora Lucia Fernandes','Cria o Conselho Municipal de Educação e estabelece suas competências.',NULL,1,'Órgão de controle social da educação.','conselho-municipal-educacao-1380-2023','2025-09-26 07:33:43','2025-09-26 07:33:43');
+/*!40000 ALTER TABLE `leis` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `licitacao_documentos`
+--
+
+DROP TABLE IF EXISTS `licitacao_documentos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `licitacao_documentos` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `licitacao_id` bigint(20) unsigned NOT NULL,
+  `nome` varchar(255) NOT NULL,
+  `descricao` varchar(255) DEFAULT NULL,
+  `arquivo` varchar(255) NOT NULL,
+  `arquivo_original` varchar(255) NOT NULL,
+  `tipo_mime` varchar(255) NOT NULL,
+  `tamanho` int(11) NOT NULL,
+  `tipo_documento` enum('edital','anexo_edital','ata_abertura','ata_julgamento','resultado','contrato','termo_referencia','projeto_basico','outros') NOT NULL DEFAULT 'outros',
+  `publico` tinyint(1) NOT NULL DEFAULT 1,
+  `ordem` int(11) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `licitacao_documentos_licitacao_id_publico_index` (`licitacao_id`,`publico`),
+  KEY `licitacao_documentos_tipo_documento_index` (`tipo_documento`),
+  CONSTRAINT `licitacao_documentos_licitacao_id_foreign` FOREIGN KEY (`licitacao_id`) REFERENCES `licitacoes` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `licitacao_documentos`
+--
+
+/*!40000 ALTER TABLE `licitacao_documentos` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `licitacao_documentos` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `licitacoes`
+--
+
+DROP TABLE IF EXISTS `licitacoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `licitacoes` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `numero_processo` varchar(255) NOT NULL,
+  `numero_edital` varchar(255) DEFAULT NULL,
+  `modalidade` varchar(255) NOT NULL,
+  `tipo` varchar(255) NOT NULL,
+  `objeto` varchar(255) NOT NULL,
+  `descricao_detalhada` text DEFAULT NULL,
+  `valor_estimado` decimal(15,2) DEFAULT NULL,
+  `valor_homologado` decimal(15,2) DEFAULT NULL,
+  `data_abertura` date NOT NULL,
+  `data_publicacao` date DEFAULT NULL,
+  `data_hora_abertura` datetime DEFAULT NULL,
+  `data_homologacao` date DEFAULT NULL,
+  `local_abertura` varchar(255) DEFAULT NULL,
+  `responsavel` varchar(255) DEFAULT NULL,
+  `vencedor` varchar(255) DEFAULT NULL,
+  `cnpj_vencedor` varchar(255) DEFAULT NULL,
+  `valor_vencedor` decimal(15,2) DEFAULT NULL,
+  `arquivo_edital` varchar(255) DEFAULT NULL,
+  `arquivo_resultado` varchar(255) DEFAULT NULL,
+  `ano_referencia` int(11) NOT NULL,
+  `observacoes` text DEFAULT NULL,
+  `status` enum('publicado','em_andamento','homologado','deserto','fracassado','cancelado') NOT NULL DEFAULT 'publicado',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `licitacoes_numero_processo_unique` (`numero_processo`),
+  KEY `licitacoes_ano_referencia_index` (`ano_referencia`),
+  KEY `licitacoes_modalidade_index` (`modalidade`),
+  KEY `licitacoes_status_index` (`status`),
+  KEY `licitacoes_data_abertura_index` (`data_abertura`),
+  KEY `licitacoes_data_publicacao_index` (`data_publicacao`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `licitacoes`
+--
+
+/*!40000 ALTER TABLE `licitacoes` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `licitacoes` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `manifestacao_anexos`
+--
+
+DROP TABLE IF EXISTS `manifestacao_anexos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `manifestacao_anexos` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `manifestacao_id` bigint(20) unsigned NOT NULL,
+  `nome_original` varchar(255) NOT NULL,
+  `nome_arquivo` varchar(255) NOT NULL,
+  `caminho_arquivo` varchar(255) NOT NULL,
+  `tipo_mime` varchar(255) NOT NULL,
+  `extensao` varchar(10) NOT NULL,
+  `tamanho_bytes` bigint(20) NOT NULL,
+  `tipo_anexo` enum('documento','imagem','comprovante','evidencia','outros') NOT NULL DEFAULT 'documento',
+  `publico` tinyint(1) NOT NULL DEFAULT 0,
+  `confidencial` tinyint(1) NOT NULL DEFAULT 0,
+  `hash_arquivo` varchar(64) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `metadados` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`metadados`)),
+  `ip_upload` varchar(45) DEFAULT NULL,
+  `uploaded_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `manifestacao_anexos_uploaded_by_foreign` (`uploaded_by`),
+  KEY `manifestacao_anexos_manifestacao_id_tipo_anexo_index` (`manifestacao_id`,`tipo_anexo`),
+  KEY `manifestacao_anexos_nome_arquivo_index` (`nome_arquivo`),
+  KEY `manifestacao_anexos_hash_arquivo_index` (`hash_arquivo`),
+  CONSTRAINT `manifestacao_anexos_manifestacao_id_foreign` FOREIGN KEY (`manifestacao_id`) REFERENCES `ouvidoria_manifestacoes` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `manifestacao_anexos_uploaded_by_foreign` FOREIGN KEY (`uploaded_by`) REFERENCES `esic_usuarios` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `manifestacao_anexos`
+--
+
+/*!40000 ALTER TABLE `manifestacao_anexos` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `manifestacao_anexos` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `menus`
+--
+
+DROP TABLE IF EXISTS `menus`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `menus` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `titulo` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `url` varchar(255) DEFAULT NULL,
+  `rota` varchar(255) DEFAULT NULL,
+  `icone` varchar(255) DEFAULT NULL,
+  `posicao` enum('header','footer','ambos') NOT NULL DEFAULT 'header',
+  `tipo` enum('link','dropdown','divider') NOT NULL DEFAULT 'link',
+  `parent_id` bigint(20) unsigned DEFAULT NULL,
+  `ordem` int(11) NOT NULL DEFAULT 0,
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `nova_aba` tinyint(1) NOT NULL DEFAULT 0,
+  `permissao` varchar(255) DEFAULT NULL,
+  `descricao` text DEFAULT NULL,
+  `configuracoes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`configuracoes`)),
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `menus_slug_unique` (`slug`),
+  KEY `menus_posicao_ativo_ordem_index` (`posicao`,`ativo`,`ordem`),
+  KEY `menus_parent_id_ordem_index` (`parent_id`,`ordem`),
+  CONSTRAINT `menus_parent_id_foreign` FOREIGN KEY (`parent_id`) REFERENCES `menus` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `menus`
+--
+
+/*!40000 ALTER TABLE `menus` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `menus` VALUES
+(1,'Início','inicio','/',NULL,'fas fa-home','header','link',NULL,1,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(2,'Sobre','sobre',NULL,NULL,'fas fa-info-circle','header','dropdown',NULL,2,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(3,'História','historia','/sobre/historia',NULL,'fas fa-book','header','link',2,1,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(4,'Estrutura','estrutura','/sobre/estrutura',NULL,'fas fa-building','header','link',2,2,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(5,'Regimento Interno','regimento-interno','/sobre/regimento',NULL,'fas fa-gavel','header','link',2,3,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(6,'Missão, Visão e Valores','missao-visao-valores','/sobre/missao',NULL,'fas fa-bullseye','header','link',2,4,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(7,'Legislativo','legislativo',NULL,NULL,'fas fa-university','header','dropdown',NULL,3,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(8,'Vereadores','vereadores',NULL,'vereadores.index','fas fa-users','header','link',7,1,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(9,'Projetos de Lei','projetos-lei','#',NULL,'fas fa-file-alt','header','link',7,2,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(10,'Sessões','sessoes',NULL,'sessoes.index','fas fa-calendar-alt','header','link',7,3,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(11,'Transparência','transparencia',NULL,NULL,'fas fa-eye','header','dropdown',NULL,4,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(12,'Portal da Transparência','portal-transparencia','/transparencia/portal',NULL,'fas fa-globe','header','link',11,1,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(13,'Receitas e Despesas','receitas-despesas','/transparencia/financeiro',NULL,'fas fa-dollar-sign','header','link',11,2,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(14,'Licitações','licitacoes','/transparencia/licitacoes',NULL,'fas fa-file-contract','header','link',11,3,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(15,'Contratos','contratos','/transparencia/contratos',NULL,'fas fa-handshake','header','link',11,4,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(16,'Ouvidoria','ouvidoria',NULL,'ouvidoria.index','fas fa-comments','header','link',11,5,1,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(17,'Contato','contato','/contato',NULL,'fas fa-envelope','header','link',NULL,5,0,0,NULL,NULL,NULL,'2025-09-26 07:51:57','2025-09-26 08:07:32'),
+(18,'Entrar','entrar',NULL,'login','fas fa-sign-in-alt','header','link',NULL,6,0,0,NULL,NULL,'\"{\\\"visibilidade\\\":\\\"guest_only\\\",\\\"classe_css\\\":\\\"nav-link-auth\\\"}\"','2025-09-26 07:51:57','2025-09-26 08:16:10'),
+(19,'Cadastrar','cadastrar',NULL,'register','fas fa-user-plus','header','link',NULL,7,0,0,NULL,NULL,'\"{\\\"visibilidade\\\":\\\"guest_only\\\",\\\"classe_css\\\":\\\"nav-link-auth\\\"}\"','2025-09-26 07:51:57','2025-09-26 08:16:11'),
+(20,'Vereadores','footer-vereadores',NULL,'vereadores.index',NULL,'footer','link',NULL,1,1,0,NULL,NULL,'\"{\\\"grupo_footer\\\":\\\"Links R\\\\u00e1pidos\\\"}\"','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(21,'Projetos de Lei','footer-projetos-lei','#',NULL,NULL,'footer','link',NULL,2,1,0,NULL,NULL,'\"{\\\"grupo_footer\\\":\\\"Links R\\\\u00e1pidos\\\"}\"','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(22,'Sessões','footer-sessoes',NULL,'sessoes.index',NULL,'footer','link',NULL,3,1,0,NULL,NULL,'\"{\\\"grupo_footer\\\":\\\"Links R\\\\u00e1pidos\\\"}\"','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(23,'Atas','footer-atas','#',NULL,NULL,'footer','link',NULL,4,1,0,NULL,NULL,'\"{\\\"grupo_footer\\\":\\\"Links R\\\\u00e1pidos\\\"}\"','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(24,'Portal da Transparência','footer-portal-transparencia','#',NULL,NULL,'footer','link',NULL,11,1,0,NULL,NULL,'\"{\\\"grupo_footer\\\":\\\"Transpar\\\\u00eancia\\\"}\"','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(25,'e-SIC','footer-esic',NULL,'esic.public',NULL,'footer','link',NULL,12,1,0,NULL,NULL,'\"{\\\"grupo_footer\\\":\\\"Transpar\\\\u00eancia\\\"}\"','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(26,'Lei de Acesso','footer-lei-acesso','#',NULL,NULL,'footer','link',NULL,13,1,0,NULL,NULL,'\"{\\\"grupo_footer\\\":\\\"Transpar\\\\u00eancia\\\"}\"','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(27,'Ouvidoria','footer-ouvidoria',NULL,'ouvidoria.index',NULL,'footer','link',NULL,14,1,0,NULL,NULL,'\"{\\\"grupo_footer\\\":\\\"Transpar\\\\u00eancia\\\"}\"','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(28,'Leis','leis','/leis',NULL,'fas fa-gavel','header','link',7,4,1,0,NULL,NULL,NULL,'2025-09-26 08:05:50','2025-09-26 08:07:25');
+/*!40000 ALTER TABLE `menus` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `migrations`
+--
+
+DROP TABLE IF EXISTS `migrations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `migrations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `migration` varchar(255) NOT NULL,
+  `batch` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `migrations`
+--
+
+/*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `migrations` VALUES
+(1,'0001_01_01_000000_create_users_table',1),
+(2,'0001_01_01_000001_create_cache_table',1),
+(3,'0001_01_01_000002_create_jobs_table',1),
+(4,'2025_09_17_161629_create_vereadores_table',1),
+(5,'2025_09_17_161649_create_noticias_table',1),
+(6,'2025_09_17_161658_create_sessoes_table',1),
+(7,'2025_09_17_161707_create_projetos_lei_table',1),
+(8,'2025_09_17_161716_create_documentos_table',1),
+(9,'2025_09_17_161726_create_esic_solicitacoes_table',1),
+(10,'2025_09_17_162110_create_permission_tables',1),
+(11,'2025_09_18_175819_add_comissoes_to_vereadores_table',1),
+(12,'2025_09_18_190931_update_vereadores_partido_field_size',1),
+(13,'2025_09_18_195036_add_role_to_users_table',1),
+(14,'2025_09_19_121900_add_arquivada_fields_to_esic_solicitacoes_table',1),
+(15,'2025_09_19_150105_add_deleted_at_to_esic_solicitacoes_table',1),
+(16,'2025_09_19_151458_add_deleted_at_to_projetos_lei_table',1),
+(17,'2025_09_19_153535_create_sessao_projeto_lei_table',1),
+(18,'2025_09_19_153545_create_projeto_lei_coautor_table',1),
+(19,'2025_09_19_153554_create_sessao_vereador_table',1),
+(20,'2025_09_19_154035_add_deleted_at_to_documentos_table',1),
+(21,'2025_09_19_154211_add_deleted_at_to_sessoes_table',1),
+(22,'2025_09_19_154221_add_deleted_at_to_noticias_table',1),
+(23,'2025_09_20_122149_add_video_fields_to_sessoes_table',1),
+(24,'2025_09_20_130244_add_presidente_secretario_to_sessoes_table',1),
+(25,'2025_09_20_135715_rename_numero_projeto_to_numero_in_projetos_lei_table',1),
+(26,'2025_09_20_144144_create_tipo_sessaos_table',1),
+(27,'2025_09_20_144833_add_tipo_sessao_id_to_sessoes_table',1),
+(28,'2025_09_20_220409_create_esic_usuarios_table',1),
+(29,'2025_09_20_220418_create_ouvidores_table',1),
+(30,'2025_09_20_220428_create_ouvidoria_manifestacoes_table',1),
+(31,'2025_09_20_220438_create_manifestacao_anexos_table',1),
+(32,'2025_09_20_220705_create_carta_servicos_table',1),
+(33,'2025_09_20_220715_create_notificacoes_table',1),
+(34,'2025_09_20_231843_create_esic_movimentacoes_table',1),
+(35,'2025_09_20_232000_create_ouvidoria_movimentacoes_table',1),
+(36,'2025_09_20_232019_create_carta_servico_categorias_table',1),
+(37,'2025_09_20_232139_create_carta_servico_avaliacoes_table',1),
+(38,'2025_09_21_113657_add_verification_fields_to_users_table',1),
+(39,'2025_09_21_115359_add_profile_fields_to_users_table',2),
+(40,'2025_09_21_165141_create_menus_table',2),
+(41,'2025_09_21_171752_add_data_resposta_to_esic_solicitacoes_table',2),
+(42,'2025_09_21_235354_create_receitas_table',2),
+(43,'2025_09_21_235404_create_despesas_table',2),
+(44,'2025_09_21_235413_create_licitacoes_table',2),
+(45,'2025_09_21_235422_create_folha_pagamento_table',2),
+(46,'2025_09_22_002014_add_data_publicacao_to_licitacoes_table',2),
+(47,'2025_09_22_123335_create_licitacao_documentos_table',2),
+(48,'2025_09_22_141407_create_acesso_rapido_table',2),
+(49,'2025_09_23_112848_add_user_id_to_esic_solicitacoes_table',2),
+(50,'2025_09_23_153842_create_eventos_table',2),
+(51,'2025_09_23_162210_fix_eventos_tipo_enum',2),
+(52,'2025_09_24_131658_create_paginas_conteudo_table',2),
+(53,'2025_09_24_155007_create_tipo_contratos_table',2),
+(54,'2025_09_24_155050_create_contratos_table',2),
+(55,'2025_09_24_155153_create_contrato_aditivos_table',2),
+(56,'2025_09_24_155248_create_contrato_fiscalizacaos_table',2),
+(57,'2025_09_25_004253_add_observacoes_transparencia_to_contratos_table',2),
+(58,'2025_09_25_015143_fix_numero_relatorio_field_in_contrato_fiscalizacaos_table',2),
+(59,'2025_09_26_012038_create_configuracao_gerais_table',2),
+(60,'2025_09_26_015517_create_slides_table',2),
+(61,'2025_09_26_020714_create_hero_configurations_table',2),
+(62,'2025_09_26_050741_create_leis_table',2);
+/*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `model_has_permissions`
+--
+
+DROP TABLE IF EXISTS `model_has_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `model_has_permissions` (
+  `permission_id` bigint(20) unsigned NOT NULL,
+  `model_type` varchar(255) NOT NULL,
+  `model_id` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`permission_id`,`model_id`,`model_type`),
+  KEY `model_has_permissions_model_id_model_type_index` (`model_id`,`model_type`),
+  CONSTRAINT `model_has_permissions_permission_id_foreign` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `model_has_permissions`
+--
+
+/*!40000 ALTER TABLE `model_has_permissions` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `model_has_permissions` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `model_has_roles`
+--
+
+DROP TABLE IF EXISTS `model_has_roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `model_has_roles` (
+  `role_id` bigint(20) unsigned NOT NULL,
+  `model_type` varchar(255) NOT NULL,
+  `model_id` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`role_id`,`model_id`,`model_type`),
+  KEY `model_has_roles_model_id_model_type_index` (`model_id`,`model_type`),
+  CONSTRAINT `model_has_roles_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `model_has_roles`
+--
+
+/*!40000 ALTER TABLE `model_has_roles` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `model_has_roles` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `noticias`
+--
+
+DROP TABLE IF EXISTS `noticias`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `noticias` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `titulo` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `resumo` text NOT NULL,
+  `conteudo` longtext NOT NULL,
+  `imagem_destaque` varchar(255) DEFAULT NULL,
+  `galeria_imagens` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`galeria_imagens`)),
+  `autor_id` bigint(20) unsigned NOT NULL,
+  `status` enum('rascunho','publicado','arquivado') NOT NULL DEFAULT 'rascunho',
+  `destaque` tinyint(1) NOT NULL DEFAULT 0,
+  `visualizacoes` int(11) NOT NULL DEFAULT 0,
+  `tags` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`tags`)),
+  `categoria` varchar(255) DEFAULT NULL,
+  `data_publicacao` timestamp NULL DEFAULT NULL,
+  `meta_description` text DEFAULT NULL,
+  `meta_keywords` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `noticias_slug_unique` (`slug`),
+  KEY `noticias_autor_id_foreign` (`autor_id`),
+  KEY `noticias_status_data_publicacao_index` (`status`,`data_publicacao`),
+  KEY `noticias_destaque_status_index` (`destaque`,`status`),
+  KEY `noticias_categoria_index` (`categoria`),
+  CONSTRAINT `noticias_autor_id_foreign` FOREIGN KEY (`autor_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `noticias`
+--
+
+/*!40000 ALTER TABLE `noticias` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `noticias` VALUES
+(1,'Câmara Municipal aprova novo projeto de lei para melhorias urbanas','camara-aprova-projeto-melhorias-urbanas','O projeto prevê investimentos em infraestrutura e mobilidade urbana para os próximos dois anos.','<p>A Câmara Municipal aprovou por unanimidade o projeto de lei que destina recursos para melhorias na infraestrutura urbana da cidade. O projeto, de autoria do vereador João Silva, prevê investimentos em pavimentação, iluminação pública e mobilidade urbana.</p><p>As obras devem começar no próximo trimestre e beneficiarão diretamente mais de 50 mil moradores da região central e dos bairros periféricos.</p><p>\"Este é um marco importante para nossa cidade\", declarou o presidente da Câmara durante a sessão.</p>',NULL,NULL,11,'publicado',1,0,'[\"infraestrutura\",\"mobilidade\",\"aprova\\u00e7\\u00e3o\"]','legislativo','2025-09-25 08:24:22','Câmara Municipal aprova projeto para melhorias urbanas com investimentos em infraestrutura.','câmara municipal, projeto de lei, infraestrutura, melhorias urbanas','2025-09-26 08:24:22','2025-09-26 08:24:22',NULL),
+(2,'Sessão extraordinária discutirá orçamento municipal para 2024','sessao-extraordinaria-orcamento-2024','Vereadores se reunirão na próxima semana para debater a proposta orçamentária do município.','<p>A Câmara Municipal convocou uma sessão extraordinária para a próxima terça-feira (15) para discussão e votação da Lei Orçamentária Anual (LOA) de 2024.</p><p>A proposta, enviada pelo Executivo, prevê um orçamento de R$ 120 milhões, com foco em educação, saúde e obras públicas.</p><p>A sessão será aberta ao público e transmitida ao vivo pelos canais oficiais da Câmara.</p>',NULL,NULL,11,'publicado',0,0,'[\"or\\u00e7amento\",\"sess\\u00e3o extraordin\\u00e1ria\",\"LOA\"]','legislativo','2025-09-23 08:24:22','Sessão extraordinária da Câmara discutirá orçamento municipal de 2024.','sessão extraordinária, orçamento municipal, LOA 2024','2025-09-26 08:24:22','2025-09-26 08:24:22',NULL),
+(3,'Câmara promove audiência pública sobre meio ambiente','audiencia-publica-meio-ambiente','Evento debaterá políticas ambientais e sustentabilidade no município.','<p>A Câmara Municipal realizará na próxima sexta-feira (18) uma audiência pública para discutir políticas ambientais e sustentabilidade no município.</p><p>O evento contará com a participação de especialistas, representantes de ONGs ambientais e da sociedade civil organizada.</p><p>Entre os temas abordados estão: gestão de resíduos sólidos, preservação de áreas verdes e políticas de sustentabilidade urbana.</p><p>A audiência será realizada no Plenário da Câmara, às 19h, com entrada gratuita.</p>',NULL,NULL,11,'publicado',1,0,'[\"meio ambiente\",\"audi\\u00eancia p\\u00fablica\",\"sustentabilidade\"]','eventos','2025-09-21 08:24:22','Câmara promove audiência pública sobre políticas ambientais e sustentabilidade.','audiência pública, meio ambiente, sustentabilidade, políticas ambientais','2025-09-26 08:24:22','2025-09-26 08:24:22',NULL),
+(4,'Transparência: Câmara publica relatório de atividades do 1º semestre','relatorio-atividades-primeiro-semestre','Documento apresenta dados sobre projetos aprovados, sessões realizadas e investimentos.','<p>A Câmara Municipal publicou o relatório de atividades do primeiro semestre de 2024, demonstrando seu compromisso com a transparência pública.</p><p>O documento apresenta dados detalhados sobre:</p><ul><li>25 projetos de lei analisados</li><li>48 sessões ordinárias realizadas</li><li>12 audiências públicas promovidas</li><li>R$ 2,8 milhões em investimentos</li></ul><p>O relatório está disponível no portal da transparência da Câmara e pode ser acessado gratuitamente por todos os cidadãos.</p>',NULL,NULL,11,'publicado',0,0,'[\"transpar\\u00eancia\",\"relat\\u00f3rio\",\"atividades\"]','transparencia','2025-09-19 08:24:22','Câmara publica relatório de atividades do 1º semestre com dados de transparência.','relatório de atividades, transparência, câmara municipal','2025-09-26 08:24:22','2025-09-26 08:24:22',NULL),
+(5,'Homenagem aos professores marca sessão solene da Câmara','homenagem-professores-sessao-solene','Evento reconheceu o trabalho de educadores que se destacaram no município.','<p>A Câmara Municipal realizou uma sessão solene em homenagem aos professores da rede municipal de ensino. O evento reconheceu o trabalho de 15 educadores que se destacaram por suas práticas inovadoras e dedicação.</p><p>Durante a cerimônia, foram entregues certificados de reconhecimento e medalhas de honra ao mérito educacional.</p><p>\"Os professores são os verdadeiros construtores do futuro da nossa cidade\", destacou o presidente da Câmara durante seu discurso.</p><p>A sessão contou com a presença de familiares, colegas de trabalho e autoridades municipais.</p>',NULL,NULL,11,'publicado',0,0,'[\"educa\\u00e7\\u00e3o\",\"professores\",\"homenagem\"]','eventos','2025-09-16 08:24:22','Câmara realiza sessão solene em homenagem aos professores municipais.','sessão solene, professores, educação, homenagem','2025-09-26 08:24:22','2025-09-26 08:24:22',NULL);
+/*!40000 ALTER TABLE `noticias` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `notificacoes`
+--
+
+DROP TABLE IF EXISTS `notificacoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `notificacoes` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `notificavel_type` varchar(255) NOT NULL,
+  `notificavel_id` bigint(20) unsigned NOT NULL,
+  `manifestacao_id` bigint(20) unsigned DEFAULT NULL,
+  `tipo` enum('nova_manifestacao','resposta_manifestacao','prazo_vencendo','prazo_vencido','manifestacao_avaliada','status_alterado','confirmacao_email','recuperacao_senha','sistema_geral') NOT NULL,
+  `titulo` varchar(255) NOT NULL,
+  `mensagem` text NOT NULL,
+  `dados_extras` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`dados_extras`)),
+  `canal` enum('sistema','email','sms','push') NOT NULL DEFAULT 'sistema',
+  `lida` tinyint(1) NOT NULL DEFAULT 0,
+  `lida_em` timestamp NULL DEFAULT NULL,
+  `enviada` tinyint(1) NOT NULL DEFAULT 0,
+  `enviada_em` timestamp NULL DEFAULT NULL,
+  `erro_envio` text DEFAULT NULL,
+  `tentativas_envio` int(11) NOT NULL DEFAULT 0,
+  `prioridade` enum('baixa','normal','alta','urgente') NOT NULL DEFAULT 'normal',
+  `agendada_para` timestamp NULL DEFAULT NULL,
+  `acoes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`acoes`)),
+  `url_acao` varchar(255) DEFAULT NULL,
+  `expira_em` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `notificacoes_notificavel_type_notificavel_id_index` (`notificavel_type`,`notificavel_id`),
+  KEY `notificacoes_notificavel_type_notificavel_id_lida_index` (`notificavel_type`,`notificavel_id`,`lida`),
+  KEY `notificacoes_tipo_enviada_index` (`tipo`,`enviada`),
+  KEY `notificacoes_agendada_para_enviada_index` (`agendada_para`,`enviada`),
+  KEY `notificacoes_manifestacao_id_index` (`manifestacao_id`),
+  CONSTRAINT `notificacoes_manifestacao_id_foreign` FOREIGN KEY (`manifestacao_id`) REFERENCES `ouvidoria_manifestacoes` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `notificacoes`
+--
+
+/*!40000 ALTER TABLE `notificacoes` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `notificacoes` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `ouvidores`
+--
+
+DROP TABLE IF EXISTS `ouvidores`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ouvidores` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `nome` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `cpf` varchar(14) NOT NULL,
+  `cargo` varchar(255) NOT NULL,
+  `setor` varchar(255) NOT NULL,
+  `tipo` enum('ouvidor_geral','ouvidor_setorial','responsavel_esic','equipe_ouvidoria') NOT NULL,
+  `pode_gerenciar_esic` tinyint(1) NOT NULL DEFAULT 0,
+  `pode_gerenciar_ouvidoria` tinyint(1) NOT NULL DEFAULT 0,
+  `pode_visualizar_relatorios` tinyint(1) NOT NULL DEFAULT 1,
+  `pode_responder_manifestacoes` tinyint(1) NOT NULL DEFAULT 1,
+  `telefone` varchar(20) DEFAULT NULL,
+  `ramal` varchar(10) DEFAULT NULL,
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `data_inicio` date NOT NULL,
+  `data_fim` date DEFAULT NULL,
+  `recebe_notificacao_email` tinyint(1) NOT NULL DEFAULT 1,
+  `recebe_notificacao_sistema` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ouvidores_email_unique` (`email`),
+  UNIQUE KEY `ouvidores_cpf_unique` (`cpf`),
+  KEY `ouvidores_user_id_foreign` (`user_id`),
+  KEY `ouvidores_tipo_ativo_index` (`tipo`,`ativo`),
+  KEY `ouvidores_email_ativo_index` (`email`,`ativo`),
+  CONSTRAINT `ouvidores_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ouvidores`
+--
+
+/*!40000 ALTER TABLE `ouvidores` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `ouvidores` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `ouvidoria_manifestacoes`
+--
+
+DROP TABLE IF EXISTS `ouvidoria_manifestacoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ouvidoria_manifestacoes` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `protocolo` varchar(20) NOT NULL,
+  `esic_usuario_id` bigint(20) unsigned DEFAULT NULL,
+  `ouvidor_responsavel_id` bigint(20) unsigned DEFAULT NULL,
+  `tipo` enum('solicitacao_informacao','reclamacao','sugestao','elogio','denuncia','ouvidoria_geral') NOT NULL,
+  `nome_manifestante` varchar(255) DEFAULT NULL,
+  `email_manifestante` varchar(255) DEFAULT NULL,
+  `telefone_manifestante` varchar(255) DEFAULT NULL,
+  `manifestacao_anonima` tinyint(1) NOT NULL DEFAULT 0,
+  `assunto` varchar(255) NOT NULL,
+  `descricao` text NOT NULL,
+  `orgao_destinatario` varchar(255) DEFAULT NULL,
+  `setor_destinatario` varchar(255) DEFAULT NULL,
+  `categoria_esic` enum('acesso_informacao','dados_pessoais','transparencia_ativa','transparencia_passiva','outros') DEFAULT NULL,
+  `status` enum('nova','em_analise','em_tramitacao','aguardando_informacoes','respondida','finalizada','arquivada') NOT NULL DEFAULT 'nova',
+  `prazo_resposta` date NOT NULL,
+  `prazo_prorrogado` date DEFAULT NULL,
+  `justificativa_prorrogacao` text DEFAULT NULL,
+  `resposta` text DEFAULT NULL,
+  `respondida_em` timestamp NULL DEFAULT NULL,
+  `respondida_por` bigint(20) unsigned DEFAULT NULL,
+  `avaliacao_atendimento` int(11) DEFAULT NULL,
+  `comentario_avaliacao` text DEFAULT NULL,
+  `avaliada_em` timestamp NULL DEFAULT NULL,
+  `prioridade` enum('baixa','media','alta','urgente') NOT NULL DEFAULT 'media',
+  `requer_resposta` tinyint(1) NOT NULL DEFAULT 1,
+  `informacao_sigilosa` tinyint(1) NOT NULL DEFAULT 0,
+  `observacoes_internas` text DEFAULT NULL,
+  `ip_origem` varchar(45) DEFAULT NULL,
+  `user_agent` varchar(255) DEFAULT NULL,
+  `historico_status` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`historico_status`)),
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ouvidoria_manifestacoes_protocolo_unique` (`protocolo`),
+  KEY `ouvidoria_manifestacoes_ouvidor_responsavel_id_foreign` (`ouvidor_responsavel_id`),
+  KEY `ouvidoria_manifestacoes_respondida_por_foreign` (`respondida_por`),
+  KEY `ouvidoria_manifestacoes_protocolo_index` (`protocolo`),
+  KEY `ouvidoria_manifestacoes_tipo_status_index` (`tipo`,`status`),
+  KEY `ouvidoria_manifestacoes_status_prazo_resposta_index` (`status`,`prazo_resposta`),
+  KEY `ouvidoria_manifestacoes_esic_usuario_id_status_index` (`esic_usuario_id`,`status`),
+  KEY `ouvidoria_manifestacoes_created_at_tipo_index` (`created_at`,`tipo`),
+  CONSTRAINT `ouvidoria_manifestacoes_esic_usuario_id_foreign` FOREIGN KEY (`esic_usuario_id`) REFERENCES `esic_usuarios` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `ouvidoria_manifestacoes_ouvidor_responsavel_id_foreign` FOREIGN KEY (`ouvidor_responsavel_id`) REFERENCES `ouvidores` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `ouvidoria_manifestacoes_respondida_por_foreign` FOREIGN KEY (`respondida_por`) REFERENCES `ouvidores` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ouvidoria_manifestacoes`
+--
+
+/*!40000 ALTER TABLE `ouvidoria_manifestacoes` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `ouvidoria_manifestacoes` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `ouvidoria_movimentacoes`
+--
+
+DROP TABLE IF EXISTS `ouvidoria_movimentacoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ouvidoria_movimentacoes` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `ouvidoria_manifestacao_id` bigint(20) unsigned NOT NULL,
+  `usuario_id` bigint(20) unsigned DEFAULT NULL,
+  `status` enum('aberta','em_analise','aguardando_informacoes','em_apuracao','respondida','procedente','improcedente','parcialmente_procedente','finalizada','arquivada') NOT NULL,
+  `descricao` text NOT NULL,
+  `anexos` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`anexos`)),
+  `data_movimentacao` datetime NOT NULL,
+  `ip_usuario` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ouvidoria_movimentacoes_usuario_id_foreign` (`usuario_id`),
+  KEY `idx_ouv_mov_manifest_data` (`ouvidoria_manifestacao_id`,`data_movimentacao`),
+  KEY `idx_ouv_mov_status` (`status`),
+  CONSTRAINT `ouvidoria_movimentacoes_ouvidoria_manifestacao_id_foreign` FOREIGN KEY (`ouvidoria_manifestacao_id`) REFERENCES `ouvidoria_manifestacoes` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `ouvidoria_movimentacoes_usuario_id_foreign` FOREIGN KEY (`usuario_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ouvidoria_movimentacoes`
+--
+
+/*!40000 ALTER TABLE `ouvidoria_movimentacoes` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `ouvidoria_movimentacoes` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `paginas_conteudo`
+--
+
+DROP TABLE IF EXISTS `paginas_conteudo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `paginas_conteudo` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `slug` varchar(255) NOT NULL,
+  `titulo` varchar(255) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `conteudo` longtext NOT NULL,
+  `configuracoes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`configuracoes`)),
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `ordem` int(11) NOT NULL DEFAULT 0,
+  `template` varchar(255) NOT NULL DEFAULT 'default',
+  `seo` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`seo`)),
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `paginas_conteudo_slug_unique` (`slug`),
+  KEY `paginas_conteudo_slug_index` (`slug`),
+  KEY `paginas_conteudo_ativo_index` (`ativo`),
+  KEY `paginas_conteudo_ordem_index` (`ordem`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `paginas_conteudo`
+--
+
+/*!40000 ALTER TABLE `paginas_conteudo` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `paginas_conteudo` VALUES
+(1,'historia','História da Câmara Municipal','Conheça a trajetória e evolução da nossa Câmara Municipal ao longo dos anos.','<div class=\"historia-content\">\n                    <h2>Nossa História</h2>\n                    <p>A Câmara Municipal tem uma rica história de representação democrática e serviço à comunidade. Desde sua fundação, tem sido o centro das decisões legislativas que moldam o desenvolvimento de nossa cidade.</p>\n                    \n                    <h3>Fundação e Primeiros Anos</h3>\n                    <p>Estabelecida com o objetivo de representar os interesses da população local, nossa Câmara Municipal iniciou suas atividades focada na criação de leis que promovessem o bem-estar social e o desenvolvimento econômico sustentável.</p>\n                    \n                    <h3>Marcos Importantes</h3>\n                    <ul>\n                        <li>Criação das primeiras leis municipais</li>\n                        <li>Implementação de políticas públicas inovadoras</li>\n                        <li>Modernização dos processos legislativos</li>\n                        <li>Digitalização e transparência dos dados públicos</li>\n                    </ul>\n                    \n                    <h3>Evolução Institucional</h3>\n                    <p>Ao longo dos anos, a Câmara Municipal evoluiu constantemente, adaptando-se às necessidades da população e incorporando novas tecnologias para melhor servir aos cidadãos.</p>\n                </div>',NULL,1,1,'default','{\"title\":\"Hist\\u00f3ria da C\\u00e2mara Municipal - Conhe\\u00e7a Nossa Trajet\\u00f3ria\",\"description\":\"Descubra a rica hist\\u00f3ria da C\\u00e2mara Municipal, seus marcos importantes e evolu\\u00e7\\u00e3o institucional ao longo dos anos.\",\"keywords\":\"hist\\u00f3ria, c\\u00e2mara municipal, trajet\\u00f3ria, evolu\\u00e7\\u00e3o, marcos hist\\u00f3ricos\"}','2025-09-26 07:52:04','2025-09-26 07:52:04',NULL),
+(2,'estrutura','Estrutura Organizacional','Conheça a organização institucional e a estrutura administrativa da Câmara Municipal.','<div class=\"estrutura-content\">\n                    <h2>Estrutura Organizacional</h2>\n                    <p>A Câmara Municipal está organizada de forma a garantir eficiência, transparência e representatividade em todas as suas atividades legislativas e administrativas.</p>\n                    \n                    <h3>Mesa Diretora</h3>\n                    <p>Responsável pela direção dos trabalhos legislativos e pela administração da Câmara Municipal.</p>\n                    <ul>\n                        <li>Presidente da Câmara</li>\n                        <li>Vice-Presidente</li>\n                        <li>1º Secretário</li>\n                        <li>2º Secretário</li>\n                    </ul>\n                    \n                    <h3>Comissões Permanentes</h3>\n                    <p>Órgãos técnicos especializados que analisam as matérias de sua competência:</p>\n                    <ul>\n                        <li>Comissão de Constituição, Justiça e Redação</li>\n                        <li>Comissão de Finanças e Orçamento</li>\n                        <li>Comissão de Obras, Serviços Públicos e Meio Ambiente</li>\n                        <li>Comissão de Educação, Cultura e Assistência Social</li>\n                    </ul>\n                    \n                    <h3>Estrutura Administrativa</h3>\n                    <p>Setor responsável pelo apoio técnico e administrativo às atividades legislativas:</p>\n                    <ul>\n                        <li>Secretaria Geral</li>\n                        <li>Departamento Legislativo</li>\n                        <li>Departamento Administrativo</li>\n                        <li>Assessoria Jurídica</li>\n                        <li>Departamento de Comunicação</li>\n                    </ul>\n                </div>',NULL,1,2,'default','{\"title\":\"Estrutura Organizacional - C\\u00e2mara Municipal\",\"description\":\"Conhe\\u00e7a a organiza\\u00e7\\u00e3o institucional, mesa diretora, comiss\\u00f5es e estrutura administrativa da C\\u00e2mara Municipal.\",\"keywords\":\"estrutura, organiza\\u00e7\\u00e3o, mesa diretora, comiss\\u00f5es, administra\\u00e7\\u00e3o\"}','2025-09-26 07:52:04','2025-09-26 07:52:04',NULL),
+(3,'regimento','Regimento Interno','Consulte as normas internas que regem o funcionamento da Câmara Municipal.','<div class=\"regimento-content\">\n                    <h2>Regimento Interno</h2>\n                    <p>O Regimento Interno estabelece as normas e procedimentos que regem o funcionamento da Câmara Municipal, garantindo ordem, transparência e eficiência nos trabalhos legislativos.</p>\n                    \n                    <h3>Disposições Gerais</h3>\n                    <p>O Regimento Interno da Câmara Municipal disciplina a organização, a direção dos trabalhos, a ordem dos debates e o processo de votação, bem como a polícia interna da Casa.</p>\n                    \n                    <h3>Principais Capítulos</h3>\n                    <ul>\n                        <li><strong>Capítulo I:</strong> Da Câmara Municipal e suas atribuições</li>\n                        <li><strong>Capítulo II:</strong> Da Mesa Diretora</li>\n                        <li><strong>Capítulo III:</strong> Das Comissões</li>\n                        <li><strong>Capítulo IV:</strong> Das Sessões</li>\n                        <li><strong>Capítulo V:</strong> Dos Projetos e Proposições</li>\n                        <li><strong>Capítulo VI:</strong> Da Votação</li>\n                        <li><strong>Capítulo VII:</strong> Da Disciplina e Polícia Interna</li>\n                    </ul>\n                    \n                    <h3>Sessões Ordinárias</h3>\n                    <p>As sessões ordinárias realizam-se conforme calendário estabelecido, seguindo a seguinte ordem:</p>\n                    <ol>\n                        <li>Abertura da sessão</li>\n                        <li>Verificação de presença</li>\n                        <li>Leitura da ata da sessão anterior</li>\n                        <li>Expediente</li>\n                        <li>Ordem do dia</li>\n                        <li>Explicações pessoais</li>\n                        <li>Encerramento</li>\n                    </ol>\n                    \n                    <h3>Acesso ao Regimento Completo</h3>\n                    <p>O texto completo do Regimento Interno está disponível para consulta pública e pode ser acessado através da Secretaria da Câmara ou solicitado via Lei de Acesso à Informação.</p>\n                </div>',NULL,1,3,'default','{\"title\":\"Regimento Interno - Normas da C\\u00e2mara Municipal\",\"description\":\"Consulte o regimento interno com as normas e procedimentos que regem o funcionamento da C\\u00e2mara Municipal.\",\"keywords\":\"regimento interno, normas, procedimentos, funcionamento, legislativo\"}','2025-09-26 07:52:04','2025-09-26 07:52:04',NULL),
+(4,'missao','Missão, Visão e Valores','Conheça os princípios fundamentais que orientam as ações da Câmara Municipal.','<div class=\"missao-content\">\n                    <h2>Nossos Princípios Institucionais</h2>\n                    <p>A Câmara Municipal pauta suas ações em princípios sólidos que garantem uma atuação ética, transparente e comprometida com o bem-estar da população.</p>\n                    \n                    <div class=\"principio-box missao-box\">\n                        <h3>🎯 Nossa Missão</h3>\n                        <p>Exercer com excelência a função legislativa municipal, representando os interesses da população através da elaboração de leis justas e eficazes, fiscalizando o Poder Executivo e promovendo o desenvolvimento sustentável e a qualidade de vida dos cidadãos.</p>\n                    </div>\n                    \n                    <div class=\"principio-box visao-box\">\n                        <h3>🔭 Nossa Visão</h3>\n                        <p>Ser reconhecida como uma instituição legislativa moderna, transparente e eficiente, referência em participação democrática e inovação nos processos legislativos, contribuindo para o desenvolvimento de uma cidade próspera, justa e sustentável.</p>\n                    </div>\n                    \n                    <div class=\"principio-box valores-box\">\n                        <h3>⭐ Nossos Valores</h3>\n                        <ul>\n                            <li><strong>Transparência:</strong> Atuamos com clareza e abertura em todos os processos</li>\n                            <li><strong>Ética:</strong> Pautamos nossas ações pela integridade e honestidade</li>\n                            <li><strong>Responsabilidade:</strong> Assumimos o compromisso com o bem público</li>\n                            <li><strong>Participação:</strong> Valorizamos o envolvimento da sociedade nas decisões</li>\n                            <li><strong>Inovação:</strong> Buscamos constantemente melhorar nossos processos</li>\n                            <li><strong>Respeito:</strong> Tratamos todos com dignidade e consideração</li>\n                            <li><strong>Eficiência:</strong> Otimizamos recursos para maximizar resultados</li>\n                            <li><strong>Sustentabilidade:</strong> Promovemos o desenvolvimento responsável</li>\n                        </ul>\n                    </div>\n                    \n                    <h3>Compromisso com a Sociedade</h3>\n                    <p>Estes princípios orientam todas as nossas ações e decisões, garantindo que a Câmara Municipal cumpra seu papel constitucional de forma exemplar, sempre priorizando o interesse público e o bem-estar da comunidade.</p>\n                </div>',NULL,1,4,'default','{\"title\":\"Miss\\u00e3o, Vis\\u00e3o e Valores - C\\u00e2mara Municipal\",\"description\":\"Conhe\\u00e7a a miss\\u00e3o, vis\\u00e3o e valores que orientam as a\\u00e7\\u00f5es da C\\u00e2mara Municipal em prol da sociedade.\",\"keywords\":\"miss\\u00e3o, vis\\u00e3o, valores, princ\\u00edpios, \\u00e9tica, transpar\\u00eancia\"}','2025-09-26 07:52:04','2025-09-26 07:52:04',NULL);
+/*!40000 ALTER TABLE `paginas_conteudo` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `password_reset_tokens`
+--
+
+DROP TABLE IF EXISTS `password_reset_tokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `password_reset_tokens` (
+  `email` varchar(255) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `password_reset_tokens`
+--
+
+/*!40000 ALTER TABLE `password_reset_tokens` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `password_reset_tokens` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `permissions`
+--
+
+DROP TABLE IF EXISTS `permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `permissions` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `guard_name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `permissions_name_guard_name_unique` (`name`,`guard_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `permissions`
+--
+
+/*!40000 ALTER TABLE `permissions` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `permissions` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `projeto_lei_coautor`
+--
+
+DROP TABLE IF EXISTS `projeto_lei_coautor`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `projeto_lei_coautor` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `projeto_lei_id` bigint(20) unsigned NOT NULL,
+  `vereador_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `projeto_lei_coautor_projeto_lei_id_vereador_id_unique` (`projeto_lei_id`,`vereador_id`),
+  KEY `projeto_lei_coautor_vereador_id_foreign` (`vereador_id`),
+  CONSTRAINT `projeto_lei_coautor_projeto_lei_id_foreign` FOREIGN KEY (`projeto_lei_id`) REFERENCES `projetos_lei` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `projeto_lei_coautor_vereador_id_foreign` FOREIGN KEY (`vereador_id`) REFERENCES `vereadores` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `projeto_lei_coautor`
+--
+
+/*!40000 ALTER TABLE `projeto_lei_coautor` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `projeto_lei_coautor` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `projetos_lei`
+--
+
+DROP TABLE IF EXISTS `projetos_lei`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `projetos_lei` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `numero` varchar(255) NOT NULL,
+  `ano` int(11) NOT NULL,
+  `tipo` enum('projeto_lei','projeto_resolucao','projeto_decreto','emenda','indicacao','mocao','requerimento') NOT NULL,
+  `titulo` varchar(255) NOT NULL,
+  `ementa` text NOT NULL,
+  `texto_integral` longtext NOT NULL,
+  `autor_id` bigint(20) unsigned NOT NULL,
+  `coautores` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`coautores`)),
+  `status` enum('protocolado','em_tramitacao','aprovado','rejeitado','arquivado','retirado') NOT NULL DEFAULT 'protocolado',
+  `data_protocolo` date NOT NULL,
+  `data_aprovacao` date DEFAULT NULL,
+  `comissao_atual` varchar(255) DEFAULT NULL,
+  `tramitacao` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`tramitacao`)),
+  `justificativa` text DEFAULT NULL,
+  `arquivo_original` varchar(255) DEFAULT NULL,
+  `arquivo_aprovado` varchar(255) DEFAULT NULL,
+  `votacoes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`votacoes`)),
+  `observacoes` text DEFAULT NULL,
+  `categoria` varchar(255) DEFAULT NULL,
+  `tags` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`tags`)),
+  `legislatura` int(11) NOT NULL,
+  `urgencia` tinyint(1) NOT NULL DEFAULT 0,
+  `parecer_juridico` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `projetos_lei_numero_projeto_ano_tipo_unique` (`numero`,`ano`,`tipo`),
+  KEY `projetos_lei_autor_id_foreign` (`autor_id`),
+  KEY `projetos_lei_status_legislatura_index` (`status`,`legislatura`),
+  KEY `projetos_lei_tipo_ano_index` (`tipo`,`ano`),
+  KEY `projetos_lei_categoria_index` (`categoria`),
+  CONSTRAINT `projetos_lei_autor_id_foreign` FOREIGN KEY (`autor_id`) REFERENCES `vereadores` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `projetos_lei`
+--
+
+/*!40000 ALTER TABLE `projetos_lei` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `projetos_lei` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `receitas`
+--
+
+DROP TABLE IF EXISTS `receitas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `receitas` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `codigo_receita` varchar(255) NOT NULL,
+  `descricao` varchar(255) NOT NULL,
+  `categoria` varchar(255) NOT NULL,
+  `subcategoria` varchar(255) DEFAULT NULL,
+  `fonte_recurso` varchar(255) DEFAULT NULL,
+  `valor_previsto` decimal(15,2) NOT NULL,
+  `valor_arrecadado` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `data_arrecadacao` date DEFAULT NULL,
+  `mes_referencia` int(11) NOT NULL,
+  `ano_referencia` int(11) NOT NULL,
+  `observacoes` text DEFAULT NULL,
+  `status` enum('previsto','arrecadado','cancelado') NOT NULL DEFAULT 'previsto',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `receitas_codigo_receita_unique` (`codigo_receita`),
+  KEY `receitas_ano_referencia_mes_referencia_index` (`ano_referencia`,`mes_referencia`),
+  KEY `receitas_categoria_index` (`categoria`),
+  KEY `receitas_status_index` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `receitas`
+--
+
+/*!40000 ALTER TABLE `receitas` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `receitas` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `role_has_permissions`
+--
+
+DROP TABLE IF EXISTS `role_has_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `role_has_permissions` (
+  `permission_id` bigint(20) unsigned NOT NULL,
+  `role_id` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`permission_id`,`role_id`),
+  KEY `role_has_permissions_role_id_foreign` (`role_id`),
+  CONSTRAINT `role_has_permissions_permission_id_foreign` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `role_has_permissions_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `role_has_permissions`
+--
+
+/*!40000 ALTER TABLE `role_has_permissions` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `role_has_permissions` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `roles`
+--
+
+DROP TABLE IF EXISTS `roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `roles` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `guard_name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `roles_name_guard_name_unique` (`name`,`guard_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `roles`
+--
+
+/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `sessao_projeto_lei`
+--
+
+DROP TABLE IF EXISTS `sessao_projeto_lei`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sessao_projeto_lei` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `sessao_id` bigint(20) unsigned NOT NULL,
+  `projeto_lei_id` bigint(20) unsigned NOT NULL,
+  `ordem_pauta` int(11) DEFAULT NULL,
+  `resultado_votacao` varchar(255) DEFAULT NULL,
+  `observacoes` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sessao_projeto_lei_sessao_id_projeto_lei_id_unique` (`sessao_id`,`projeto_lei_id`),
+  KEY `sessao_projeto_lei_projeto_lei_id_foreign` (`projeto_lei_id`),
+  KEY `sessao_projeto_lei_ordem_pauta_index` (`ordem_pauta`),
+  CONSTRAINT `sessao_projeto_lei_projeto_lei_id_foreign` FOREIGN KEY (`projeto_lei_id`) REFERENCES `projetos_lei` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `sessao_projeto_lei_sessao_id_foreign` FOREIGN KEY (`sessao_id`) REFERENCES `sessoes` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sessao_projeto_lei`
+--
+
+/*!40000 ALTER TABLE `sessao_projeto_lei` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `sessao_projeto_lei` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `sessao_vereador`
+--
+
+DROP TABLE IF EXISTS `sessao_vereador`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sessao_vereador` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `sessao_id` bigint(20) unsigned NOT NULL,
+  `vereador_id` bigint(20) unsigned NOT NULL,
+  `presente` tinyint(1) NOT NULL DEFAULT 1,
+  `justificativa_ausencia` varchar(255) DEFAULT NULL,
+  `observacoes` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sessao_vereador_sessao_id_vereador_id_unique` (`sessao_id`,`vereador_id`),
+  KEY `sessao_vereador_vereador_id_foreign` (`vereador_id`),
+  KEY `sessao_vereador_presente_index` (`presente`),
+  CONSTRAINT `sessao_vereador_sessao_id_foreign` FOREIGN KEY (`sessao_id`) REFERENCES `sessoes` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `sessao_vereador_vereador_id_foreign` FOREIGN KEY (`vereador_id`) REFERENCES `vereadores` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sessao_vereador`
+--
+
+/*!40000 ALTER TABLE `sessao_vereador` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `sessao_vereador` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `sessions`
+--
+
+DROP TABLE IF EXISTS `sessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sessions` (
+  `id` varchar(255) NOT NULL,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `payload` longtext NOT NULL,
+  `last_activity` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `sessions_user_id_index` (`user_id`),
+  KEY `sessions_last_activity_index` (`last_activity`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sessions`
+--
+
+/*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `sessions` VALUES
+('2QZCV4JMHScpQTbHyRyzyyu9nR3vJw2sLTrWrcIP',11,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36','YTo1OntzOjY6Il90b2tlbiI7czo0MDoiTU83NFM2NmE4ZmY0Zmo4Z1dFME9JejBBYmVjWms1NmxLdmdEZXBuUiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NTI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9jYWxlbmRhcmlvL21pbmk/YW5vPTIwMjUmbWVzPTkiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjM6InVybCI7YTowOnt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTE7fQ==',1759000149),
+('5UrEKVx8VbN1MOGv0WiLrtu3sAzbc2ByF5L4kG5R',NULL,'204.76.203.211','Hello World/1.0','YTozOntzOjY6Il90b2tlbiI7czo0MDoiUXZtVHZXTkxQZ2lPVzRZaENjYmpqUk8yZlRQNktoV3BOa3oxTVVZMiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xODYuMTk0LjQ4LjIxOCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=',1759003440),
+('7pGucDNuvsPaLdGVIjNVeRjVPuWUQBavLlAh5mFb',NULL,'87.120.191.33','Hello World/1.0','YTozOntzOjY6Il90b2tlbiI7czo0MDoibUlveW5NdkhaeFR1TUoxYk5uU3JJUTdRbDN3V2JvMlhHV0t1M2J4ZyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xODYuMTk0LjQ4LjIxOCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=',1759000840),
+('Cr0ndE3cNLdJ6GKnMg9p7N8DcD3hhrXdj5kyhyqW',NULL,'37.60.141.156','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246','YTozOntzOjY6Il90b2tlbiI7czo0MDoiTUVxd2twUWIxTTUxQ09hMkNvYnV2VHJUOVNRaVU5U3h1cUE2YjhxMiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xODYuMTk0LjQ4LjIxOCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=',1759002724),
+('FCIZPJaNuL0fJZxNADaTKQQkP4TEUz37TGwROODA',NULL,'186.194.48.218','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Trae/1.100.3 Chrome/132.0.6834.210 Electron/34.5.1 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoicEk5RzdQRFlrMzNkZlM0a2lQMGpjRjRIQTB3T2JVOVdaRXl2TkQxayI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xODYuMTk0LjQ4LjIxOCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=',1759001675),
+('FPcjntmIGDuqCNmGUHSdTdvRnPlcQmSEaxTjZcrd',NULL,'37.60.141.156','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246','YTozOntzOjY6Il90b2tlbiI7czo0MDoiSFJIYnJBSGZzeVdMZHpFbnBtYjZxbG1WeXRjRjZaSlg0SGZHbXRSaSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xODYuMTk0LjQ4LjIxOCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=',1759003015),
+('gesu1bzKk32tXCeE5TM85SvP6nd7OvfJHhNTVpbT',11,'201.71.169.153','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiVnBlY25ZOE9SUVdzMnh1bzVuWFdKYjBOSUNsN2NvZTBuSEpLVnR2eiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly9saWRlcmEuYXBwLmJyL2FkbWluL3ZlcmVhZG9yZXMiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxMTt9',1759003546),
+('L5rp7HrnltmWAzjdGtVs458YBYOThuE3njle5faw',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Trae/1.100.3 Chrome/132.0.6834.210 Electron/34.5.1 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoiYVJMRFIyYXVuSE1tNkY3WGExb3RCeXRabmNtZEVyN1plTzdRZHZNdSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6ODE6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9jYWxlbmRhcmlvL2V2ZW50by8zOT9pZGVfd2Vidmlld19yZXF1ZXN0X3RpbWU9MTc1ODk5OTY1MzM0MyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=',1759000061),
+('S9BDgsi5z4nIsoGp0uemrWu1s0GmNGJEfxI8yNsy',NULL,'147.185.132.67','Hello from Palo Alto Networks, find out more about our scans in https://docs-cortex.paloaltonetworks.com/r/1/Cortex-Xpanse/Scanning-activity','YTozOntzOjY6Il90b2tlbiI7czo0MDoiQ1J2TnVnWUs3d3ptZk10VWVUYWk1OXNYa0IzRnNFUmNaNmZuNEtMcyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xODYuMTk0LjQ4LjIxOCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=',1759002642),
+('W66qud7zEIVdvjcHDb6rVdygs4UocwU3glQe7KyT',NULL,'186.194.48.218','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Trae/1.100.3 Chrome/132.0.6834.210 Electron/34.5.1 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoibGZrd2ZYVUg1YThJT0pybVVZOEE3Y1JTOWxmNGNqbnowaUVUeTZtSiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NTI6Imh0dHA6Ly8xODYuMTk0LjQ4LjIxOC9jYWxlbmRhcmlvL21pbmk/YW5vPTIwMjUmbWVzPTkiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1759000484),
+('WWhUauVrUCKP0pzZIfr1eizgHiXyjSVK2L9ophgi',NULL,'15.235.91.173','Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:54.0) Gecko/20100101 Firefox/54.0','YTozOntzOjY6Il90b2tlbiI7czo0MDoienpaalNVd1JrY3lsZzY5cWFVN1pvc3lGTTVxTGYzQm9LR295ZDFWOCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xODYuMTk0LjQ4LjIxOCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=',1759002745),
+('xJWaklV2YcuoaS16vivjo1eP8yLrBjZGcjszxwYT',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Trae/1.100.3 Chrome/132.0.6834.210 Electron/34.5.1 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoieExpRnZEbVBtNXo2QTJ6dEdYRGdjM1d4U1hyYXYxYjcweG5pdUUxWiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NTI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9jYWxlbmRhcmlvL21pbmk/YW5vPTIwMjUmbWVzPTkiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1759003322),
+('xrMTlDs14oFCaku8fmH5vRSVevzWz7CQxS4EkGpK',NULL,'54.160.215.21','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoiSTFQbVh2RG5xblBsRTZTVHR1bXBKTHVyQXZtQnFvRklzSENRdXY3NSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xODYuMTk0LjQ4LjIxOCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=',1759001345),
+('ywxqvX5tuuQnTJHjuz85XCaQ5uUxRCMdBKMfEj2d',NULL,'37.60.141.156','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246','YTozOntzOjY6Il90b2tlbiI7czo0MDoiclV2emJ5ODJPUGw1a0xZaHRNQkJtSGVBUmR1V3ZqSW5zQ3BxYm5YeiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xODYuMTk0LjQ4LjIxOCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=',1759002379),
+('YyD6u8jl6nvZkBIsRuw16fRn2rraKfjG9spnr1W8',NULL,'37.60.141.156','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246','YTozOntzOjY6Il90b2tlbiI7czo0MDoidklCZjNZRWVlOTdFN2swUW5mSmUybzVLMjkwVFQ2c3BmdXl4bnp5TyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xODYuMTk0LjQ4LjIxOCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=',1759002760);
+/*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `sessoes`
+--
+
+DROP TABLE IF EXISTS `sessoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sessoes` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `numero_sessao` varchar(255) NOT NULL,
+  `tipo` enum('ordinaria','extraordinaria','solene','especial') NOT NULL,
+  `tipo_sessao_id` bigint(20) unsigned DEFAULT NULL,
+  `data_sessao` date NOT NULL,
+  `hora_inicio` time NOT NULL,
+  `hora_fim` time DEFAULT NULL,
+  `status` enum('agendada','em_andamento','finalizada','cancelada') NOT NULL DEFAULT 'agendada',
+  `pauta` text DEFAULT NULL,
+  `ata` longtext DEFAULT NULL,
+  `local` varchar(255) NOT NULL DEFAULT 'Plenário da Câmara Municipal',
+  `presencas` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`presencas`)),
+  `votacoes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`votacoes`)),
+  `arquivo_ata` varchar(255) DEFAULT NULL,
+  `arquivo_audio` varchar(255) DEFAULT NULL,
+  `arquivo_video` varchar(255) DEFAULT NULL,
+  `observacoes` text DEFAULT NULL,
+  `legislatura` int(11) NOT NULL,
+  `transmissao_online` tinyint(1) NOT NULL DEFAULT 0,
+  `link_transmissao` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `video_url` text DEFAULT NULL COMMENT 'URL do vídeo gravado (YouTube, Vimeo, Facebook)',
+  `plataforma_video` enum('youtube','vimeo','facebook','outro') DEFAULT NULL COMMENT 'Plataforma do vídeo',
+  `thumbnail_url` text DEFAULT NULL COMMENT 'URL da thumbnail do vídeo',
+  `duracao_video` int(11) DEFAULT NULL COMMENT 'Duração do vídeo em segundos',
+  `descricao_video` text DEFAULT NULL COMMENT 'Descrição do vídeo gravado',
+  `video_disponivel` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Se o vídeo está disponível para visualização',
+  `data_gravacao` timestamp NULL DEFAULT NULL COMMENT 'Data e hora da gravação',
+  `presidente_id` bigint(20) unsigned DEFAULT NULL,
+  `secretario_id` bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sessoes_numero_sessao_legislatura_unique` (`numero_sessao`,`legislatura`),
+  KEY `sessoes_data_sessao_tipo_index` (`data_sessao`,`tipo`),
+  KEY `sessoes_status_legislatura_index` (`status`,`legislatura`),
+  KEY `sessoes_presidente_id_foreign` (`presidente_id`),
+  KEY `sessoes_secretario_id_foreign` (`secretario_id`),
+  KEY `sessoes_tipo_sessao_id_index` (`tipo_sessao_id`),
+  CONSTRAINT `sessoes_presidente_id_foreign` FOREIGN KEY (`presidente_id`) REFERENCES `vereadores` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `sessoes_secretario_id_foreign` FOREIGN KEY (`secretario_id`) REFERENCES `vereadores` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `sessoes_tipo_sessao_id_foreign` FOREIGN KEY (`tipo_sessao_id`) REFERENCES `tipo_sessaos` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sessoes`
+--
+
+/*!40000 ALTER TABLE `sessoes` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `sessoes` VALUES
+(1,'001/2024','ordinaria',1,'2024-02-05','19:00:00','21:30:00','finalizada',NULL,NULL,'Plenário da Câmara Municipal',NULL,NULL,NULL,NULL,NULL,'Primeira sessão do ano legislativo de 2024',2024,0,NULL,'2025-09-26 08:29:43','2025-09-26 08:29:43',NULL,'https://www.youtube.com/watch?v=example1','youtube','https://img.youtube.com/vi/example1/maxresdefault.jpg',NULL,'1ª Sessão Ordinária de 2024 - Câmara Municipal',1,'2024-02-05 19:00:00',NULL,NULL),
+(2,'002/2024','ordinaria',1,'2024-02-19','19:00:00','20:45:00','finalizada',NULL,NULL,'Plenário da Câmara Municipal',NULL,NULL,NULL,NULL,NULL,'Discussão de projetos de lei municipais',2024,0,NULL,'2025-09-26 08:29:43','2025-09-26 08:29:43',NULL,'https://www.youtube.com/watch?v=example2','youtube','https://img.youtube.com/vi/example2/maxresdefault.jpg',NULL,'2ª Sessão Ordinária de 2024 - Câmara Municipal',1,'2024-02-19 19:00:00',NULL,NULL),
+(3,'003/2024','extraordinaria',2,'2024-03-01','14:00:00','16:30:00','finalizada',NULL,NULL,'Plenário da Câmara Municipal',NULL,NULL,NULL,NULL,NULL,'Sessão especial para aprovação do orçamento',2024,0,NULL,'2025-09-26 08:29:43','2025-09-26 08:29:43',NULL,'https://www.youtube.com/watch?v=example3','youtube','https://img.youtube.com/vi/example3/maxresdefault.jpg',NULL,'Sessão Extraordinária - Orçamento Municipal 2024',1,'2024-03-01 14:00:00',NULL,NULL),
+(4,'004/2024','ordinaria',1,'2024-03-18','19:00:00','21:15:00','finalizada',NULL,NULL,'Plenário da Câmara Municipal',NULL,NULL,NULL,NULL,NULL,'Votação de projetos em segunda discussão',2024,0,NULL,'2025-09-26 08:29:43','2025-09-26 08:29:43',NULL,'https://www.youtube.com/watch?v=example4','youtube','https://img.youtube.com/vi/example4/maxresdefault.jpg',NULL,'4ª Sessão Ordinária de 2024 - Câmara Municipal',1,'2024-03-18 19:00:00',NULL,NULL),
+(5,'005/2024','solene',3,'2024-04-22','10:00:00','12:00:00','finalizada',NULL,NULL,'Plenário da Câmara Municipal',NULL,NULL,NULL,NULL,NULL,'Sessão comemorativa ao Dia do Descobrimento do Brasil',2024,0,NULL,'2025-09-26 08:29:44','2025-09-27 13:17:06',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL),
+(6,'006/2024','ordinaria',1,'2024-05-06','19:00:00','20:30:00','finalizada',NULL,NULL,'Plenário da Câmara Municipal',NULL,NULL,NULL,NULL,NULL,'Discussão sobre obras públicas municipais',2024,0,NULL,'2025-09-26 08:29:44','2025-09-27 13:17:06',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL),
+(7,'007/2024','ordinaria',1,'2024-05-20','19:00:00','21:45:00','finalizada',NULL,NULL,'Plenário da Câmara Municipal',NULL,NULL,NULL,NULL,NULL,'Prestação de contas do primeiro quadrimestre',2024,0,NULL,'2025-09-26 08:29:44','2025-09-27 13:17:06',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL),
+(8,'008/2024','extraordinaria',2,'2024-06-10','15:00:00','17:20:00','finalizada',NULL,NULL,'Plenário da Câmara Municipal',NULL,NULL,NULL,NULL,NULL,'Discussão e votação do novo Plano Diretor',2024,0,NULL,'2025-09-26 08:29:44','2025-09-27 13:17:06',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL);
+/*!40000 ALTER TABLE `sessoes` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `slides`
+--
+
+DROP TABLE IF EXISTS `slides`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `slides` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `titulo` varchar(255) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `imagem` varchar(255) NOT NULL,
+  `link` varchar(255) DEFAULT NULL,
+  `nova_aba` tinyint(1) NOT NULL DEFAULT 0,
+  `ordem` int(11) NOT NULL DEFAULT 0,
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `velocidade` int(11) NOT NULL DEFAULT 5000,
+  `transicao` varchar(255) NOT NULL DEFAULT 'fade',
+  `direcao` varchar(255) NOT NULL DEFAULT 'left',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `slides`
+--
+
+/*!40000 ALTER TABLE `slides` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `slides` VALUES
+(1,'Transparência e Participação','Acompanhe as atividades da Câmara Municipal e participe das decisões que afetam nossa cidade.','https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=400&fit=crop&crop=center','https://camara.lidera.srv.br/transparencia',0,1,1,5,'slide','ltr','2025-09-26 07:52:24','2025-09-26 07:52:24'),
+(2,'Conheça Nossos Vereadores','Representantes eleitos trabalhando pelo desenvolvimento e bem-estar da população.','https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=800&h=400&fit=crop&crop=center','https://camara.lidera.srv.br/vereadores',0,2,1,4,'slide','ltr','2025-09-26 07:52:24','2025-09-26 07:52:24'),
+(3,'Sessões da Câmara','Assista às sessões ao vivo e acompanhe as discussões sobre projetos de lei e políticas públicas.','https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=400&fit=crop&crop=center','https://camara.lidera.srv.br/sessoes',0,3,1,6,'fade','ltr','2025-09-26 07:52:24','2025-09-26 07:52:24'),
+(4,'Portal da Transparência','Acesse informações sobre gastos públicos, contratos e prestação de contas da administração.','https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=400&fit=crop&crop=center','#',1,4,1,5,'slide','ltr','2025-09-26 07:52:24','2025-09-26 07:52:24'),
+(5,'Ouvidoria Municipal','Canal direto para sugestões, reclamações e elogios. Sua voz é importante para nós.','https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&h=400&fit=crop&crop=center','https://camara.lidera.srv.br/ouvidoria',0,5,1,4,'slide','ltr','2025-09-26 07:52:24','2025-09-26 07:52:24');
+/*!40000 ALTER TABLE `slides` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `tipo_contratos`
+--
+
+DROP TABLE IF EXISTS `tipo_contratos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tipo_contratos` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tipo_contratos`
+--
+
+/*!40000 ALTER TABLE `tipo_contratos` DISABLE KEYS */;
+set autocommit=0;
+/*!40000 ALTER TABLE `tipo_contratos` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `tipo_sessaos`
+--
+
+DROP TABLE IF EXISTS `tipo_sessaos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tipo_sessaos` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `nome` varchar(100) NOT NULL,
+  `slug` varchar(100) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `cor` varchar(7) NOT NULL DEFAULT '#007bff',
+  `icone` varchar(50) NOT NULL DEFAULT 'fas fa-gavel',
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `ordem` int(11) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `tipo_sessaos_nome_unique` (`nome`),
+  UNIQUE KEY `tipo_sessaos_slug_unique` (`slug`),
+  KEY `tipo_sessaos_ativo_ordem_index` (`ativo`,`ordem`),
+  KEY `tipo_sessaos_slug_index` (`slug`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tipo_sessaos`
+--
+
+/*!40000 ALTER TABLE `tipo_sessaos` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `tipo_sessaos` VALUES
+(1,'Sessão Ordinária','sessao-ordinaria','Sessões regulares realizadas conforme calendário oficial da Câmara Municipal.','#3b82f6','fas fa-calendar-alt',1,1,'2025-09-26 07:52:14','2025-09-26 07:52:14',NULL),
+(2,'Sessão Extraordinária','sessao-extraordinaria','Sessões especiais convocadas para tratar de assuntos urgentes ou específicos.','#ef4444','fas fa-exclamation-triangle',1,2,'2025-09-26 07:52:14','2025-09-26 07:52:14',NULL),
+(3,'Sessão Solene','sessao-solene','Sessões cerimoniais para homenagens, outorga de títulos e eventos especiais.','#8b5cf6','fas fa-award',1,3,'2025-09-26 07:52:14','2025-09-26 07:52:14',NULL),
+(4,'Audiência Pública','audiencia-publica','Sessões abertas para participação e manifestação da população sobre temas específicos.','#10b981','fas fa-users',1,4,'2025-09-26 07:52:14','2025-09-26 07:52:14',NULL),
+(5,'Sessão Especial','sessao-especial','Sessões temáticas ou comemorativas sobre assuntos de interesse público.','#f59e0b','fas fa-star',1,5,'2025-09-26 07:52:14','2025-09-26 07:52:14',NULL);
+/*!40000 ALTER TABLE `tipo_sessaos` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `users` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(255) DEFAULT NULL,
+  `birth_date` date DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `last_login_at` timestamp NULL DEFAULT NULL,
+  `role` enum('admin','user') NOT NULL DEFAULT 'user',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `email_verification_token` varchar(255) DEFAULT NULL,
+  `terms_accepted_at` timestamp NULL DEFAULT NULL,
+  `privacy_accepted_at` timestamp NULL DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `remember_token` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_email_unique` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `users` VALUES
+(2,'João Silva Santos','secretario@camara.gov.br',NULL,NULL,NULL,NULL,'user',1,'2025-09-26 07:51:52',NULL,NULL,NULL,'$2y$12$r3YDo7A76uhjwurhzypK6uJVoJP6ZTwXBsRgTBuRIsfg7mWW3DcYS',NULL,'2025-09-26 07:12:31','2025-09-26 07:51:52'),
+(3,'Maria Oliveira Costa','editor@camara.gov.br',NULL,NULL,NULL,NULL,'user',1,'2025-09-26 07:51:53',NULL,NULL,NULL,'$2y$12$aNMhTd2FfMREIpaevs.Rj.ufiozjicgaoh/d.PNIcKc6NMtwzzS4W',NULL,'2025-09-26 07:12:32','2025-09-26 07:51:53'),
+(4,'Carlos Eduardo Pereira','carlos.pereira@camara.gov.br',NULL,NULL,NULL,NULL,'user',1,'2025-09-26 07:51:54',NULL,NULL,NULL,'$2y$12$0ib07maSdnrEzDm4IdRlru3WdlmAOSevXgd12noRJsU.eBJYQ0P8u',NULL,'2025-09-26 07:12:33','2025-09-26 07:51:54'),
+(5,'Ana Paula Rodrigues','ana.rodrigues@camara.gov.br',NULL,NULL,NULL,NULL,'user',1,'2025-09-26 07:51:54',NULL,NULL,NULL,'$2y$12$RPmXMQ2GfePbxlN7YGOly.8mhEsOcOcxqFqijPhHQOX6EpbNdb3NK',NULL,'2025-09-26 07:12:33','2025-09-26 07:51:55'),
+(6,'José da Silva','jose.silva@email.com',NULL,NULL,NULL,NULL,'user',1,'2025-09-26 07:51:55',NULL,NULL,NULL,'$2y$12$21cg74RenX9Rnbjs/bHklOXGCmMRqVsZCM7uOuRGNyQylSS1xYwq6',NULL,'2025-09-26 07:12:34','2025-09-26 07:51:56'),
+(7,'Pedro Santos Oliveira','pedro.santos@email.com',NULL,NULL,NULL,NULL,'user',1,'2025-09-26 07:51:56',NULL,NULL,NULL,'$2y$12$SNptL/uqFzqnP3BnTqIrV.ARqKIboeFbj4rNJgUNz0qZJACxJJ7Vi',NULL,'2025-09-26 07:12:35','2025-09-26 07:51:56'),
+(8,'Fernanda Lima Costa','esic@camara.gov.br',NULL,NULL,NULL,NULL,'user',1,'2025-09-26 07:51:57',NULL,NULL,NULL,'$2y$12$O.IpGVBEWC0ND9fo8cPkTe5emZigWfCZj9zTQk/pUsDog7.4EGwki',NULL,'2025-09-26 07:12:36','2025-09-26 07:51:57'),
+(11,'Administrador do Sistema','admin@camara.gov.br',NULL,NULL,NULL,NULL,'admin',1,'2025-09-26 07:51:51',NULL,NULL,NULL,'$2y$12$76PEXilbH1pjk5trWrb8J.Fefu9BrUGHqLrAEU3LOidlYXASFfwd.',NULL,'2025-09-26 07:20:44','2025-09-26 08:14:45');
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+commit;
+
+--
+-- Table structure for table `vereadores`
+--
+
+DROP TABLE IF EXISTS `vereadores`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `vereadores` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `nome_parlamentar` varchar(255) DEFAULT NULL,
+  `partido` varchar(20) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `telefone` varchar(255) DEFAULT NULL,
+  `biografia` text DEFAULT NULL,
+  `foto` varchar(255) DEFAULT NULL,
+  `data_nascimento` date DEFAULT NULL,
+  `profissao` varchar(255) DEFAULT NULL,
+  `status` enum('ativo','inativo','licenciado') NOT NULL DEFAULT 'ativo',
+  `inicio_mandato` date NOT NULL,
+  `fim_mandato` date NOT NULL,
+  `legislatura` int(11) NOT NULL,
+  `comissoes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`comissoes`)),
+  `presidente` tinyint(1) NOT NULL DEFAULT 0,
+  `vice_presidente` tinyint(1) NOT NULL DEFAULT 0,
+  `redes_sociais` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`redes_sociais`)),
+  `proposicoes` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `vereadores_email_unique` (`email`),
+  KEY `vereadores_status_legislatura_index` (`status`,`legislatura`),
+  KEY `vereadores_partido_index` (`partido`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `vereadores`
+--
+
+/*!40000 ALTER TABLE `vereadores` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `vereadores` VALUES
+(1,'Carlos Eduardo Pereira','Vereador Carlos Pereira','PSDB','carlos.pereira@camara.gov.br','11966666666','Formado em Administração Pública, Carlos Eduardo Pereira tem 15 anos de experiência em gestão municipal. Durante seu mandato, tem focado em projetos de educação, saúde pública e desenvolvimento urbano sustentável. Atualmente exerce a função de Presidente da Câmara Municipal.',NULL,NULL,NULL,'ativo','2021-01-01','2024-12-31',2021,'\"[\\\"presidente\\\",\\\"comissao-educacao\\\"]\"',0,0,'\"{\\\"facebook\\\":\\\"https:\\\\\\/\\\\\\/facebook.com\\\\\\/vereadorcarlospereira\\\",\\\"instagram\\\":\\\"@vereadorcarlospereira\\\",\\\"twitter\\\":\\\"@carlospereira_vr\\\"}\"','PL 001/2021 - Programa Municipal de Alfabetização Digital; PL 015/2022 - Criação de Centros de Saúde Comunitários; PL 028/2023 - Incentivo ao Transporte Sustentável','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(2,'Ana Paula Rodrigues','Vereadora Ana Paula','PT','ana.rodrigues@camara.gov.br','11955555555','Assistente Social com mestrado em Políticas Sociais, Ana Paula Rodrigues é uma defensora incansável dos direitos das mulheres e das políticas de inclusão social. Atua há 12 anos no terceiro setor.',NULL,NULL,NULL,'ativo','2021-01-01','2024-12-31',2021,'\"[\\\"comissao-direitos-humanos\\\",\\\"comissao-saude\\\"]\"',0,0,'\"{\\\"facebook\\\":\\\"https:\\\\\\/\\\\\\/facebook.com\\\\\\/vereadoraanapaula\\\",\\\"instagram\\\":\\\"@vereadoraanapaula\\\",\\\"linkedin\\\":\\\"ana-paula-rodrigues-vereadora\\\"}\"','PL 008/2021 - Casa de Apoio à Mulher Vítima de Violência; PL 022/2022 - Programa Municipal de Capacitação Profissional Feminina; PL 035/2023 - Creches Noturnas para Mães Trabalhadoras','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(3,'Roberto Silva Mendes','Vereador Roberto Mendes','MDB','roberto.mendes@camara.gov.br','11911111111','Empresário do setor de construção civil, Roberto Silva Mendes dedica-se às questões de infraestrutura urbana e desenvolvimento econômico do município.',NULL,NULL,NULL,'ativo','2021-01-01','2024-12-31',2021,'\"[\\\"comissao-obras\\\",\\\"comissao-financas\\\"]\"',0,0,'\"{\\\"facebook\\\":\\\"https:\\\\\\/\\\\\\/facebook.com\\\\\\/vereadorrobertomendes\\\",\\\"instagram\\\":\\\"@robertomendes_vereador\\\"}\"','PL 012/2021 - Modernização da Infraestrutura Viária; PL 025/2022 - Incentivos para Pequenas Empresas Locais; PL 031/2023 - Programa de Construção Sustentável','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(4,'Maria José Santos','Vereadora Maria José','PDT','maria.santos@camara.gov.br','11922222222','Professora aposentada com 30 anos de magistério, Maria José Santos é especialista em educação infantil e políticas educacionais. Dedica seu mandato à melhoria da qualidade do ensino público municipal.',NULL,NULL,NULL,'ativo','2021-01-01','2024-12-31',2021,'\"[\\\"comissao-educacao\\\",\\\"comissao-cultura\\\"]\"',0,0,'\"{\\\"facebook\\\":\\\"https:\\\\\\/\\\\\\/facebook.com\\\\\\/vereadoramariajose\\\",\\\"instagram\\\":\\\"@mariajose_vereadora\\\",\\\"youtube\\\":\\\"Vereadora Maria Jos\\\\u00e9 Santos\\\"}\"','PL 005/2021 - Ampliação do Ensino Integral; PL 018/2022 - Biblioteca Comunitária em Cada Bairro; PL 029/2023 - Programa de Alfabetização de Adultos','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(5,'João Batista Lima','Vereador João Batista','PP','joao.lima@camara.gov.br','11933333333','Agricultor familiar e líder comunitário, João Batista Lima representa os interesses da zona rural do município. Atua na defesa da agricultura sustentável e do desenvolvimento rural.',NULL,NULL,NULL,'ativo','2021-01-01','2024-12-31',2021,'\"[\\\"comissao-agricultura\\\",\\\"comissao-meio-ambiente\\\"]\"',0,0,'\"{\\\"facebook\\\":\\\"https:\\\\\\/\\\\\\/facebook.com\\\\\\/vereadorjoaobatista\\\",\\\"instagram\\\":\\\"@joaobatista_rural\\\",\\\"whatsapp\\\":\\\"11933333333\\\"}\"','PL 007/2021 - Incentivo à Agricultura Familiar; PL 020/2022 - Programa de Reflorestamento Municipal; PL 033/2023 - Centro de Comercialização de Produtos Rurais','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(6,'Fernanda Costa','Vereadora Fernanda','PSOL','fernanda.costa@camara.gov.br','11944444444','Advogada especializada em direitos humanos e ativista social. Fernanda Costa luta pelos direitos da juventude, LGBTQIA+ e pela transparência na gestão pública.',NULL,NULL,NULL,'ativo','2021-01-01','2024-12-31',2021,'\"[\\\"comissao-direitos-humanos\\\",\\\"comissao-juventude\\\"]\"',0,0,'\"{\\\"facebook\\\":\\\"https:\\\\\\/\\\\\\/facebook.com\\\\\\/vereadorafernanda\\\",\\\"instagram\\\":\\\"@fernanda_vereadora\\\",\\\"twitter\\\":\\\"@fernandacosta_vr\\\",\\\"tiktok\\\":\\\"@vereadorafernanda\\\"}\"','PL 010/2021 - Centro de Referência LGBTQIA+; PL 024/2022 - Programa Jovem Empreendedor; PL 037/2023 - Portal da Transparência Cidadã','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(7,'Antônio Carlos Oliveira','Vereador Antônio Carlos','PL','antonio.oliveira@camara.gov.br','11977777777','Ex-policial militar e especialista em segurança pública. Antônio Carlos Oliveira dedica seu mandato às questões de segurança urbana, trânsito e proteção civil.',NULL,NULL,NULL,'ativo','2021-01-01','2024-12-31',2021,'\"[\\\"comissao-seguranca\\\",\\\"comissao-transito\\\"]\"',0,0,'\"{\\\"facebook\\\":\\\"https:\\\\\\/\\\\\\/facebook.com\\\\\\/vereadorantoniocarlos\\\",\\\"instagram\\\":\\\"@antoniocarlos_seguranca\\\",\\\"linkedin\\\":\\\"antonio-carlos-oliveira-vereador\\\"}\"','PL 003/2021 - Ampliação do Sistema de Videomonitoramento; PL 016/2022 - Programa Ronda Escolar; PL 030/2023 - Central de Emergências Integrada','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(8,'Patrícia Almeida','Vereadora Patrícia','REPUBLICANOS','patricia.almeida@camara.gov.br','11988888888','Enfermeira com especialização em saúde pública. Patrícia Almeida atua na defesa da saúde municipal, com foco na atenção básica e na saúde da mulher e da criança.',NULL,NULL,NULL,'ativo','2021-01-01','2024-12-31',2021,'\"[\\\"comissao-saude\\\",\\\"comissao-assistencia-social\\\"]\"',0,0,'\"{\\\"facebook\\\":\\\"https:\\\\\\/\\\\\\/facebook.com\\\\\\/vereadorapatricia\\\",\\\"instagram\\\":\\\"@patricia_saude\\\",\\\"youtube\\\":\\\"Vereadora Patr\\\\u00edcia Almeida\\\"}\"','PL 006/2021 - Ampliação das UBS; PL 019/2022 - Programa Saúde da Mulher; PL 032/2023 - Centro de Especialidades Médicas','2025-09-26 07:51:57','2025-09-26 07:51:57'),
+(9,'Marcos Vinícius Silva','Vereador Marcos Vinícius','UNIÃO','marcos.silva@camara.gov.br','11999999999','Jovem empreendedor e especialista em tecnologia. Marcos Vinícius Silva trabalha pela modernização da gestão pública e pelo desenvolvimento da economia digital no município.',NULL,NULL,NULL,'ativo','2021-01-01','2024-12-31',2021,'\"[\\\"comissao-tecnologia\\\",\\\"comissao-desenvolvimento-economico\\\"]\"',0,0,'\"{\\\"facebook\\\":\\\"https:\\\\\\/\\\\\\/facebook.com\\\\\\/vereadormarcosvinicius\\\",\\\"instagram\\\":\\\"@marcosvinicius_tech\\\",\\\"twitter\\\":\\\"@marcosvinicius_vr\\\",\\\"linkedin\\\":\\\"marcos-vinicius-silva-vereador\\\",\\\"tiktok\\\":\\\"@vereadormarcos\\\"}\"','PL 004/2021 - Cidade Inteligente Digital; PL 017/2022 - Hub de Inovação Municipal; PL 034/2023 - Programa de Inclusão Digital para Idosos','2025-09-26 07:51:57','2025-09-26 07:51:57');
+/*!40000 ALTER TABLE `vereadores` ENABLE KEYS */;
+commit;
+
+--
+-- Dumping routines for database 'u700101648_wrcXd'
+--
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
+
+-- Dump completed on 2025-09-27 20:11:38

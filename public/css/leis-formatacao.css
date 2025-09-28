@@ -1,0 +1,365 @@
+/* ===================================
+   FORMATAÇÃO ESPECÍFICA PARA LEIS
+   Baseado na estrutura de leis brasileiras
+   =================================== */
+
+/* Estilos gerais para conteúdo de leis */
+.lei-conteudo {
+    font-family: 'Inter', 'Times New Roman', serif;
+    font-size: 16px;
+    line-height: 1.8;
+    color: #2c3e50;
+    text-align: justify;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* Artigos */
+.lei-conteudo .artigo,
+.artigo {
+    margin: 20px 0 15px 0;
+    font-weight: 600;
+    color: #1a365d;
+    text-indent: 0;
+    position: relative;
+}
+
+.lei-conteudo .artigo strong,
+.artigo strong {
+    color: #2b6cb0;
+    font-weight: 700;
+}
+
+/* Parágrafos */
+.lei-conteudo .paragrafo,
+.paragrafo {
+    margin: 12px 0 10px 30px;
+    font-weight: 500;
+    color: #2d3748;
+    position: relative;
+}
+
+.lei-conteudo .paragrafo strong,
+.paragrafo strong {
+    color: #3182ce;
+    font-weight: 600;
+}
+
+.lei-conteudo .paragrafo::before,
+.paragrafo::before {
+    content: "";
+    position: absolute;
+    left: -20px;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, #3182ce, transparent);
+    opacity: 0.3;
+}
+
+/* Incisos */
+.lei-conteudo .inciso,
+.inciso {
+    margin: 8px 0 6px 50px;
+    color: #4a5568;
+    position: relative;
+}
+
+.lei-conteudo .inciso strong,
+.inciso strong {
+    color: #2b6cb0;
+    font-weight: 600;
+}
+
+.lei-conteudo .inciso::before,
+.inciso::before {
+    content: "•";
+    position: absolute;
+    left: -15px;
+    top: 0;
+    color: #3182ce;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+/* Alíneas */
+.lei-conteudo .alinea,
+.alinea {
+    margin: 5px 0 4px 70px;
+    color: #718096;
+    position: relative;
+    font-size: 0.95em;
+}
+
+.lei-conteudo .alinea strong,
+.alinea strong {
+    color: #2b6cb0;
+    font-weight: 600;
+}
+
+.lei-conteudo .alinea::before,
+.alinea::before {
+    content: "◦";
+    position: absolute;
+    left: -12px;
+    top: 0;
+    color: #4299e1;
+    font-size: 1.1em;
+}
+
+/* Símbolos especiais */
+.simbolo-paragrafo {
+    font-weight: bold;
+    color: #2b6cb0;
+    font-size: 1.1em;
+}
+
+.simbolo-artigo {
+    font-weight: bold;
+    color: #1a365d;
+}
+
+/* Numeração romana */
+.numero-romano {
+    font-weight: 600;
+    color: #2b6cb0;
+    font-variant: small-caps;
+}
+
+/* Barra de ferramentas do editor */
+.lei-toolbar {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+.lei-toolbar .btn {
+    margin-right: 5px;
+    margin-bottom: 5px;
+    font-size: 0.875rem;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.lei-toolbar .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.lei-toolbar .btn-outline-primary {
+    border-color: #3182ce;
+    color: #3182ce;
+}
+
+.lei-toolbar .btn-outline-primary:hover {
+    background-color: #3182ce;
+    border-color: #3182ce;
+    color: white;
+}
+
+.lei-toolbar .btn-outline-secondary {
+    border-color: #718096;
+    color: #718096;
+}
+
+.lei-toolbar .btn-outline-secondary:hover {
+    background-color: #718096;
+    border-color: #718096;
+    color: white;
+}
+
+/* Estilos para o TinyMCE */
+.tox .tox-edit-area__iframe {
+    background-color: #ffffff !important;
+}
+
+.tox-tinymce {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+}
+
+.tox .tox-toolbar {
+    background: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.tox .tox-statusbar {
+    background: #f8fafc !important;
+    border-top: 1px solid #e2e8f0 !important;
+}
+
+/* Estilos para visualização pública */
+.lei-visualizacao {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin: 20px 0;
+}
+
+.lei-visualizacao .artigo {
+    border-left: 4px solid #3182ce;
+    padding-left: 15px;
+    background: rgba(49, 130, 206, 0.02);
+    border-radius: 0 8px 8px 0;
+    margin: 20px 0;
+}
+
+.lei-visualizacao .paragrafo {
+    border-left: 3px solid #4299e1;
+    padding-left: 12px;
+    background: rgba(66, 153, 225, 0.02);
+    border-radius: 0 6px 6px 0;
+}
+
+.lei-visualizacao .inciso {
+    border-left: 2px solid #63b3ed;
+    padding-left: 10px;
+    background: rgba(99, 179, 237, 0.02);
+    border-radius: 0 4px 4px 0;
+}
+
+.lei-visualizacao .alinea {
+    border-left: 1px solid #90cdf4;
+    padding-left: 8px;
+    background: rgba(144, 205, 244, 0.02);
+    border-radius: 0 3px 3px 0;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .lei-conteudo {
+        font-size: 14px;
+        line-height: 1.6;
+        padding: 0 10px;
+    }
+    
+    .lei-conteudo .paragrafo,
+    .paragrafo {
+        margin-left: 20px;
+    }
+    
+    .lei-conteudo .inciso,
+    .inciso {
+        margin-left: 35px;
+    }
+    
+    .lei-conteudo .alinea,
+    .alinea {
+        margin-left: 50px;
+    }
+    
+    .lei-toolbar {
+        padding: 8px;
+    }
+    
+    .lei-toolbar .btn {
+        font-size: 0.8rem;
+        padding: 4px 8px;
+        margin-right: 3px;
+        margin-bottom: 3px;
+    }
+    
+    .lei-visualizacao {
+        padding: 20px 15px;
+        margin: 15px 0;
+    }
+}
+
+/* Estilos para impressão */
+@media print {
+    .lei-toolbar {
+        display: none !important;
+    }
+    
+    .lei-conteudo {
+        font-size: 12pt;
+        line-height: 1.5;
+        color: #000;
+    }
+    
+    .lei-conteudo .artigo,
+    .artigo {
+        page-break-inside: avoid;
+        margin: 15pt 0 10pt 0;
+    }
+    
+    .lei-conteudo .paragrafo,
+    .paragrafo {
+        margin: 8pt 0 6pt 20pt;
+    }
+    
+    .lei-conteudo .inciso,
+    .inciso {
+        margin: 6pt 0 4pt 35pt;
+    }
+    
+    .lei-conteudo .alinea,
+    .alinea {
+        margin: 4pt 0 3pt 50pt;
+    }
+    
+    .lei-visualizacao {
+        box-shadow: none;
+        border: 1pt solid #ccc;
+        padding: 20pt;
+    }
+}
+
+/* Animações suaves */
+.lei-conteudo p {
+    transition: background-color 0.2s ease;
+}
+
+.lei-conteudo p:hover {
+    background-color: rgba(49, 130, 206, 0.02);
+    border-radius: 4px;
+}
+
+/* Destaque para elementos selecionados no editor */
+.lei-elemento-selecionado {
+    background-color: rgba(49, 130, 206, 0.1) !important;
+    border-left: 4px solid #3182ce !important;
+    padding-left: 10px !important;
+    border-radius: 0 6px 6px 0 !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Estilos para numeração automática */
+.numeracao-automatica .artigo::before {
+    content: counter(artigo) "º ";
+    counter-increment: artigo;
+    font-weight: bold;
+    color: #2b6cb0;
+}
+
+.numeracao-automatica .paragrafo::before {
+    content: "§ " counter(paragrafo) "º ";
+    counter-increment: paragrafo;
+    font-weight: bold;
+    color: #3182ce;
+}
+
+.numeracao-automatica {
+    counter-reset: artigo paragrafo inciso alinea;
+}
+
+/* Estilos para diferentes tipos de documentos */
+.tipo-lei .artigo strong::before {
+    content: "🏛️ ";
+    margin-right: 5px;
+}
+
+.tipo-decreto .artigo strong::before {
+    content: "📜 ";
+    margin-right: 5px;
+}
+
+.tipo-resolucao .artigo strong::before {
+    content: "⚖️ ";
+    margin-right: 5px;
+}

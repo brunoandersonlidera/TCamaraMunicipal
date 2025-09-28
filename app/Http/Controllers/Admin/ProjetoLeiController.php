@@ -16,7 +16,7 @@ class ProjetoLeiController extends Controller
      */
     public function index(Request $request)
     {
-        $query = ProjetoLei::with(['autor', 'vereadores']);
+        $query = ProjetoLei::with(['autor', 'coautores']);
 
         // Filtros
         if ($request->filled('busca')) {
@@ -74,29 +74,9 @@ class ProjetoLeiController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(\App\Http\Requests\ProjetoLeiRequest $request)
     {
-        $validated = $request->validate([
-            'numero' => 'required|string|max:20|unique:projetos_lei,numero',
-            'ano' => 'required|integer|min:1900|max:' . (date('Y') + 1),
-            'tipo' => 'required|in:projeto_lei,projeto_lei_complementar,projeto_resolucao,projeto_decreto_legislativo,indicacao,mocao,requerimento',
-            'titulo' => 'required|string|max:500',
-            'ementa' => 'required|string',
-            'justificativa' => 'nullable|string',
-            'texto_integral' => 'nullable|string',
-            'autor_id' => 'required|exists:vereadores,id',
-            'coautores' => 'nullable|array',
-            'coautores.*' => 'exists:vereadores,id',
-            'data_protocolo' => 'required|date',
-            'data_publicacao' => 'nullable|date',
-            'data_aprovacao' => 'nullable|date',
-            'status' => 'required|in:tramitando,aprovado,rejeitado,retirado,arquivado',
-            'urgente' => 'boolean',
-            'arquivo_projeto' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
-            'arquivo_lei' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
-            'observacoes' => 'nullable|string',
-            'tags' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         // Upload de arquivos
         if ($request->hasFile('arquivo_projeto')) {
@@ -116,11 +96,54 @@ class ProjetoLeiController extends Controller
                 ->implode(',');
         }
 
+        // Processar dados específicos por tipo de autoria
+        $comiteId = null;
+        
+        switch ($request->tipo_autoria) {
+            case 'vereador':
+                // Para vereador, usar o autor_id normalmente
+                break;
+                
+            case 'prefeito':
+                // Para prefeito, definir autor_nome e limpar autor_id
+                $validated['autor_nome'] = 'Prefeito Municipal';
+                $validated['autor_id'] = null;
+                break;
+                
+            case 'comissao':
+                // Para comissão, usar autor_nome e limpar autor_id
+                $validated['autor_id'] = null;
+                break;
+                
+            case 'iniciativa_popular':
+                // Para iniciativa popular, criar comitê e limpar autor_id
+                $validated['autor_id'] = null;
+                $validated['autor_nome'] = null;
+                
+                if ($request->filled('comite_nome')) {
+                    $comite = \App\Models\ComiteIniciativaPopular::create([
+                        'nome' => $request->comite_nome,
+                        'email' => $request->comite_email,
+                        'telefone' => $request->comite_telefone,
+                        'numero_assinaturas' => $request->numero_assinaturas ?? 0,
+                        'minimo_assinaturas' => $request->minimo_assinaturas ?? 1000,
+                        'status' => 'ativo',
+                    ]);
+                    $comiteId = $comite->id;
+                }
+                break;
+        }
+
+        // Adicionar comite_iniciativa_popular_id se necessário
+        if ($comiteId) {
+            $validated['comite_iniciativa_popular_id'] = $comiteId;
+        }
+
         $projeto = ProjetoLei::create($validated);
 
         // Sincronizar coautores
         if ($request->filled('coautores')) {
-            $projeto->vereadores()->sync($request->coautores);
+            $projeto->coautores()->sync($request->coautores);
         }
 
         return redirect()->route('admin.projetos-lei.index')
@@ -132,7 +155,7 @@ class ProjetoLeiController extends Controller
      */
     public function show(ProjetoLei $projetoLei)
     {
-        $projetoLei->load(['autor', 'vereadores']);
+        $projetoLei->load(['autor', 'coautores']);
         
         return view('admin.projetos-lei.show', compact('projetoLei'));
     }
@@ -142,7 +165,7 @@ class ProjetoLeiController extends Controller
      */
     public function edit(ProjetoLei $projetoLei)
     {
-        $projetoLei->load(['autor', 'vereadores']);
+        $projetoLei->load(['autor', 'coautores']);
         $vereadores = Vereador::where('status', 'ativo')->orderBy('nome')->get();
         
         return view('admin.projetos-lei.edit', compact('projetoLei', 'vereadores'));
@@ -151,29 +174,9 @@ class ProjetoLeiController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ProjetoLei $projetoLei)
+    public function update(\App\Http\Requests\ProjetoLeiRequest $request, ProjetoLei $projetoLei)
     {
-        $validated = $request->validate([
-            'numero' => 'required|string|max:20|unique:projetos_lei,numero,' . $projetoLei->id,
-            'ano' => 'required|integer|min:1900|max:' . (date('Y') + 1),
-            'tipo' => 'required|in:projeto_lei,projeto_lei_complementar,projeto_resolucao,projeto_decreto_legislativo,indicacao,mocao,requerimento',
-            'titulo' => 'required|string|max:500',
-            'ementa' => 'required|string',
-            'justificativa' => 'nullable|string',
-            'texto_integral' => 'nullable|string',
-            'autor_id' => 'required|exists:vereadores,id',
-            'coautores' => 'nullable|array',
-            'coautores.*' => 'exists:vereadores,id',
-            'data_protocolo' => 'required|date',
-            'data_publicacao' => 'nullable|date',
-            'data_aprovacao' => 'nullable|date',
-            'status' => 'required|in:tramitando,aprovado,rejeitado,retirado,arquivado',
-            'urgente' => 'boolean',
-            'arquivo_projeto' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
-            'arquivo_lei' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
-            'observacoes' => 'nullable|string',
-            'tags' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         // Upload de arquivos
         if ($request->hasFile('arquivo_projeto')) {
@@ -203,13 +206,73 @@ class ProjetoLeiController extends Controller
             $validated['tags'] = null;
         }
 
+        // Processar dados específicos por tipo de autoria
+        $comiteId = null;
+        
+        switch ($request->tipo_autoria) {
+            case 'vereador':
+                // Para vereador, usar o autor_id normalmente
+                $validated['autor_nome'] = null;
+                $validated['comite_iniciativa_popular_id'] = null;
+                break;
+                
+            case 'prefeito':
+                // Para prefeito, definir autor_nome e limpar autor_id
+                $validated['autor_nome'] = 'Prefeito Municipal';
+                $validated['autor_id'] = null;
+                $validated['comite_iniciativa_popular_id'] = null;
+                break;
+                
+            case 'comissao':
+                // Para comissão, usar autor_nome e limpar autor_id
+                $validated['autor_id'] = null;
+                $validated['comite_iniciativa_popular_id'] = null;
+                break;
+                
+            case 'iniciativa_popular':
+                // Para iniciativa popular, atualizar ou criar comitê
+                $validated['autor_id'] = null;
+                $validated['autor_nome'] = null;
+                
+                if ($request->filled('comite_nome')) {
+                    // Se já existe um comitê, atualizar
+                    if ($projetoLei->comiteIniciativaPopular) {
+                        $projetoLei->comiteIniciativaPopular->update([
+                            'nome' => $request->comite_nome,
+                            'email' => $request->comite_email,
+                            'telefone' => $request->comite_telefone,
+                            'numero_assinaturas' => $request->numero_assinaturas ?? 0,
+                            'minimo_assinaturas' => $request->minimo_assinaturas ?? 1000,
+                        ]);
+                        $comiteId = $projetoLei->comiteIniciativaPopular->id;
+                    } else {
+                        // Criar novo comitê
+                        $comite = \App\Models\ComiteIniciativaPopular::create([
+                            'nome' => $request->comite_nome,
+                            'email' => $request->comite_email,
+                            'telefone' => $request->comite_telefone,
+                            'numero_assinaturas' => $request->numero_assinaturas ?? 0,
+                            'minimo_assinaturas' => $request->minimo_assinaturas ?? 1000,
+                            'status' => 'ativo',
+                        ]);
+                        $comiteId = $comite->id;
+                    }
+                }
+                break;
+        }
+
+        // Adicionar comite_iniciativa_popular_id se necessário
+        if ($comiteId) {
+            $validated['comite_iniciativa_popular_id'] = $comiteId;
+        }
+
         $projetoLei->update($validated);
 
         // Sincronizar coautores
         if ($request->filled('coautores')) {
-            $projetoLei->vereadores()->sync($request->coautores);
+            $projetoLei->coautores()->sync($request->coautores);
         } else {
-            $projetoLei->vereadores()->detach();
+            $projetoLei->coautores()->detach();
         }
 
         return redirect()->route('admin.projetos-lei.show', $projetoLei)
@@ -231,7 +294,7 @@ class ProjetoLeiController extends Controller
         }
 
         // Remover relacionamentos
-        $projetoLei->vereadores()->detach();
+        $projetoLei->coautores()->detach();
 
         $projetoLei->delete();
 

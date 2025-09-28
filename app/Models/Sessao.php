@@ -508,4 +508,13 @@ class Sessao extends Model
     {
         return $this->data_sessao;
     }
+
+    /**
+     * Accessor para o título da sessão
+     */
+    public function getTituloAttribute()
+    {
+        $tipoFormatado = ucfirst(str_replace('_', ' ', $this->tipo));
+        return "Sessão {$tipoFormatado} nº {$this->numero_sessao}";
+    }
 }

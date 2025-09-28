@@ -231,7 +231,7 @@
                                         de {{ $folhaPagamento->total() }} registros
                                     </div>
                                     <div>
-                                        {{ $folhaPagamento->appends(request()->query())->links() }}
+                                        {{ $folhaPagamento->appends(request()->query())->links('pagination::bootstrap-5') }}
                                     </div>
                                 </div>
                             </div>

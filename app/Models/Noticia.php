@@ -59,7 +59,7 @@ class Noticia extends Model
     // Scopes
     public function scopePublicadas($query)
     {
-        return $query->where('status', 'publicada')
+        return $query->where('status', 'publicado')
                     ->where('data_publicacao', '<=', now());
     }
 
@@ -136,6 +136,16 @@ class Noticia extends Model
         );
     }
 
+    protected function publicado(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->status === 'publicado',
+            set: fn ($value) => [
+                'status' => $value ? 'publicado' : 'rascunho'
+            ],
+        );
+    }
+
     // Mutators
     protected function titulo(): Attribute
     {
@@ -155,7 +165,7 @@ class Noticia extends Model
 
     public function isPublicada()
     {
-        return $this->status === 'publicada' && $this->data_publicacao <= now();
+        return $this->status === 'publicado' && $this->data_publicacao <= now();
     }
 
     public function isRascunho()
@@ -243,7 +253,7 @@ class Noticia extends Model
     // Métodos de busca
     public static function search($query)
     {
-        return self::where('status', 'publicada')
+        return self::where('status', 'publicado')
             ->where(function ($q) use ($query) {
                 $q->where('titulo', 'LIKE', "%{$query}%")
                   ->orWhere('resumo', 'LIKE', "%{$query}%")
