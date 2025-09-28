@@ -122,7 +122,7 @@ class Vereador extends Model
     protected function fotoUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->foto ? asset('storage/' . $this->foto) : asset('images/vereador-placeholder.jpg'),
+            get: fn () => $this->foto ? asset('files/' . $this->foto) : asset('images/vereador-placeholder.jpg'),
         );
     }
 

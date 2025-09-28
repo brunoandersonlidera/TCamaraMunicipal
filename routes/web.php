@@ -22,7 +22,7 @@ use App\Models\AcessoRapido;
 use App\Models\Noticia;
 
 // Rota personalizada para servir imagens do storage
-Route::get('/storage/{path}', function ($path) {
+Route::get('/files/{path}', function ($path) {
     $filePath = storage_path('app/public/' . $path);
     
     if (!file_exists($filePath)) {
