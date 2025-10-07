@@ -208,17 +208,11 @@
                             @foreach($sessao->vereadores as $vereador)
                             <div class="col-md-6 col-lg-4 mb-3">
                                 <div class="d-flex align-items-center">
-                                    @if($vereador->foto)
-                                        <img src="{{ asset('storage/' . $vereador->foto) }}" 
-                                             alt="{{ $vereador->nome }}" 
-                                             class="rounded-circle me-3" 
-                                             style="width: 40px; height: 40px; object-fit: cover;">
-                                    @else
-                                        <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3" 
-                                             style="width: 40px; height: 40px;">
-                                            <i class="fas fa-user text-white"></i>
-                                        </div>
-                                    @endif
+                                    <img src="{{ $vereador->foto_url }}" 
+                                         alt="{{ $vereador->nome }}" 
+                                         class="rounded-circle me-3" 
+                                         style="width: 40px; height: 40px; object-fit: cover;"
+                                         onerror="this.onerror=null;this.src='{{ asset('images/placeholder-vereador.svg') }}';">
                                     <div>
                                         <div class="fw-bold">{{ $vereador->nome }}</div>
                                         <small class="text-muted">{{ $vereador->partido }}</small>

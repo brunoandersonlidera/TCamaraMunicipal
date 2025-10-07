@@ -158,24 +158,8 @@
             <div class="last-updated">
                 <i class="fas fa-clock me-2"></i>
                 Última atualização: {{ $pagina->updated_at->format('d/m/Y \à\s H:i') }}
-                
-                @if($pagina->configuracoes && isset($pagina->configuracoes['mostrar_compartilhar']) && $pagina->configuracoes['mostrar_compartilhar'])
-                <span class="mx-3">|</span>
-                <span class="me-2">Compartilhar:</span>
-                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->fullUrl()) }}" 
-                   target="_blank" class="btn btn-sm btn-outline-primary me-1">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="https://twitter.com/intent/tweet?url={{ urlencode(request()->fullUrl()) }}&text={{ urlencode($pagina->titulo) }}" 
-                   target="_blank" class="btn btn-sm btn-outline-info me-1">
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a href="https://wa.me/?text={{ urlencode($pagina->titulo . ' - ' . request()->fullUrl()) }}" 
-                   target="_blank" class="btn btn-sm btn-outline-success">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
-                @endif
             </div>
+            <x-page-share :titulo="$pagina->titulo" />
         </div>
     </div>
 </div>

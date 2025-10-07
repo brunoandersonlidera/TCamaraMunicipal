@@ -17,10 +17,11 @@ class DatabaseSeeder extends Seeder
         
         // Executar seeders em ordem específica
         $this->call([
-            AdminUserSeeder::class,  // Primeiro criar admin padrão
+            PermissionsSeeder::class, // Primeiro criar permissões e roles
+            AdminUserSeeder::class,   // Depois criar admin padrão
             UserSeeder::class,
             VereadorSeeder::class,
-            MenuSeeder::class,       // Criar menus do sistema
+            MenuSeeder::class,        // Criar menus do sistema
         ]);
 
         $this->command->info('✅ Banco de dados populado com sucesso!');

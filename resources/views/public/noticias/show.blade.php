@@ -27,15 +27,20 @@
         <div class="row">
             <!-- Conteúdo Principal -->
             <div class="col-lg-8">
-                <article class="card shadow-sm">
+                <article class="card card-news shadow-sm">
                     <!-- Imagem de Destaque -->
                     @if($noticia->imagem_destaque)
-                        <img src="{{ asset('storage/' . $noticia->imagem_destaque) }}" 
-                             class="card-img-top" alt="{{ $noticia->titulo }}"
-                             style="height: 400px; object-fit: cover;">
+                        <div class="news-image-wrapper news-image-wrapper-lg">
+                            <img src="{{ asset('storage/' . $noticia->imagem_destaque) }}" 
+                                 class="news-image" alt="{{ $noticia->titulo }}">
+                        </div>
                     @endif
 
                     <div class="card-body">
+                        @php
+                            $wordCount = str_word_count(strip_tags($noticia->conteudo ?? ''));
+                            $readingMinutes = max(1, ceil($wordCount / 200));
+                        @endphp
                         <!-- Categoria e Data -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             @if($noticia->categoria)
@@ -52,6 +57,10 @@
                                 <small class="ms-3">
                                     <i class="fas fa-eye me-1"></i>
                                     {{ $noticia->visualizacoes }} visualizações
+                                </small>
+                                <small class="ms-3">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ $readingMinutes }} min de leitura
                                 </small>
                             </div>
                         </div>
@@ -91,7 +100,7 @@
                             <div class="mt-4 pt-4 border-top">
                                 <h6 class="text-muted mb-2">Tags:</h6>
                                 @foreach($noticia->tags as $tag)
-                                    <span class="badge bg-outline-secondary me-1 mb-1">{{ $tag }}</span>
+                                    <span class="tag-chip me-1 mb-1">{{ $tag }}</span>
                                 @endforeach
                             </div>
                         @endif
@@ -116,6 +125,33 @@
                             </div>
                         @endif
 
+                        <!-- Leia também (grid de relacionadas) -->
+                        @if(isset($noticiasRelacionadas) && $noticiasRelacionadas->count() > 0)
+                            <div class="mt-4 pt-4 border-top">
+                                <h5 class="mb-3">Leia também</h5>
+                                <div class="row g-3">
+                                    @foreach($noticiasRelacionadas->take(3) as $rel)
+                                        <div class="col-md-4">
+                                            <article class="card card-news h-100">
+                                                @if($rel->imagem_destaque)
+                                                    <div class="news-image-wrapper news-image-wrapper-sm">
+                                                        <img src="{{ asset('storage/' . $rel->imagem_destaque) }}" class="news-image" alt="{{ $rel->titulo }}">
+                                                    </div>
+                                                @endif
+                                                <div class="card-body">
+                                                    <h6 class="related-title mb-2">{{ Str::limit($rel->titulo, 70) }}</h6>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-calendar me-1"></i>
+                                                        {{ $rel->data_publicacao->format('d/m/Y') }}
+                                                    </small>
+                                                </div>
+                                                <a href="{{ route('noticias.show', $rel->slug) }}" class="stretched-link" aria-label="Ler: {{ $rel->titulo }}"></a>
+                                            </article>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                         <!-- Compartilhar -->
                         <div class="mt-4 pt-4 border-top">
                             <h6 class="mb-3">Compartilhar</h6>
@@ -152,32 +188,29 @@
             <div class="col-lg-4">
                 <!-- Notícias Relacionadas -->
                 @if($noticiasRelacionadas->count() > 0)
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
+                    <div class="card card-news mb-4">
+                        <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
                             <h5 class="mb-0">
                                 <i class="fas fa-newspaper me-2"></i>Notícias Relacionadas
                             </h5>
+                            <a href="{{ route('noticias.index') }}" class="btn btn-outline-light btn-sm">Ver todas</a>
                         </div>
                         <div class="card-body p-0">
                             @foreach($noticiasRelacionadas as $relacionada)
-                                <div class="p-3 border-bottom">
+                                <a href="{{ route('noticias.show', $relacionada->slug) }}" 
+                                   class="related-item d-block p-3 border-bottom text-decoration-none">
                                     @if($relacionada->imagem_destaque)
-                                        <img src="{{ asset('storage/' . $relacionada->imagem_destaque) }}" 
-                                             class="img-fluid rounded mb-2" 
-                                             alt="{{ $relacionada->titulo }}"
-                                             style="height: 100px; width: 100%; object-fit: cover;">
+                                        <div class="news-image-wrapper news-image-wrapper-sm mb-2">
+                                            <img src="{{ asset('storage/' . $relacionada->imagem_destaque) }}" 
+                                                 class="news-image" alt="{{ $relacionada->titulo }}">
+                                        </div>
                                     @endif
-                                    <h6 class="mb-2">
-                                        <a href="{{ route('noticias.show', $relacionada->id) }}" 
-                                           class="text-decoration-none">
-                                            {{ Str::limit($relacionada->titulo, 60) }}
-                                        </a>
-                                    </h6>
+                                    <h6 class="related-title mb-1">{{ Str::limit($relacionada->titulo, 80) }}</h6>
                                     <small class="text-muted">
                                         <i class="fas fa-calendar me-1"></i>
                                         {{ $relacionada->data_publicacao->format('d/m/Y') }}
                                     </small>
-                                </div>
+                                </a>
                             @endforeach
                         </div>
                     </div>

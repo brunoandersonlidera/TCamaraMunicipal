@@ -14,6 +14,51 @@ class ProjetoLei extends Model
 
     protected $table = 'projetos_lei';
 
+    // Constantes para tipos de proposições
+    const TIPO_LEI_ORDINARIA = 'lei_ordinaria';
+    const TIPO_LEI_COMPLEMENTAR = 'lei_complementar';
+    const TIPO_EMENDA_LOM = 'emenda_lom';
+    const TIPO_DECRETO_LEGISLATIVO = 'decreto_legislativo';
+    const TIPO_RESOLUCAO = 'resolucao';
+    const TIPO_PROJETO_RESOLUCAO = 'projeto_resolucao';
+    const TIPO_INDICACAO = 'indicacao';
+    const TIPO_REQUERIMENTO = 'requerimento';
+    const TIPO_MOCAO = 'mocao';
+
+    // Constantes para status de tramitação
+    const STATUS_PROTOCOLADO = 'protocolado';
+    const STATUS_DISTRIBUIDO = 'distribuido';
+    const STATUS_EM_COMISSAO = 'em_comissao';
+    const STATUS_PRONTO_PAUTA = 'pronto_pauta';
+    const STATUS_EM_VOTACAO = 'em_votacao';
+    const STATUS_APROVADO_1_TURNO = 'aprovado_1_turno';
+    const STATUS_APROVADO_2_TURNO = 'aprovado_2_turno';
+    const STATUS_APROVADO = 'aprovado';
+    const STATUS_REJEITADO = 'rejeitado';
+    const STATUS_RETIRADO = 'retirado';
+    const STATUS_ARQUIVADO = 'arquivado';
+    const STATUS_ENVIADO_EXECUTIVO = 'enviado_executivo';
+    const STATUS_SANCIONADO = 'sancionado';
+    const STATUS_VETADO = 'vetado';
+    const STATUS_VETO_DERRUBADO = 'veto_derrubado';
+    const STATUS_VETO_MANTIDO = 'veto_mantido';
+    const STATUS_PROMULGADO = 'promulgado';
+    const STATUS_PUBLICADO = 'publicado';
+    const STATUS_EM_CONSULTA_PUBLICA = 'em_consulta_publica';
+    const STATUS_AGUARDANDO_AUDIENCIA = 'aguardando_audiencia';
+
+    // Constantes para tipos de autoria
+    const AUTORIA_VEREADOR = 'vereador';
+    const AUTORIA_PREFEITO = 'prefeito';
+    const AUTORIA_COMISSAO = 'comissao';
+    const AUTORIA_INICIATIVA_POPULAR = 'iniciativa_popular';
+    const AUTORIA_MESA_DIRETORA = 'mesa_diretora';
+
+    // Constantes para urgência
+    const URGENCIA_NORMAL = 'normal';
+    const URGENCIA_URGENTE = 'urgente';
+    const URGENCIA_URGENTISSIMA = 'urgentissima';
+
     protected $fillable = [
         'numero',
         'ano',
@@ -42,7 +87,47 @@ class ProjetoLei extends Model
         'lei_data_sancao',
         'slug',
         'tags',
-        'legislatura'
+        'legislatura',
+        // Novos campos para SLI - Lex Populi
+        'protocolo_numero',
+        'protocolo_ano',
+        'protocolo_sequencial',
+        'data_distribuicao',
+        'data_primeira_votacao',
+        'data_segunda_votacao',
+        'data_envio_executivo',
+        'data_retorno_executivo',
+        'data_veto',
+        'data_promulgacao',
+        'prazo_consulta_publica',
+        'data_inicio_consulta',
+        'data_fim_consulta',
+        'participacao_cidada',
+        'termometro_popular',
+        'impacto_orcamentario',
+        'relatorio_impacto',
+        'quorum_necessario',
+        'votos_favoraveis',
+        'votos_contrarios',
+        'abstencoes',
+        'ausencias',
+        'resultado_primeira_votacao',
+        'resultado_segunda_votacao',
+        'motivo_veto',
+        'fundamentacao_veto',
+        'parecer_juridico',
+        'parecer_tecnico',
+        'audiencias_publicas',
+        'emendas_apresentadas',
+        'substitutivos',
+        'historico_tramitacao',
+        'documentos_anexos',
+        'consulta_publica_ativa',
+        'permite_participacao_cidada',
+        'exige_audiencia_publica',
+        'exige_maioria_absoluta',
+        'exige_dois_turnos',
+        'bypass_executivo'
     ];
 
     protected $casts = [
@@ -55,7 +140,38 @@ class ProjetoLei extends Model
         'tramitacao' => 'array',
         'votacao_resultado' => 'array',
         'tags' => 'array',
-        'dados_iniciativa_popular' => 'array'
+        'dados_iniciativa_popular' => 'array',
+        // Novos casts para SLI - Lex Populi
+        'data_distribuicao' => 'date',
+        'data_primeira_votacao' => 'date',
+        'data_segunda_votacao' => 'date',
+        'data_envio_executivo' => 'date',
+        'data_retorno_executivo' => 'date',
+        'data_veto' => 'date',
+        'data_promulgacao' => 'date',
+        'data_inicio_consulta' => 'date',
+        'data_fim_consulta' => 'date',
+        'participacao_cidada' => 'array',
+        'termometro_popular' => 'array',
+        'impacto_orcamentario' => 'decimal:2',
+        'relatorio_impacto' => 'array',
+        'votos_favoraveis' => 'integer',
+        'votos_contrarios' => 'integer',
+        'abstencoes' => 'integer',
+        'ausencias' => 'integer',
+        'resultado_primeira_votacao' => 'array',
+        'resultado_segunda_votacao' => 'array',
+        'audiencias_publicas' => 'array',
+        'emendas_apresentadas' => 'array',
+        'substitutivos' => 'array',
+        'historico_tramitacao' => 'array',
+        'documentos_anexos' => 'array',
+        'consulta_publica_ativa' => 'boolean',
+        'permite_participacao_cidada' => 'boolean',
+        'exige_audiencia_publica' => 'boolean',
+        'exige_maioria_absoluta' => 'boolean',
+        'exige_dois_turnos' => 'boolean',
+        'bypass_executivo' => 'boolean'
     ];
 
     protected $dates = [
@@ -344,6 +460,200 @@ class ProjetoLei extends Model
     public function isAprovado()
     {
         return $this->status === 'aprovado';
+    }
+
+    /**
+     * Retorna o tempo de tramitação formatado
+     */
+    public function getTempoTramitacao()
+    {
+        if (!$this->data_protocolo) {
+            return 'Não informado';
+        }
+
+        $dias = $this->data_protocolo->diffInDays(now());
+        
+        if ($dias == 0) {
+            return 'Hoje';
+        } elseif ($dias == 1) {
+            return '1 dia';
+        } elseif ($dias < 30) {
+            return $dias . ' dias';
+        } elseif ($dias < 365) {
+            $meses = floor($dias / 30);
+            $diasRestantes = $dias % 30;
+            
+            if ($meses == 1) {
+                return $diasRestantes > 0 ? "1 mês e {$diasRestantes} dias" : '1 mês';
+            } else {
+                return $diasRestantes > 0 ? "{$meses} meses e {$diasRestantes} dias" : "{$meses} meses";
+            }
+        } else {
+            $anos = floor($dias / 365);
+            $diasRestantes = $dias % 365;
+            
+            if ($anos == 1) {
+                return $diasRestantes > 0 ? "1 ano e {$diasRestantes} dias" : '1 ano';
+            } else {
+                return $diasRestantes > 0 ? "{$anos} anos e {$diasRestantes} dias" : "{$anos} anos";
+            }
+        }
+    }
+
+    /**
+     * Gera número de protocolo automático para projetos legislativos
+     */
+    public function gerarProtocolo()
+    {
+        $ano = now()->year;
+        $prefixo = $this->getPrefixoProtocolo();
+        
+        // Busca o último protocolo do ano para o tipo específico
+        $ultimoProtocolo = self::where('protocolo_ano', $ano)
+            ->where('tipo', $this->tipo)
+            ->max('protocolo_sequencial') ?? 0;
+        
+        $sequencial = $ultimoProtocolo + 1;
+        
+        $this->protocolo_ano = $ano;
+        $this->protocolo_sequencial = $sequencial;
+        $this->protocolo_numero = sprintf('%s%04d%06d', $prefixo, $ano, $sequencial);
+        
+        return $this->protocolo_numero;
+    }
+
+    /**
+     * Retorna o prefixo do protocolo baseado no tipo de proposição
+     */
+    private function getPrefixoProtocolo()
+    {
+        $prefixos = [
+            self::TIPO_LEI_ORDINARIA => 'PLO',
+            self::TIPO_LEI_COMPLEMENTAR => 'PLC',
+            self::TIPO_EMENDA_LOM => 'ELO',
+            self::TIPO_DECRETO_LEGISLATIVO => 'PDL',
+            self::TIPO_RESOLUCAO => 'PRS',
+            self::TIPO_MOCAO => 'MOC',
+            self::TIPO_REQUERIMENTO => 'REQ',
+            self::TIPO_INDICACAO => 'IND'
+        ];
+
+        return $prefixos[$this->tipo] ?? 'PL';
+    }
+
+    /**
+     * Verifica se o projeto está em tramitação
+     */
+    public function isEmTramitacao()
+    {
+        return in_array($this->status, [
+            self::STATUS_PROTOCOLADO,
+            self::STATUS_DISTRIBUIDO,
+            self::STATUS_EM_COMISSAO,
+            self::STATUS_PRONTO_PAUTA,
+            self::STATUS_EM_VOTACAO,
+            self::STATUS_ENVIADO_EXECUTIVO
+        ]);
+    }
+
+    /**
+     * Verifica se o projeto foi finalizado
+     */
+    public function isFinalizado()
+    {
+        return in_array($this->status, [
+            self::STATUS_APROVADO,
+            self::STATUS_REJEITADO,
+            self::STATUS_ARQUIVADO,
+            self::STATUS_SANCIONADO,
+            self::STATUS_VETADO,
+            self::STATUS_PROMULGADO
+        ]);
+    }
+
+    /**
+     * Verifica se o projeto exige dois turnos de votação
+     */
+    public function exigeDoisTurnos()
+    {
+        return $this->exige_dois_turnos || 
+               $this->tipo === self::TIPO_LEI_COMPLEMENTAR ||
+               $this->tipo === self::TIPO_EMENDA_LOM;
+    }
+
+    /**
+     * Verifica se o projeto exige maioria absoluta
+     */
+    public function exigeMaioriaAbsoluta()
+    {
+        return $this->exige_maioria_absoluta ||
+               $this->tipo === self::TIPO_LEI_COMPLEMENTAR ||
+               $this->tipo === self::TIPO_EMENDA_LOM;
+    }
+
+    /**
+     * Calcula o termômetro popular (percentual de aprovação)
+     */
+    public function getTermometroPopularPercentual()
+    {
+        if (!$this->termometro_popular || !is_array($this->termometro_popular)) {
+            return 0;
+        }
+
+        $favoraveis = $this->termometro_popular['favoraveis'] ?? 0;
+        $contrarios = $this->termometro_popular['contrarios'] ?? 0;
+        $total = $favoraveis + $contrarios;
+
+        return $total > 0 ? round(($favoraveis / $total) * 100, 1) : 0;
+    }
+
+    /**
+     * Adiciona entrada no histórico de tramitação
+     */
+    public function adicionarHistoricoTramitacao($acao, $observacao = null, $usuario_id = null)
+    {
+        $historico = $this->historico_tramitacao ?? [];
+        
+        $entrada = [
+            'data' => now()->toISOString(),
+            'acao' => $acao,
+            'status_anterior' => $this->getOriginal('status'),
+            'status_atual' => $this->status,
+            'observacao' => $observacao,
+            'usuario_id' => $usuario_id ?? auth()->id(),
+            'usuario_nome' => auth()->user()->name ?? 'Sistema'
+        ];
+
+        $historico[] = $entrada;
+        $this->historico_tramitacao = $historico;
+        
+        return $this;
+    }
+
+    /**
+     * Inicia consulta pública
+     */
+    public function iniciarConsultaPublica($prazo_dias = 15)
+    {
+        $this->data_inicio_consulta = now();
+        $this->data_fim_consulta = now()->addDays($prazo_dias);
+        $this->consulta_publica_ativa = true;
+        $this->prazo_consulta_publica = $prazo_dias;
+        
+        $this->adicionarHistoricoTramitacao('Consulta Pública Iniciada', "Prazo: {$prazo_dias} dias");
+        
+        return $this;
+    }
+
+    /**
+     * Finaliza consulta pública
+     */
+    public function finalizarConsultaPublica()
+    {
+        $this->consulta_publica_ativa = false;
+        $this->adicionarHistoricoTramitacao('Consulta Pública Finalizada');
+        
+        return $this;
     }
 
     public function isRejeitado()

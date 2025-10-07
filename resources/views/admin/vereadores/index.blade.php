@@ -80,16 +80,10 @@
                         @foreach($vereadores as $vereador)
                             <tr>
                                 <td>
-                                    @if($vereador->foto)
-                                        <img src="{{ asset('storage/' . $vereador->foto) }}" 
-                                             alt="{{ $vereador->nome_parlamentar }}" 
-                                             class="rounded-circle" width="40" height="40">
-                                    @else
-                                        <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" 
-                                             style="width: 40px; height: 40px;">
-                                            <i class="fas fa-user text-white"></i>
-                                        </div>
-                                    @endif
+                                    <img src="{{ $vereador->foto_url }}" 
+                                         alt="{{ $vereador->nome_parlamentar }}" 
+                                         class="rounded-circle" width="40" height="40"
+                                         onerror="this.onerror=null;this.src='{{ asset('images/placeholder-vereador.svg') }}';">
                                 </td>
                                 <td>
                                     <strong>{{ $vereador->nome_parlamentar }}</strong>

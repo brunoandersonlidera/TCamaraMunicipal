@@ -14,8 +14,8 @@
             <i class="fas fa-lock"></i>
         </div>
         
-        <h2 class="login-title">Acesso Administrativo</h2>
-        <p class="login-subtitle">Sistema da Câmara Municipal</p>
+        <h2 class="login-title">Acesso ao Sistema</h2>
+        <p class="login-subtitle">Câmara Municipal - Portal do Cidadão</p>
 
         <form action="{{ route('login') }}" method="POST">
             @csrf

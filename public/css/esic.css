@@ -24,13 +24,22 @@
 .esic-consultar-page {
     background-color: var(--esic-light);
     min-height: 100vh;
-    padding: 2rem 0;
+    padding: 3rem 0;
+}
+
+/* Melhor espaçamento para a página de criação */
+.esic-create-page .container {
+    padding: 0 2rem;
+}
+
+.esic-create-page .col-lg-8 {
+    padding: 0 1.5rem;
 }
 
 .page-header {
     text-align: center;
     margin-bottom: 3rem;
-    padding: 2rem 0;
+    padding: 3rem 2rem;
     background: linear-gradient(135deg, var(--esic-primary), var(--esic-secondary));
     color: white;
     border-radius: 1rem;
@@ -84,7 +93,17 @@
 }
 
 .card-body {
+    padding: 2.5rem;
+}
+
+/* Espaçamento específico para o formulário de criação */
+.esic-create-page .form-card {
     padding: 2rem;
+    margin: 0 1rem 2rem 1rem;
+}
+
+.esic-create-page .form-card .card-body {
+    padding: 0;
 }
 
 /* ===== HERO SECTION ===== */
@@ -210,22 +229,27 @@
 
 /* ===== FORMS ===== */
 .form-section {
-    margin-bottom: 2.5rem;
-    padding-bottom: 2rem;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    padding-bottom: 2.5rem;
     border-bottom: 1px solid var(--esic-border);
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 0.75rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
 }
 
 .form-section:last-child {
     border-bottom: none;
-    margin-bottom: 0;
+    margin-bottom: 2rem;
 }
 
 .section-title {
     font-size: 1.4rem;
     font-weight: 600;
     color: var(--esic-primary);
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 0.75rem;
     border-bottom: 2px solid var(--esic-primary);
 }
 
@@ -238,8 +262,20 @@
 .form-select {
     border-radius: 0.5rem;
     border: 2px solid var(--esic-border);
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.5rem;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Espaçamento específico para grupos de campos */
+.esic-create-page .row .col-md-8,
+.esic-create-page .row .col-md-4 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+.esic-create-page .mb-3 {
+    margin-bottom: 1.5rem !important;
 }
 
 .form-control:focus,
@@ -255,15 +291,20 @@
 
 .terms-box {
     background: var(--esic-light);
-    padding: 1.5rem;
-    border-radius: 0.5rem;
+    padding: 2rem;
+    margin: 1rem;
+    border-radius: 0.75rem;
     border-left: 4px solid var(--esic-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .form-actions {
     text-align: center;
-    padding-top: 2rem;
+    padding: 2.5rem 2rem;
+    margin: 1rem;
     border-top: 1px solid var(--esic-border);
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 0.75rem;
 }
 
 .form-actions .btn {
@@ -271,6 +312,113 @@
     padding: 1rem 2rem;
     font-weight: 600;
     border-radius: 0.5rem;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+/* Tablets e telas médias */
+@media (max-width: 992px) {
+    .esic-create-page .container {
+        padding: 0 1rem;
+    }
+    
+    .esic-create-page .col-lg-8 {
+        padding: 0 0.5rem;
+    }
+    
+    .form-section {
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+        padding: 1.5rem;
+    }
+    
+    .page-header {
+        padding: 2rem 1.5rem;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+    }
+}
+
+/* Smartphones */
+@media (max-width: 768px) {
+    .esic-create-page {
+        padding: 1.5rem 0;
+    }
+    
+    .esic-create-page .container {
+        padding: 0 0.5rem;
+    }
+    
+    .esic-create-page .col-lg-8 {
+        padding: 0;
+    }
+    
+    .form-section {
+        margin-left: 0;
+        margin-right: 0;
+        padding: 1rem;
+        border-radius: 0.5rem;
+    }
+    
+    .page-header {
+        padding: 1.5rem 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .page-title {
+        font-size: 1.75rem;
+    }
+    
+    .page-subtitle {
+        font-size: 1rem;
+    }
+    
+    .section-title {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-control,
+    .form-select {
+        padding: 0.875rem 1rem;
+    }
+    
+    .terms-box {
+        margin: 0.5rem;
+        padding: 1.5rem;
+    }
+    
+    .form-actions {
+        padding: 2rem 1rem;
+        margin: 0.5rem;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+        margin: 0.25rem 0;
+    }
+    
+    .esic-create-page .row .col-md-8,
+    .esic-create-page .row .col-md-4 {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+/* Telas muito pequenas */
+@media (max-width: 576px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+    
+    .form-section {
+        padding: 0.75rem;
+    }
+    
+    .section-title {
+        font-size: 1.1rem;
+    }
 }
 
 /* ===== STATUS BADGES ===== */
@@ -595,6 +743,48 @@
 /* ===== LISTS ===== */
 .list-styled li {
     margin-bottom: 0.5rem;
+}
+
+/* ===== INFO BOX ===== */
+.info-box {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 2rem;
+    margin: 1rem;
+    border-radius: 0.75rem;
+    border-left: 4px solid var(--esic-info);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.info-box h4 {
+    color: var(--esic-primary);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.info-box ul {
+    margin-bottom: 0;
+}
+
+.info-box li {
+    margin-bottom: 0.75rem;
+    padding-left: 0.5rem;
+}
+
+.info-box li:last-child {
+    margin-bottom: 0;
+}
+
+/* Responsivo para info-box */
+@media (max-width: 768px) {
+    .info-box {
+        margin: 0.5rem;
+        padding: 1.5rem;
+    }
+    
+    .info-box h4 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
 }
 
 .rights-list li,

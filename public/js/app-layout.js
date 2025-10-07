@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeSmoothScrolling();
     initializeScrollAnimations();
     initializeNavbarScroll();
+    initializeAutoHideToolbar();
     initializeDropdowns();
     initializeMobileAccordion();
     
@@ -50,6 +51,58 @@ function initializeSmoothScrolling() {
                 // Em caso de erro, deixa o comportamento padrão
             }
         });
+    });
+}
+
+/**
+ * Ocultar/mostrar a barra fixa ao rolar (desktop)
+ */
+function initializeAutoHideToolbar() {
+    const toolbar = document.querySelector('.fixed-toolbar-section');
+    if (!toolbar) return;
+
+    // Desabilitar auto-hide em telas móveis para evitar saltos de layout
+    const isMobile = () => window.innerWidth <= 991.98;
+    if (isMobile()) return;
+
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+    const threshold = 10;      // sensibilidade de detecção (px)
+    const minShowY = 50;       // manter visível próximo ao topo
+
+    function onScroll() {
+        if (!ticking) {
+            window.requestAnimationFrame(update);
+            ticking = true;
+        }
+    }
+
+    function update() {
+        const currentY = window.scrollY;
+        const diff = currentY - lastScrollY;
+
+        // Mostrar sempre quando próximos ao topo
+        if (currentY <= minShowY) {
+            toolbar.classList.remove('fixed-toolbar-hidden');
+        } else if (diff > threshold) {
+            // Rolando para baixo
+            toolbar.classList.add('fixed-toolbar-hidden');
+        } else if (diff < -threshold) {
+            // Rolando para cima
+            toolbar.classList.remove('fixed-toolbar-hidden');
+        }
+
+        lastScrollY = currentY;
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Ajustar comportamento ao redimensionar
+    window.addEventListener('resize', () => {
+        if (isMobile()) {
+            toolbar.classList.remove('fixed-toolbar-hidden');
+        }
     });
 }
 

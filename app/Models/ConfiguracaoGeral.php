@@ -80,12 +80,67 @@ class ConfiguracaoGeral extends Model
      */
     public static function obterBrasao()
     {
-        return self::obterValor('brasao_camara');
+        $config = self::where('chave', 'brasao_camara')
+                     ->where('ativo', true)
+                     ->first();
+
+        if (!$config || empty($config->valor)) {
+            return null;
+        }
+
+        $valor = $config->valor;
+
+        // Caminhos em public/images
+        if (str_starts_with($valor, '/images/')) {
+            return asset($valor);
+        }
+        if (str_starts_with($valor, 'images/')) {
+            return asset('/' . $valor);
+        }
+
+        // Caminhos via rota de mídia
+        // Padronizar para /media/{file_name}, pois o controlador serve busca por file_name apenas
+        if (str_starts_with($valor, '/media/')) {
+            return '/media/' . basename($valor);
+        }
+        if (str_starts_with($valor, 'media/')) {
+            return '/media/' . basename($valor);
+        }
+
+        // Caminhos armazenados em storage (ex.: public/configuracoes/...)
+        return \Illuminate\Support\Facades\Storage::url($valor);
     }
 
     public static function obterLogoFooter()
     {
-        return self::obterValor('logo_footer');
+        $config = self::where('chave', 'logo_footer')
+                     ->where('ativo', true)
+                     ->first();
+
+        if (!$config || empty($config->valor)) {
+            return null;
+        }
+
+        $valor = $config->valor;
+
+        // Caminhos em public/images
+        if (str_starts_with($valor, '/images/')) {
+            return asset($valor);
+        }
+        if (str_starts_with($valor, 'images/')) {
+            return asset('/' . $valor);
+        }
+
+        // Caminhos via rota de mídia (padronizar para /media/{file_name})
+        if (str_starts_with($valor, '/media/')) {
+            return '/media/' . basename($valor);
+        }
+        if (str_starts_with($valor, 'media/')) {
+            return '/media/' . basename($valor);
+        }
+
+        // Caminhos armazenados em storage (ex.: public/configuracoes/...)
+        return \Illuminate\Support\Facades\Storage::url($valor);
     }
 
     public static function obterEndereco()
@@ -106,5 +161,51 @@ class ConfiguracaoGeral extends Model
     public static function obterDireitosAutorais()
     {
         return self::obterValor('direitos_autorais', '© 2025 Câmara Municipal. Todos os direitos reservados.');
+    }
+
+    /**
+     * Configurações específicas do município
+     */
+    public static function obterNomeMunicipio()
+    {
+        return self::obterValor('nome_municipio', 'Município não informado');
+    }
+
+    public static function obterQuantidadeHabitantes()
+    {
+        return (int) self::obterValor('quantidade_habitantes', 0);
+    }
+
+    public static function obterQuantidadeEleitores()
+    {
+        return (int) self::obterValor('quantidade_eleitores', 0);
+    }
+
+    /**
+     * Calcular quantidade mínima de assinaturas para iniciativa popular
+     * Baseado em 5% do eleitorado (conforme Lei Orgânica padrão)
+     */
+    public static function calcularMinimoAssinaturas()
+    {
+        $eleitores = self::obterQuantidadeEleitores();
+        return max(1, ceil($eleitores * 0.05)); // Mínimo 5% dos eleitores
+    }
+
+    /**
+     * Obter percentual de assinaturas necessárias
+     */
+    public static function obterPercentualAssinaturas()
+    {
+        return (float) self::obterValor('percentual_assinaturas', 5.0);
+    }
+
+    /**
+     * Calcular quantidade mínima de assinaturas com percentual customizável
+     */
+    public static function calcularMinimoAssinaturasCustom()
+    {
+        $eleitores = self::obterQuantidadeEleitores();
+        $percentual = self::obterPercentualAssinaturas() / 100;
+        return max(1, ceil($eleitores * $percentual));
     }
 }

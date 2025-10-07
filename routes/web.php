@@ -15,6 +15,7 @@ use App\Http\Controllers\CalendarioController;
 use App\Http\Controllers\LicitacaoDocumentoController;
 use App\Http\Controllers\Admin\EventosController;
 use App\Http\Controllers\LeisController;
+use App\Http\Controllers\MediaController;
 use App\Models\Vereador;
 use App\Models\User;
 use App\Models\Sessao;
@@ -54,25 +55,43 @@ Route::get('/images/{path}', function ($path) {
 })->where('path', '.*');
 
 Route::get('/', function () {
-    // Buscar presidente e vereadores para a página inicial
-    $vereadores = Vereador::ativos()->orderBy('nome_parlamentar')->get();
+    // Buscar presidente, vice-presidente e vereadores para a página inicial conforme nova estrutura
+    $hoje = now()->toDateString();
     
-    // Encontrar presidente (primeiro vereador que tem 'presidente' nas comissões)
-    $presidente = $vereadores->first(function ($vereador) {
-        $comissoes = $vereador->comissoes ?? [];
-        // Se comissoes for string, decodificar JSON
-        if (is_string($comissoes)) {
-            $comissoes = json_decode($comissoes, true) ?? [];
-        }
-        return in_array('presidente', $comissoes);
-    });
+    // Presidente ativo pelo novo modelo (campos booleanos + datas de mandato)
+    $presidente = Vereador::ativos()
+        ->where('presidente', true)
+        ->where(function($q) use ($hoje) {
+            $q->whereNull('presidente_inicio')->orWhereDate('presidente_inicio', '<=', $hoje);
+        })
+        ->where(function($q) use ($hoje) {
+            $q->whereNull('presidente_fim')->orWhereDate('presidente_fim', '>=', $hoje);
+        })
+        ->orderBy('nome_parlamentar')
+        ->first();
     
-    // Remover presidente da lista de vereadores se encontrado
-    if ($presidente) {
-        $vereadores = $vereadores->reject(function ($vereador) use ($presidente) {
-            return $vereador->id === $presidente->id;
-        });
-    }
+    // Vice-Presidente ativo
+    $vicepresidente = Vereador::ativos()
+        ->where('vice_presidente', true)
+        ->where(function($q) use ($hoje) {
+            $q->whereNull('vice_inicio')->orWhereDate('vice_inicio', '<=', $hoje);
+        })
+        ->where(function($q) use ($hoje) {
+            $q->whereNull('vice_fim')->orWhereDate('vice_fim', '>=', $hoje);
+        })
+        ->orderBy('nome_parlamentar')
+        ->first();
+    
+    // Demais vereadores (exclui presidente e vice)
+    $vereadores = Vereador::ativos()
+        ->when($presidente, function($query) use ($presidente) {
+            return $query->where('id', '!=', $presidente->id);
+        })
+        ->when($vicepresidente, function($query) use ($vicepresidente) {
+            return $query->where('id', '!=', $vicepresidente->id);
+        })
+        ->orderBy('nome_parlamentar')
+        ->get();
     
     // Buscar sessões gravadas recentes para a página inicial
     $sessoesGravadas = Sessao::recentes(4)->get();
@@ -93,7 +112,7 @@ Route::get('/', function () {
                            ->first(); // Última sessão finalizada
     
     // Dados para a seção "Números da Câmara"
-    $totalVereadores = $vereadores->count() + ($presidente ? 1 : 0);
+    $totalVereadores = $vereadores->count() + ($presidente ? 1 : 0) + ($vicepresidente ? 1 : 0);
     $projetos = 45; // Valor padrão até implementar tabela de projetos
     $sessoes = Sessao::realizadas()->count();
     $leis = 12;     // Valor padrão até implementar tabela de leis
@@ -113,7 +132,7 @@ Route::get('/', function () {
                              ->limit(3)
                              ->get();
         
-    return view('welcome', compact('presidente', 'vereadores', 'totalVereadores', 'projetos', 'sessoes', 'leis', 'sessoesGravadas', 'sessaoAoVivo', 'sessaoDestaque', 'acessosRapidos', 'slides', 'heroConfig', 'ultimasNoticias'));
+    return view('welcome', compact('presidente', 'vicepresidente', 'vereadores', 'totalVereadores', 'projetos', 'sessoes', 'leis', 'sessoesGravadas', 'sessaoAoVivo', 'sessaoDestaque', 'acessosRapidos', 'slides', 'heroConfig', 'ultimasNoticias'));
 })->name('home');
 
 // Rotas de Autenticação
@@ -158,7 +177,15 @@ Route::post('/redefinir-senha', [App\Http\Controllers\PasswordResetController::c
 
 // Rotas públicas de notícias
 Route::get('/noticias', [App\Http\Controllers\NoticiaController::class, 'index'])->name('noticias.index');
-Route::get('/noticias/{id}', [App\Http\Controllers\NoticiaController::class, 'show'])->name('noticias.show');
+// Compatibilidade: redireciona URLs antigas com ID para o slug (301 permanente)
+Route::get('/noticias/{id}', function ($id) {
+    $noticia = Noticia::findOrFail($id);
+    return redirect()->route('noticias.show', $noticia->slug, 301);
+})->whereNumber('id');
+
+// Nova rota pública usando slug
+Route::get('/noticias/{noticia:slug}', [App\Http\Controllers\NoticiaController::class, 'show'])
+    ->name('noticias.show');
 
 // Rotas públicas para projetos de lei
 Route::get('/projetos-lei', [App\Http\Controllers\ProjetoLeiController::class, 'index'])->name('projetos-lei.index');
@@ -204,16 +231,16 @@ Route::get('/esic', [App\Http\Controllers\EsicController::class, 'publicIndex'])
 Route::get('/esic/sobre', [App\Http\Controllers\EsicController::class, 'sobre'])->name('esic.sobre');
 Route::get('/esic/faq', [App\Http\Controllers\EsicController::class, 'faq'])->name('esic.faq');
 Route::get('/esic/estatisticas', [App\Http\Controllers\EsicController::class, 'estatisticas'])->name('esic.estatisticas');
+Route::get('/esic/consultar', [App\Http\Controllers\EsicController::class, 'consultar'])->name('esic.consultar');
+Route::post('/esic/consultar', [App\Http\Controllers\EsicController::class, 'consultar'])->name('esic.consultar.post');
+Route::get('/esic/solicitacao/{protocolo}', [App\Http\Controllers\EsicController::class, 'show'])->name('esic.show');
 
-// Área do usuário - com autenticação
-Route::middleware(['auth', 'verified'])->group(function () {
+// Área do usuário - com autenticação (TEMPORÁRIO: removido 'verified' para teste)
+Route::middleware(['auth'])->group(function () {
     Route::get('/esic/dashboard', [App\Http\Controllers\EsicController::class, 'dashboard'])->name('esic.dashboard');
     Route::get('/esic/nova-solicitacao', [App\Http\Controllers\EsicController::class, 'create'])->name('esic.create');
     Route::post('/esic/solicitacao', [App\Http\Controllers\EsicController::class, 'store'])->name('esic.store');
-    Route::get('/esic/minhas-solicitacoes', [App\Http\Controllers\EsicController::class, 'minhasSolicitacoes'])->name('esic.minhas');
-    Route::get('/esic/solicitacao/{protocolo}', [App\Http\Controllers\EsicController::class, 'show'])->name('esic.show');
-    Route::get('/esic/consultar', [App\Http\Controllers\EsicController::class, 'consultar'])->name('esic.consultar');
-    Route::post('/esic/consultar', [App\Http\Controllers\EsicController::class, 'consultar'])->name('esic.consultar.post');
+    Route::get('/esic/minhas-solicitacoes', [App\Http\Controllers\EsicController::class, 'minhasSolicitacoes'])->name('esic.minhas-solicitacoes');
 });
 
 // Rotas para Cartas de Serviço
@@ -314,8 +341,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::middleware(['permission:usuarios.listar'])->group(function () {
         Route::get('users', [App\Http\Controllers\Admin\UserController::class, 'index'])
             ->name('admin.users.index');
-        Route::get('users/{user}', [App\Http\Controllers\Admin\UserController::class, 'show'])
-            ->name('admin.users.show');
     });
     
     Route::middleware(['permission:usuarios.criar'])->group(function () {
@@ -323,6 +348,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
             ->name('admin.users.create');
         Route::post('users', [App\Http\Controllers\Admin\UserController::class, 'store'])
             ->name('admin.users.store');
+    });
+    
+    Route::middleware(['permission:usuarios.listar'])->group(function () {
+        Route::get('users/{user}', [App\Http\Controllers\Admin\UserController::class, 'show'])
+            ->name('admin.users.show');
     });
     
     Route::middleware(['permission:usuarios.editar'])->group(function () {
@@ -334,6 +364,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
             ->name('admin.users.update');
         Route::patch('users/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])
             ->name('admin.users.toggle-status');
+        Route::patch('users/{user}/verificar', [App\Http\Controllers\Admin\UserController::class, 'verificarCidadao'])
+            ->name('admin.users.verificar');
+        Route::patch('users/{user}/rejeitar', [App\Http\Controllers\Admin\UserController::class, 'rejeitarCidadao'])
+            ->name('admin.users.rejeitar');
+        Route::patch('users/{user}/toggle-permission', [App\Http\Controllers\Admin\UserController::class, 'togglePermission'])
+            ->name('admin.users.toggle-permission');
         Route::post('users/{user}/reset-password', [App\Http\Controllers\Admin\UserController::class, 'resetPassword'])
             ->name('admin.users.reset-password');
     });
@@ -346,6 +382,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::middleware(['permission:usuarios.impersonificar'])->group(function () {
         Route::get('users/{user}/impersonate', [App\Http\Controllers\Admin\UserController::class, 'impersonate'])
             ->name('admin.users.impersonate');
+        Route::get('stop-impersonate', [App\Http\Controllers\Admin\UserController::class, 'stopImpersonate'])
+            ->name('admin.users.stop-impersonate');
     });
     
     Route::middleware(['permission:usuarios.gerenciar_roles'])->group(function () {
@@ -442,6 +480,33 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     ]);
     Route::patch('projetos-lei/{projetoLei}/toggle-status', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'toggleStatus'])->name('admin.projetos-lei.toggle-status');
     Route::get('projetos-lei/{projetoLei}/download/{tipo}', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'download'])->name('admin.projetos-lei.download');
+    
+    // Rotas do SLI - Sistema de Tramitação Legislativa
+    Route::get('projetos-lei/{projetoLei}/tramitacao', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'tramitacao'])->name('admin.projetos-lei.tramitacao');
+    Route::post('projetos-lei/{projetoLei}/gerar-protocolo', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'gerarProtocolo'])->name('admin.projetos-lei.gerar-protocolo');
+    Route::patch('projetos-lei/{projetoLei}/atualizar-status', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'atualizarStatus'])->name('admin.projetos-lei.atualizar-status');
+    Route::post('projetos-lei/{projetoLei}/iniciar-consulta-publica', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'iniciarConsultaPublica'])->name('admin.projetos-lei.iniciar-consulta-publica');
+    Route::patch('projetos-lei/{projetoLei}/finalizar-consulta-publica', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'finalizarConsultaPublica'])->name('admin.projetos-lei.finalizar-consulta-publica');
+    Route::post('projetos-lei/{projetoLei}/adicionar-historico', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'adicionarHistorico'])->name('admin.projetos-lei.adicionar-historico');
+    Route::post('projetos-lei/{projetoLei}/registrar-votacao', [App\Http\Controllers\Admin\ProjetoLeiController::class, 'registrarVotacao'])->name('admin.projetos-lei.registrar-votacao');
+    
+    // Rotas do TramitacaoController
+    Route::get('tramitacao', [App\Http\Controllers\Admin\TramitacaoController::class, 'index'])->name('admin.tramitacao.index');
+    Route::get('tramitacao/{projetoLei}', [App\Http\Controllers\Admin\TramitacaoController::class, 'show'])->name('admin.tramitacao.show');
+    Route::patch('tramitacao/{projetoLei}/status', [App\Http\Controllers\Admin\TramitacaoController::class, 'updateStatus'])->name('admin.tramitacao.update-status');
+    Route::post('tramitacao/{projetoLei}/protocolo', [App\Http\Controllers\Admin\TramitacaoController::class, 'gerarProtocolo'])->name('admin.tramitacao.gerar-protocolo');
+    Route::post('tramitacao/{projetoLei}/consulta-publica/iniciar', [App\Http\Controllers\Admin\TramitacaoController::class, 'iniciarConsultaPublica'])->name('admin.tramitacao.iniciar-consulta-publica');
+    Route::patch('tramitacao/{projetoLei}/consulta-publica/finalizar', [App\Http\Controllers\Admin\TramitacaoController::class, 'finalizarConsultaPublica'])->name('admin.tramitacao.finalizar-consulta-publica');
+    Route::post('tramitacao/{projetoLei}/votacao', [App\Http\Controllers\Admin\TramitacaoController::class, 'registrarVotacao'])->name('admin.tramitacao.registrar-votacao');
+    Route::post('tramitacao/{projetoLei}/veto', [App\Http\Controllers\Admin\TramitacaoController::class, 'registrarVeto'])->name('admin.tramitacao.registrar-veto');
+    Route::post('tramitacao/{projetoLei}/sancao', [App\Http\Controllers\Admin\TramitacaoController::class, 'registrarSancao'])->name('admin.tramitacao.registrar-sancao');
+    Route::post('tramitacao/{projetoLei}/parecer', [App\Http\Controllers\Admin\TramitacaoController::class, 'adicionarParecer'])->name('admin.tramitacao.adicionar-parecer');
+    Route::get('tramitacao/relatorio', [App\Http\Controllers\Admin\TramitacaoController::class, 'relatorio'])->name('admin.tramitacao.relatorio');
+
+    // Rotas administrativas para protocolos
+    Route::resource('protocolos', App\Http\Controllers\Admin\ProtocolosController::class, [
+        'as' => 'admin'
+    ]);
 
     // Rotas administrativas para comitês de iniciativa popular
     Route::resource('comites-iniciativa-popular', App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, [
@@ -555,7 +620,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     // Rotas administrativas para configurações gerais (brasão, logo, contatos)
     Route::resource('configuracao-geral', App\Http\Controllers\Admin\ConfiguracaoGeralController::class, [
-        'as' => 'admin'
+        'as' => 'admin',
+        'parameters' => ['configuracao-geral' => 'configuracao']
     ]);
 
     // Rotas administrativas para menus
@@ -617,6 +683,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('hero-config/edit', [App\Http\Controllers\Admin\HeroConfigurationController::class, 'edit'])->name('admin.hero-config.edit');
     Route::put('hero-config', [App\Http\Controllers\Admin\HeroConfigurationController::class, 'update'])->name('admin.hero-config.update');
     
+    // Rotas administrativas para biblioteca de mídia
+    Route::resource('media', App\Http\Controllers\MediaController::class, [
+        'as' => 'admin'
+    ]);
+    Route::get('media-select', [App\Http\Controllers\MediaController::class, 'select'])->name('admin.media.select');
+    Route::get('media-api', [App\Http\Controllers\MediaController::class, 'api'])->name('admin.media.api');
+    
     // Futuras rotas administrativas podem ser adicionadas aqui
     // Route::resource('users', UserController::class);
     // Route::resource('noticias', NoticiaController::class);
@@ -668,6 +741,31 @@ Route::get('/js/{file}', function ($file) {
     abort(404);
 })->where('file', '.*\.js');
 
+// Rota para servir arquivos de mídia
+Route::get('/media/{filename}', [App\Http\Controllers\MediaController::class, 'serve'])
+    ->name('media.serve')
+    ->where('filename', '.*');
+
+// Rota de teste para debug do modal (TEMPORÁRIA)
+Route::get('/test-media-api/{id}', function($id) {
+    $media = App\Models\Media::with('uploader')->find($id);
+    if (!$media) {
+        return response()->json(['error' => 'Media not found'], 404);
+    }
+    
+    $mediaArray = $media->toArray();
+    return response()->json([
+        'success' => true,
+        'data' => $mediaArray,
+        'debug' => [
+            'url' => $media->url,
+            'public_url' => $media->public_url,
+            'formatted_size' => $media->formatted_size,
+            'is_image' => $media->is_image
+        ]
+    ]);
+});
+
 // Rota pública para download de PDF de fiscalização
 Route::get('/contratos/{contrato}/fiscalizacoes/{fiscalizacao}/pdf', [App\Http\Controllers\Admin\ContratoController::class, 'downloadFiscalizacaoPdfPublico'])->name('contratos.fiscalizacoes.pdf.publico');
 
@@ -688,3 +786,43 @@ Route::get('/test-pagination', function () {
 
 // SEO - Sitemap
 Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+
+// Rota de teste para verificar status do usuário
+Route::get('/test-user-status', function () {
+    return response()->json([
+        'authenticated' => auth()->check(),
+        'user_id' => auth()->id(),
+        'user_email' => auth()->check() ? auth()->user()->email : null,
+        'csrf_token' => csrf_token(),
+        'session_id' => session()->getId(),
+        'app_url' => config('app.url'),
+        'current_url' => request()->url()
+    ]);
+})->name('test.user.status');
+
+// Debug - Rota para receber logs do JavaScript
+Route::post('/debug/log', function (Illuminate\Http\Request $request) {
+    $logData = $request->all();
+    $timestamp = now()->format('Y-m-d H:i:s');
+    $logEntry = "[{$timestamp}] " . json_encode($logData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
+    
+    // Salva no arquivo de log de debug
+    $logFile = storage_path('logs/debug-esic.log');
+    file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
+    
+    return response()->json(['status' => 'logged']);
+})->name('debug.log');
+
+// Rotas de autenticação para cidadãos
+// Rotas para cidadãos autenticados (apenas dashboard e logout específicos)
+Route::middleware('cidadao.auth')->group(function () {
+    Route::get('/cidadao/dashboard', [App\Http\Controllers\CidadaoAuthController::class, 'dashboard'])->name('cidadao.dashboard');
+    Route::post('/cidadao/logout', [App\Http\Controllers\CidadaoAuthController::class, 'logout'])->name('cidadao.logout');
+    Route::post('/cidadao/solicitar-verificacao', [App\Http\Controllers\CidadaoAuthController::class, 'solicitarVerificacao'])->name('cidadao.solicitar-verificacao');
+    
+    // Rotas para comitês de iniciativa popular
+    Route::get('/cidadao/comites/criar', [App\Http\Controllers\CidadaoComiteController::class, 'create'])->name('cidadao.comites.create');
+    Route::post('/cidadao/comites', [App\Http\Controllers\CidadaoComiteController::class, 'store'])->name('cidadao.comites.store');
+    Route::get('/cidadao/comites/{comite}', [App\Http\Controllers\CidadaoComiteController::class, 'show'])->name('cidadao.comites.show');
+    Route::post('/cidadao/comites/{comite}/assinar', [App\Http\Controllers\CidadaoComiteController::class, 'assinar'])->name('cidadao.comites.assinar');
+});

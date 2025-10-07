@@ -36,6 +36,9 @@ class User extends Authenticatable
         'email_verified_at',
         'email_verification_token',
         'role',
+        'cargo',
+        'setor',
+        'observacoes',
         'active',
         'terms_accepted_at',
         'privacy_accepted_at',
@@ -43,6 +46,31 @@ class User extends Authenticatable
         'birth_date',
         'address',
         'last_login_at',
+        // Campos de cidadão migrados
+        'cpf',
+        'rg',
+        'data_nascimento',
+        'sexo',
+        'estado_civil',
+        'profissao',
+        'telefone',
+        'celular',
+        'cep',
+        'endereco',
+        'numero',
+        'complemento',
+        'bairro',
+        'cidade',
+        'estado',
+        'titulo_eleitor',
+        'zona_eleitoral',
+        'secao_eleitoral',
+        'status_verificacao',
+        'motivo_rejeicao',
+        'verificado_em',
+        'verificado_por',
+        'pode_assinar',
+        'pode_criar_comite',
     ];
 
     /**
@@ -71,6 +99,7 @@ class User extends Authenticatable
             'active' => 'boolean',
             'birth_date' => 'date',
             'last_login_at' => 'datetime',
+            'verificado_em' => 'datetime',
         ];
     }
 
@@ -118,7 +147,7 @@ class User extends Authenticatable
      */
     public function documentos(): HasMany
     {
-        return $this->hasMany(Documento::class, 'autor_id');
+        return $this->hasMany(Documento::class, 'usuario_upload_id');
     }
 
     /**
@@ -126,7 +155,7 @@ class User extends Authenticatable
      */
     public function solicitacoesEsic(): HasMany
     {
-        return $this->hasMany(EsicSolicitacao::class, 'solicitante_id');
+        return $this->hasMany(EsicSolicitacao::class, 'user_id');
     }
 
     /**
@@ -135,6 +164,75 @@ class User extends Authenticatable
     public function solicitacoesEsicResponsavel(): HasMany
     {
         return $this->hasMany(EsicSolicitacao::class, 'responsavel_id');
+    }
+
+    /**
+     * Assinaturas eletrônicas do cidadão (baseada no CPF)
+     */
+    public function assinaturas(): HasMany
+    {
+        return $this->hasMany(AssinaturaEletronica::class, 'cpf', 'cpf');
+    }
+
+    /**
+     * Comitês criados pelo cidadão (baseada no CPF)
+     */
+    public function comites(): HasMany
+    {
+        return $this->hasMany(ComiteIniciativaPopular::class, 'cpf', 'cpf');
+    }
+
+    /**
+     * Dados do cidadão (se o usuário for um cidadão)
+     * NOTA: Os dados do cidadão agora estão diretamente no modelo User
+     * Esta relação foi removida após a unificação dos modelos User e Cidadao
+     */
+
+    /**
+     * Métodos de cidadão para compatibilidade
+     */
+    public function isVerificado(): bool
+    {
+        return $this->status_verificacao === 'verificado';
+    }
+
+    public function isAtivo(): bool
+    {
+        return $this->active && $this->role === 'cidadao';
+    }
+
+    public function aceitouTermos(): bool
+    {
+        return !is_null($this->terms_accepted_at);
+    }
+
+    public function podeAssinar(): bool
+    {
+        return $this->isAtivo() && $this->isVerificado() && $this->aceitouTermos();
+    }
+
+    public function podeCriarComite(): bool
+    {
+        return $this->podeAssinar();
+    }
+
+    /**
+     * Verifica se o cidadão já assinou um comitê específico
+     */
+    public function jaAssinou($comiteId): bool
+    {
+        return $this->assinaturas()
+                    ->where('comite_iniciativa_popular_id', $comiteId)
+                    ->where('ativo', true)
+                    ->exists();
+    }
+
+    /**
+     * Accessor para nome_completo (compatibilidade)
+     */
+    public function getNomeCompletoAttribute(): string
+    {
+        return $this->name;
     }
 
     // Métodos de Role e Permissões
@@ -148,11 +246,52 @@ class User extends Authenticatable
     }
 
     /**
-     * Verifica se o usuário é um usuário comum
+     * Verifica se o usuário é um cidadão
+     */
+    public function isCidadao(): bool
+    {
+        return $this->role === 'cidadao' && $this->active;
+    }
+
+    /**
+     * Verifica se o usuário é secretário
+     */
+    public function isSecretario(): bool
+    {
+        return $this->role === 'secretario' && $this->active;
+    }
+
+    /**
+     * Verifica se o usuário é vereador
+     */
+    public function isVereador(): bool
+    {
+        return $this->role === 'vereador' && $this->active;
+    }
+
+    /**
+     * Verifica se o usuário é presidente da câmara
+     */
+    public function isPresidente(): bool
+    {
+        return $this->role === 'presidente' && $this->active;
+    }
+
+    /**
+     * Verifica se o usuário é funcionário
+     */
+    public function isFuncionario(): bool
+    {
+        return $this->role === 'funcionario' && $this->active;
+    }
+
+    /**
+     * Verifica se o usuário é um usuário comum (mantido para compatibilidade)
+     * @deprecated Use isCidadao() instead
      */
     public function isUser(): bool
     {
-        return $this->role === 'user' && $this->active;
+        return $this->isCidadao();
     }
 
     /**
@@ -168,7 +307,7 @@ class User extends Authenticatable
      */
     public function canAccessAdmin(): bool
     {
-        return $this->isAdmin();
+        return $this->isAdmin() || $this->isSecretario() || $this->isPresidente();
     }
 
     /**
@@ -176,7 +315,7 @@ class User extends Authenticatable
      */
     public function canManageContent(): bool
     {
-        return $this->isAdmin();
+        return $this->isAdmin() || $this->isSecretario();
     }
 
     /**
@@ -185,6 +324,30 @@ class User extends Authenticatable
     public function canManageUsers(): bool
     {
         return $this->isAdmin();
+    }
+
+    /**
+     * Verifica se o usuário pode gerenciar sessões
+     */
+    public function canManageSessoes(): bool
+    {
+        return $this->isAdmin() || $this->isSecretario() || $this->isPresidente();
+    }
+
+    /**
+     * Verifica se o usuário pode criar projetos de lei
+     */
+    public function canCreateProjetosLei(): bool
+    {
+        return $this->isAdmin() || $this->isVereador() || $this->isPresidente();
+    }
+
+    /**
+     * Verifica se o usuário pode responder e-SIC
+     */
+    public function canResponderEsic(): bool
+    {
+        return $this->isAdmin() || $this->isSecretario() || $this->isFuncionario();
     }
 
     // Scopes
@@ -198,11 +361,68 @@ class User extends Authenticatable
     }
 
     /**
-     * Scope para filtrar apenas usuários comuns
+     * Scope para filtrar apenas cidadãos
+     */
+    public function scopeCidadaos($query)
+    {
+        return $query->where('role', 'cidadao');
+    }
+
+    /**
+     * Scope para filtrar apenas secretários
+     */
+    public function scopeSecretarios($query)
+    {
+        return $query->where('role', 'secretario');
+    }
+
+    /**
+     * Scope para filtrar apenas vereadores
+     */
+    public function scopeVereadores($query)
+    {
+        return $query->where('role', 'vereador');
+    }
+
+    /**
+     * Scope para filtrar apenas presidentes
+     */
+    public function scopePresidentes($query)
+    {
+        return $query->where('role', 'presidente');
+    }
+
+    /**
+     * Scope para filtrar apenas funcionários
+     */
+    public function scopeFuncionarios($query)
+    {
+        return $query->where('role', 'funcionario');
+    }
+
+    /**
+     * Scope para filtrar apenas usuários comuns (mantido para compatibilidade)
+     * @deprecated Use scopeCidadaos() instead
      */
     public function scopeUsers($query)
     {
-        return $query->where('role', 'user');
+        return $query->where('role', 'cidadao');
+    }
+
+    /**
+     * Scope para filtrar usuários com acesso administrativo
+     */
+    public function scopeAdministrativos($query)
+    {
+        return $query->whereIn('role', ['admin', 'secretario', 'presidente']);
+    }
+
+    /**
+     * Scope para filtrar membros da câmara
+     */
+    public function scopeMembrosCamara($query)
+    {
+        return $query->whereIn('role', ['vereador', 'presidente', 'secretario']);
     }
 
     /**
@@ -263,6 +483,23 @@ class User extends Authenticatable
         if ($value) {
             $this->attributes['telefone'] = preg_replace('/[^0-9]/', '', $value);
         }
+    }
+
+    /**
+     * Get CPF attribute - format with mask
+     */
+    public function getCpfFormattedAttribute(): string
+    {
+        if (!$this->cpf) {
+            return '';
+        }
+        
+        $cpf = preg_replace('/[^0-9]/', '', $this->cpf);
+        if (strlen($cpf) === 11) {
+            return substr($cpf, 0, 3) . '.' . substr($cpf, 3, 3) . '.' . substr($cpf, 6, 3) . '-' . substr($cpf, 9, 2);
+        }
+        
+        return $this->cpf;
     }
 
     // Métodos auxiliares - Removidos temporariamente até implementar sistema de roles

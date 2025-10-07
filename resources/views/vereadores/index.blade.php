@@ -378,13 +378,7 @@
             <div class="col-lg-4 col-md-6">
                 <div class="vereador-card-modern animate-fade-in-up" style="animation-delay: {{ 0.1 * $index }}s;">
                     <div class="vereador-photo-large">
-                        @if($vereador->foto)
-                            <img src="{{ asset('storage/' . $vereador->foto) }}" alt="{{ $vereador->nome }}" loading="lazy">
-                        @else
-                            <div class="vereador-photo-placeholder-large">
-                                <i class="fas fa-user"></i>
-                            </div>
-                        @endif
+                        <img src="{{ $vereador->foto_url }}" alt="{{ $vereador->nome }}" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-vereador.svg') }}';">
                         
                         @if($vereador->isPresidente())
                         <div class="presidente-badge-modern">

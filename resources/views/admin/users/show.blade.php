@@ -58,17 +58,27 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="info-item">
-                                        <label>CPF:</label>
-                                        <span>{{ $user->cpf ?: 'Não informado' }}</span>
+                                        <label>Telefone:</label>
+                                        <span>{{ $user->phone ?: 'Não informado' }}</span>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="info-item">
-                                        <label>Telefone:</label>
-                                        <span>{{ $user->telefone ?: 'Não informado' }}</span>
+                                        <label>Data de Nascimento:</label>
+                                        <span>{{ $user->birth_date ? $user->birth_date->format('d/m/Y') : 'Não informado' }}</span>
                                     </div>
                                 </div>
                             </div>
+                            @if($user->address)
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="info-item">
+                                        <label>Endereço:</label>
+                                        <span>{{ $user->address }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
                         </div>
                     </div>
 
@@ -94,6 +104,195 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Dados do Cidadão -->
+                    @if($user->role === 'cidadao')
+                    <div class="admin-card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Dados do Cidadão</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label>Nome Completo:</label>
+                                        <span>{{ $user->nome_completo ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label>CPF:</label>
+                                        <span>{{ $user->cpf ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label>RG:</label>
+                                        <span>{{ $user->rg ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label>Sexo:</label>
+                                        <span>
+                                            @if($user->sexo === 'M')
+                                                Masculino
+                                            @elseif($user->sexo === 'F')
+                                                Feminino
+                                            @elseif($user->sexo === 'Outro')
+                                                Outro
+                                            @else
+                                                Não informado
+                                            @endif
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label>Estado Civil:</label>
+                                        <span>{{ $user->estado_civil ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label>Profissão:</label>
+                                        <span>{{ $user->profissao ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label>Telefone Fixo:</label>
+                                        <span>{{ $user->telefone ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label>Celular:</label>
+                                        <span>{{ $user->celular ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Endereço Completo -->
+                            @if($user->cep || $user->endereco || $user->cidade)
+                            <hr>
+                            <h6 class="mb-3"><i class="fas fa-map-marker-alt me-2"></i>Endereço Completo</h6>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="info-item">
+                                        <label>CEP:</label>
+                                        <span>{{ $user->cep ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label>Endereço:</label>
+                                        <span>{{ $user->endereco ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="info-item">
+                                        <label>Número:</label>
+                                        <span>{{ $user->numero ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="info-item">
+                                        <label>Complemento:</label>
+                                        <span>{{ $user->complemento ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-item">
+                                        <label>Bairro:</label>
+                                        <span>{{ $user->bairro ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-item">
+                                        <label>Cidade/UF:</label>
+                                        <span>{{ $user->cidade ? $user->cidade . '/' . $user->estado : 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                            
+                            <!-- Dados Eleitorais -->
+                            @if($user->titulo_eleitor || $user->zona_eleitoral || $user->secao_eleitoral)
+                            <hr>
+                            <h6 class="mb-3"><i class="fas fa-vote-yea me-2"></i>Dados Eleitorais</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="info-item">
+                                        <label>Título de Eleitor:</label>
+                                        <span>{{ $user->titulo_eleitor ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-item">
+                                        <label>Zona Eleitoral:</label>
+                                        <span>{{ $user->zona_eleitoral ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-item">
+                                        <label>Seção Eleitoral:</label>
+                                        <span>{{ $user->secao_eleitoral ?: 'Não informado' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                            
+                            <!-- Status de Verificação -->
+                            @if($user->status_verificacao)
+                            <hr>
+                            <h6 class="mb-3"><i class="fas fa-shield-alt me-2"></i>Status de Verificação</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="info-item">
+                                        <label>Status:</label>
+                                        <span>
+                                            @if($user->status_verificacao === 'pendente')
+                                                <span class="badge bg-warning">Pendente</span>
+                                            @elseif($user->status_verificacao === 'aprovado')
+                                                <span class="badge bg-success">Aprovado</span>
+                                            @elseif($user->status_verificacao === 'rejeitado')
+                                                <span class="badge bg-danger">Rejeitado</span>
+                                            @else
+                                                <span class="badge bg-secondary">{{ $user->status_verificacao }}</span>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </div>
+                                @if($user->verificado_em)
+                                <div class="col-md-4">
+                                    <div class="info-item">
+                                        <label>Verificado em:</label>
+                                        <span>{{ is_object($user->verificado_em) ? $user->verificado_em->format('d/m/Y H:i') : $user->verificado_em }}</span>
+                                    </div>
+                                </div>
+                                @endif
+                                @if($user->motivo_rejeicao)
+                                <div class="col-md-4">
+                                    <div class="info-item">
+                                        <label>Motivo da Rejeição:</label>
+                                        <span class="text-danger">{{ $user->motivo_rejeicao }}</span>
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
 
                     <!-- Acesso e Permissões -->
                     <div class="admin-card mb-4">
@@ -248,7 +447,7 @@
                                     
                                     <a href="{{ route('admin.users.reset-password', $user) }}" 
                                        class="btn btn-outline-warning btn-sm"
-                                       onclick="return confirm('Tem certeza que deseja resetar a senha?')">
+                                       data-confirm="Tem certeza que deseja resetar a senha?">
                                         <i class="fas fa-key me-2"></i>Resetar Senha
                                     </a>
                                 @endif

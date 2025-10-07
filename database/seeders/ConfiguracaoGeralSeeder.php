@@ -62,6 +62,34 @@ class ConfiguracaoGeralSeeder extends Seeder
                 'tipo' => 'texto',
                 'descricao' => 'Nome oficial da Câmara Municipal',
                 'ativo' => true
+            ],
+            [
+                'chave' => 'nome_municipio',
+                'valor' => 'Município Exemplo',
+                'tipo' => 'texto',
+                'descricao' => 'Nome oficial do município',
+                'ativo' => true
+            ],
+            [
+                'chave' => 'quantidade_habitantes',
+                'valor' => '50000',
+                'tipo' => 'numero',
+                'descricao' => 'Quantidade total de habitantes do município',
+                'ativo' => true
+            ],
+            [
+                'chave' => 'quantidade_eleitores',
+                'valor' => '35000',
+                'tipo' => 'numero',
+                'descricao' => 'Quantidade total de eleitores do município',
+                'ativo' => true
+            ],
+            [
+                'chave' => 'percentual_assinaturas',
+                'valor' => '5.0',
+                'tipo' => 'numero',
+                'descricao' => 'Percentual de eleitores necessário para iniciativa popular (%)',
+                'ativo' => true
             ]
         ];
 

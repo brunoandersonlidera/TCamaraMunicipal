@@ -112,13 +112,28 @@
             </div>
             
             <div class="mb-3">
-                <label for="foto" class="form-label">Foto</label>
-                <input type="file" class="form-control @error('foto') is-invalid @enderror" 
-                       id="foto" name="foto" accept="image/*">
-                @error('foto')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-                <div class="form-text">Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 2MB</div>
+                <label class="form-label">Foto</label>
+                <div class="d-flex gap-2 mb-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="openMediaSelectorBtn">
+                        <i class="fas fa-photo-video"></i> Selecionar da Biblioteca
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="clearSelectedMediaBtn">
+                        <i class="fas fa-times"></i> Limpar seleção
+                    </button>
+                </div>
+                <div class="mb-2">
+                    <input type="file" class="form-control @error('foto') is-invalid @enderror" 
+                           id="foto" name="foto" accept="image/*">
+                    @error('foto')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                    <div class="form-text">Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 2MB</div>
+                </div>
+                <input type="hidden" name="foto_existing" id="foto_existing_input" value="{{ old('foto_existing') }}">
+                <div id="fotoSelectedPreview" class="mt-2" style="display: none;">
+                    <label class="form-label d-block">Pré-visualização da seleção</label>
+                    <img id="fotoSelectedPreviewImg" src="" alt="Pré-visualização" class="img-thumbnail" style="max-width: 150px;">
+                </div>
             </div>
         </div>
     </div>
@@ -217,15 +232,83 @@
                 <div id="comissoes-container">
                     <div class="input-group mb-2">
                         <input type="text" class="form-control" name="comissoes[]" placeholder="Nome da comissão">
-                        <button type="button" class="btn btn-outline-success" onclick="addComissao()">
+                        <button type="button" class="btn btn-outline-success add-comissao-btn">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
                 </div>
             </div>
+            
+            <!-- Presidência e Vice-Presidência -->
+            <div class="admin-card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-gavel"></i> Presidência e Vice-Presidência</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input type="hidden" name="presidente" value="0">
+                                <input class="form-check-input" type="checkbox" value="1" id="presidente" name="presidente" 
+                                       {{ old('presidente') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="presidente">Presidente da Câmara</label>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <label for="presidente_inicio" class="form-label">Início (Presidente)</label>
+                                    <input type="date" class="form-control @error('presidente_inicio') is-invalid @enderror" 
+                                           id="presidente_inicio" name="presidente_inicio" 
+                                           value="{{ old('presidente_inicio') }}">
+                                    @error('presidente_inicio')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="presidente_fim" class="form-label">Fim (Presidente)</label>
+                                    <input type="date" class="form-control @error('presidente_fim') is-invalid @enderror" 
+                                           id="presidente_fim" name="presidente_fim" 
+                                           value="{{ old('presidente_fim') }}">
+                                    @error('presidente_fim')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input type="hidden" name="vice_presidente" value="0">
+                                <input class="form-check-input" type="checkbox" value="1" id="vice_presidente" name="vice_presidente" 
+                                       {{ old('vice_presidente') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="vice_presidente">Vice-Presidente</label>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <label for="vice_inicio" class="form-label">Início (Vice)</label>
+                                    <input type="date" class="form-control @error('vice_inicio') is-invalid @enderror" 
+                                           id="vice_inicio" name="vice_inicio" 
+                                           value="{{ old('vice_inicio') }}">
+                                    @error('vice_inicio')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="vice_fim" class="form-label">Fim (Vice)</label>
+                                    <input type="date" class="form-control @error('vice_fim') is-invalid @enderror" 
+                                           id="vice_fim" name="vice_fim" 
+                                           value="{{ old('vice_fim') }}">
+                                    @error('vice_fim')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-text">Ao marcar um novo Presidente/Vice, o sistema encerrará automaticamente o mandato anterior ativo.</div>
+                </div>
+            </div>
         </div>
     </div>
-    
+
     <!-- Redes Sociais -->
     <div class="admin-card mb-4">
         <div class="card-header">
@@ -283,6 +366,147 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal: Seletor de Mídia -->
+    <div class="modal fade" id="mediaSelectorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-images"></i> Selecionar mídia</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="mediaSelectorContainer">
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-spinner fa-spin"></i> Carregando mídia...
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="selectMediaBtn" disabled>Selecionar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @push('scripts')
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const openBtn = document.getElementById('openMediaSelectorBtn');
+        const clearBtn = document.getElementById('clearSelectedMediaBtn');
+        const hiddenInput = document.getElementById('foto_existing_input');
+        const fileInput = document.getElementById('foto');
+        const preview = document.getElementById('fotoSelectedPreview');
+        const previewImg = document.getElementById('fotoSelectedPreviewImg');
+
+        let modalInstance;
+
+        function ensureModal() {
+            const modalEl = document.getElementById('mediaSelectorModal');
+            // Bootstrap 5 modal
+            modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+        }
+
+        function loadMediaSelector() {
+            const container = document.getElementById('mediaSelectorContainer');
+            container.innerHTML = '<div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin"></i> Carregando mídia...</div>';
+            // Carregar já filtrado por categoria "foto" para facilitar seleção de fotos de vereadores
+            fetch(`{{ route('admin.media.select') }}?category=foto`)
+                .then(r => r.text())
+                .then(html => { 
+                    container.innerHTML = html; 
+                    initializeMediaSelector();
+                })
+                .catch(err => { console.error('Erro ao carregar seletor de mídia', err); });
+        }
+
+        function initializeMediaSelector() {
+            // Seleção de mídia
+            document.querySelectorAll('#mediaSelectorModal .media-select-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('#mediaSelectorModal .media-select-item').forEach(i => i.classList.remove('selected'));
+                    this.classList.add('selected');
+                    const selectBtn = document.querySelector('#selectMediaBtn');
+                    if (selectBtn) selectBtn.disabled = false;
+                });
+            });
+
+            // Filtros
+            const categoryFilter = document.querySelector('#mediaSelectorModal #mediaCategoryFilter');
+            const typeFilter = document.querySelector('#mediaSelectorModal #mediaTypeFilter');
+            const searchInput = document.querySelector('#mediaSelectorModal #mediaSearchInput');
+            const searchBtn = document.querySelector('#mediaSelectorModal #mediaSearchBtn');
+
+            function filterMedia() {
+                const category = categoryFilter?.value || '';
+                const type = typeFilter?.value || '';
+                const search = searchInput?.value || '';
+                loadMediaPage(1, { category, type, search });
+            }
+
+            categoryFilter?.addEventListener('change', filterMedia);
+            typeFilter?.addEventListener('change', filterMedia);
+            searchBtn?.addEventListener('click', filterMedia);
+            searchInput?.addEventListener('keypress', function(e) { if (e.key === 'Enter') filterMedia(); });
+
+            // Paginação
+            document.querySelectorAll('#mediaSelectorModal .media-selector-pagination .page-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    if (page) loadMediaPage(page);
+                });
+            });
+        }
+
+        function loadMediaPage(page, filters = {}) {
+            const params = new URLSearchParams({ page: page, ...filters });
+            fetch(`{{ route('admin.media.select') }}?${params}`)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newGrid = doc.querySelector('.media-selector');
+                    const container = document.querySelector('#mediaSelectorModal .modal-body #mediaSelectorContainer');
+                    if (container && newGrid) {
+                        container.innerHTML = newGrid.outerHTML;
+                        initializeMediaSelector();
+                    }
+                })
+                .catch(error => { console.error('Erro ao carregar mídia:', error); });
+        }
+
+        openBtn?.addEventListener('click', function() {
+            ensureModal();
+            loadMediaSelector();
+            modalInstance.show();
+        });
+
+        clearBtn?.addEventListener('click', function() {
+            hiddenInput.value = '';
+            preview.style.display = 'none';
+            previewImg.src = '';
+        });
+
+        // Selecionar mídia escolhida no modal
+        document.getElementById('selectMediaBtn')?.addEventListener('click', function() {
+            const selected = document.querySelector('#mediaSelectorModal .media-select-item.selected');
+            if (!selected) return;
+            const path = selected.getAttribute('data-path');
+            const url = selected.getAttribute('data-url');
+            if (path) {
+                hiddenInput.value = path;
+                previewImg.src = url;
+                preview.style.display = 'block';
+                // Limpa eventual arquivo escolhido para evitar conflito
+                fileInput.value = '';
+            }
+            modalInstance.hide();
+        });
+    });
+    </script>
+    @endpush
     
     <!-- Observações -->
     <div class="admin-card mb-4">

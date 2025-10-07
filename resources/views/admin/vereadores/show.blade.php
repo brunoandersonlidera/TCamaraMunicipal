@@ -267,18 +267,10 @@
                 <h5 class="mb-0"><i class="fas fa-image"></i> Foto</h5>
             </div>
             <div class="card-body text-center">
-                @if($vereador->foto)
-                    <img src="{{ asset('storage/' . $vereador->foto) }}" 
-                         alt="{{ $vereador->nome_parlamentar }}" 
-                         class="img-fluid rounded">
-                @else
-                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 200px;">
-                        <div class="text-center">
-                            <i class="fas fa-user fa-3x text-muted mb-2"></i>
-                            <p class="text-muted mb-0">Sem foto</p>
-                        </div>
-                    </div>
-                @endif
+                <img src="{{ $vereador->foto_url }}" 
+                     alt="{{ $vereador->nome_parlamentar }}" 
+                     class="img-fluid rounded"
+                     onerror="this.onerror=null;this.src='{{ asset('images/placeholder-vereador.svg') }}';">
             </div>
         </div>
         
@@ -346,7 +338,7 @@
                     </form>
                     
                     <form action="{{ route('admin.vereadores.destroy', $vereador) }}" method="POST" 
-                          onsubmit="return confirm('Tem certeza que deseja excluir este vereador? Esta ação não pode ser desfeita.')">
+                          data-confirm="Tem certeza que deseja excluir este vereador? Esta ação não pode ser desfeita.">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-outline-danger w-100">

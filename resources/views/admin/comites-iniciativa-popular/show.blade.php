@@ -17,7 +17,7 @@
                             <i class="fas fa-edit"></i> Editar
                         </a>
                         <button type="button" class="btn btn-{{ $comite->status == 'ativo' ? 'secondary' : 'success' }}" 
-                                onclick="toggleStatus({{ $comite->id }})">
+                                data-action="toggle-status" data-id="{{ $comite->id }}">
                             <i class="fas fa-{{ $comite->status == 'ativo' ? 'pause' : 'play' }}"></i> 
                             {{ $comite->status == 'ativo' ? 'Desativar' : 'Ativar' }}
                         </button>

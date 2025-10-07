@@ -100,7 +100,9 @@ class EsicController extends Controller
      */
     public function create()
     {
-        return view('esic.create');
+        $user = auth()->user();
+        
+        return view('esic.create', compact('user'));
     }
 
     /**
@@ -108,7 +110,48 @@ class EsicController extends Controller
      */
     public function store(Request $request)
     {
+        \Log::info('E-SIC Store: Método chamado', ['request_data' => $request->all()]);
+        
+        // DEBUG: Log detalhado da requisição
+        \Log::info('=== DEBUG ESIC STORE - INÍCIO ===');
+        \Log::info('Request method: ' . $request->method());
+        \Log::info('Request URL: ' . $request->fullUrl());
+        \Log::info('Request headers: ' . json_encode($request->headers->all()));
+        \Log::info('Request all data: ' . json_encode($request->all()));
+        \Log::info('User authenticated: ' . (auth()->check() ? 'YES' : 'NO'));
+        if (auth()->check()) {
+            \Log::info('User ID: ' . auth()->id());
+            \Log::info('User email: ' . auth()->user()->email);
+        }
+        \Log::info('CSRF token from request: ' . $request->input('_token'));
+        \Log::info('Session CSRF token: ' . session()->token());
+        
+        // Debug: Log de entrada
+        \Log::info('E-SIC Store: Método chamado', [
+            'method' => $request->method(),
+            'url' => $request->url(),
+            'data' => $request->all()
+        ]);
+        
+        // Debug direto em arquivo
+        file_put_contents(storage_path('logs/debug-esic.log'), 
+            "[" . now() . "] E-SIC Store: Método chamado\n", FILE_APPEND);
+        
         $user = auth()->user();
+        
+        // Debug: Log do usuário
+        file_put_contents(storage_path('logs/debug-esic.log'), 
+            "[" . now() . "] E-SIC Store: Usuário = " . ($user ? $user->id : 'NULL') . "\n", FILE_APPEND);
+        
+        // Verificar se o usuário está autenticado
+        if (!$user) {
+            \Log::warning('E-SIC Store: Usuário não autenticado');
+            file_put_contents(storage_path('logs/debug-esic.log'), 
+                "[" . now() . "] E-SIC Store: ERRO - Usuário não autenticado\n", FILE_APPEND);
+            return redirect()->route('login')->with('error', 'Você precisa estar logado para fazer uma solicitação.');
+        }
+        
+        \Log::info('E-SIC Store: Usuário autenticado', ['user_id' => $user->id]);
         
         $validator = Validator::make($request->all(), [
             'telefone_solicitante' => 'nullable|string|max:20',
@@ -129,14 +172,41 @@ class EsicController extends Controller
             'aceita_termos.accepted' => 'Você deve aceitar os termos de uso.'
         ]);
 
+        // Debug: Log da validação
+        file_put_contents(storage_path('logs/debug-esic.log'), 
+            "[" . now() . "] E-SIC Store: Iniciando validação\n", FILE_APPEND);
+
         if ($validator->fails()) {
+            file_put_contents(storage_path('logs/debug-esic.log'), 
+                "[" . now() . "] E-SIC Store: ERRO - Validação falhou: " . json_encode($validator->errors()) . "\n", FILE_APPEND);
             return back()->withErrors($validator)->withInput();
         }
 
+        file_put_contents(storage_path('logs/debug-esic.log'), 
+            "[" . now() . "] E-SIC Store: Validação passou - iniciando criação\n", FILE_APPEND);
+
         try {
+            // Gerar protocolo
+            $ano = now()->year;
+            $sequencial = EsicSolicitacao::whereYear('created_at', $ano)->count() + 1;
+            $protocolo = sprintf('ESIC%d%06d', $ano, $sequencial);
+            
+            file_put_contents(storage_path('logs/debug-esic.log'), 
+                "[" . now() . "] E-SIC Store: Protocolo gerado: $protocolo\n", FILE_APPEND);
+            
             // Criar solicitação usando dados do usuário autenticado
+            \Log::info('Tentando criar solicitação e-SIC', [
+                'protocolo' => $protocolo,
+                'user_id' => $user->id,
+                'assunto' => $request->assunto
+            ]);
+            
+            file_put_contents(storage_path('logs/debug-esic.log'), 
+                "[" . now() . "] E-SIC Store: Tentando criar solicitação no banco\n", FILE_APPEND);
+
             $solicitacao = EsicSolicitacao::create([
-                'protocolo' => $this->gerarProtocolo(),
+                'protocolo' => $protocolo,
+                'data_solicitacao' => now(),
                 'nome_solicitante' => $user->name,
                 'email_solicitante' => $user->email,
                 'cpf_solicitante' => $user->cpf ?? '',
@@ -146,10 +216,17 @@ class EsicController extends Controller
                 'descricao' => $request->descricao,
                 'categoria' => $request->categoria,
                 'forma_recebimento' => $request->forma_recebimento,
-                'status' => EsicSolicitacao::STATUS_ABERTA,
-                'data_solicitacao' => now(),
-                'ip_solicitante' => $request->ip(),
+                'status' => EsicSolicitacao::STATUS_PENDENTE,
+                'data_limite_resposta' => now()->addDays(20), // 20 dias úteis conforme LAI
                 'user_id' => $user->id
+            ]);
+            
+            file_put_contents(storage_path('logs/debug-esic.log'), 
+                "[" . now() . "] E-SIC Store: SUCESSO - Solicitação criada ID: " . $solicitacao->id . "\n", FILE_APPEND);
+            
+            \Log::info('Solicitação e-SIC criada com sucesso', [
+                'id' => $solicitacao->id,
+                'protocolo' => $solicitacao->protocolo
             ]);
 
             // Upload de anexos
@@ -173,20 +250,35 @@ class EsicController extends Controller
             // Registrar movimentação inicial
             EsicMovimentacao::create([
                 'esic_solicitacao_id' => $solicitacao->id,
-                'status' => EsicSolicitacao::STATUS_ABERTA,
+                'status' => 'aberta', // Usando valor válido do ENUM da tabela esic_movimentacoes
                 'descricao' => 'Solicitação registrada no sistema',
-                'usuario_id' => null,
-                'data_movimentacao' => now()
+                'usuario_id' => auth()->id(),
+                'data_movimentacao' => now(),
+                'ip_usuario' => request()->ip(),
             ]);
 
             // Enviar e-mail de confirmação
             $this->enviarEmailConfirmacao($solicitacao);
+
+            \Log::info('=== DEBUG ESIC STORE - SUCESSO ===');
+            \Log::info('Solicitação criada com ID: ' . $solicitacao->id);
+            \Log::info('Protocolo gerado: ' . $solicitacao->protocolo);
+            \Log::info('Redirecionando para dashboard...');
 
             return redirect()->route('esic.dashboard')
                 ->with('success', 'Solicitação registrada com sucesso! Protocolo: ' . $solicitacao->protocolo)
                 ->with('protocolo', $solicitacao->protocolo);
 
         } catch (\Exception $e) {
+            file_put_contents(storage_path('logs/debug-esic.log'), 
+                "[" . now() . "] E-SIC Store: EXCEPTION - " . $e->getMessage() . "\n", FILE_APPEND);
+            file_put_contents(storage_path('logs/debug-esic.log'), 
+                "[" . now() . "] E-SIC Store: STACK - " . $e->getTraceAsString() . "\n", FILE_APPEND);
+                
+            \Log::error('=== DEBUG ESIC STORE - ERRO ===');
+            \Log::error('Exception: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
             return back()->with('error', 'Erro ao registrar solicitação. Tente novamente.')->withInput();
         }
     }
@@ -216,14 +308,16 @@ class EsicController extends Controller
     }
 
     /**
-     * Exibir detalhes da solicitação (para administradores)
+     * Exibir detalhes da solicitação por protocolo
      */
-    public function show($id)
+    public function show($protocolo)
     {
+        // Manter o protocolo no formato original (ex: ESIC2025000005)
         $solicitacao = EsicSolicitacao::with(['responsavel', 'movimentacoes.usuario'])
-            ->findOrFail($id);
+            ->where('protocolo', $protocolo)
+            ->firstOrFail();
 
-        return view('admin.esic.show', compact('solicitacao'));
+        return view('esic.show', compact('solicitacao'));
     }
 
     /**

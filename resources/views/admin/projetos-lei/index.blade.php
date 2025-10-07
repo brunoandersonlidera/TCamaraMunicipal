@@ -159,11 +159,12 @@
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        @if($projetoLei->tipo_autoria === 'vereador' && $projetoLei->autor && $projetoLei->autor->foto)
-                                            <img src="{{ asset('storage/' . $projetoLei->autor->foto) }}" 
+                                        @if($projetoLei->tipo_autoria === 'vereador' && $projetoLei->autor)
+                                            <img src="{{ $projetoLei->autor->foto_url }}" 
                                                  alt="{{ $projetoLei->autor->nome }}" 
                                                  class="rounded-circle me-2" 
-                                                 style="width: 30px; height: 30px; object-fit: cover;">
+                                                 style="width: 30px; height: 30px; object-fit: cover;"
+                                                 onerror="this.onerror=null;this.src='{{ asset('images/placeholder-vereador.svg') }}';">
                                         @else
                                             <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" 
                                                  style="width: 30px; height: 30px;">
@@ -232,11 +233,12 @@
                                 <h6 class="card-title">{{ Str::limit($projetoLei->titulo, 60) }}</h6>
                                 <p class="card-text text-muted small">{{ Str::limit($projetoLei->ementa, 100) }}</p>
                                 <div class="d-flex align-items-center mb-2">
-                                    @if($projetoLei->tipo_autoria === 'vereador' && $projetoLei->autor && $projetoLei->autor->foto)
-                                        <img src="{{ asset('storage/' . $projetoLei->autor->foto) }}" 
+                                    @if($projetoLei->tipo_autoria === 'vereador' && $projetoLei->autor)
+                                        <img src="{{ $projetoLei->autor->foto_url }}" 
                                              alt="{{ $projetoLei->autor->nome }}" 
                                              class="rounded-circle me-2" 
-                                             style="width: 25px; height: 25px; object-fit: cover;">
+                                             style="width: 25px; height: 25px; object-fit: cover;"
+                                             onerror="this.onerror=null;this.src='{{ asset('images/placeholder-vereador.svg') }}';">
                                     @else
                                         <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" 
                                              style="width: 25px; height: 25px;">

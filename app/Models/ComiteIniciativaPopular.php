@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ComiteIniciativaPopular extends Model
 {
@@ -11,10 +12,13 @@ class ComiteIniciativaPopular extends Model
     
     protected $fillable = [
         'nome',
+        'descricao',
+        'objetivo',
         'cpf',
         'email',
         'telefone',
         'endereco',
+        'cidadao_responsavel_id',
         'numero_assinaturas',
         'minimo_assinaturas',
         'data_inicio_coleta',
@@ -22,6 +26,8 @@ class ComiteIniciativaPopular extends Model
         'status',
         'observacoes',
         'documentos',
+        'ementa',
+        'texto_projeto_html',
     ];
 
     protected $casts = [
@@ -40,6 +46,42 @@ class ComiteIniciativaPopular extends Model
     public function projetosLei(): HasMany
     {
         return $this->hasMany(ProjetoLei::class, 'comite_iniciativa_popular_id');
+    }
+
+    /**
+     * Relacionamento com cidadão responsável
+     */
+    public function cidadaoResponsavel(): BelongsTo
+    {
+        return $this->belongsTo(Cidadao::class, 'cidadao_responsavel_id');
+    }
+
+    /**
+     * Relacionamento com assinaturas eletrônicas
+     */
+    public function assinaturas(): HasMany
+    {
+        return $this->hasMany(AssinaturaEletronica::class, 'comite_iniciativa_popular_id');
+    }
+
+    /**
+     * Relacionamento com assinaturas válidas
+     */
+    public function assinaturasValidas(): HasMany
+    {
+        return $this->hasMany(AssinaturaEletronica::class, 'comite_iniciativa_popular_id')
+                    ->where('status', 'validada')
+                    ->where('ativo', true);
+    }
+
+    /**
+     * Relacionamento com assinaturas pendentes
+     */
+    public function assinaturasPendentes(): HasMany
+    {
+        return $this->hasMany(AssinaturaEletronica::class, 'comite_iniciativa_popular_id')
+                    ->where('status', 'pendente')
+                    ->where('ativo', true);
     }
 
     /**

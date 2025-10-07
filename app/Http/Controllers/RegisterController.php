@@ -27,20 +27,34 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'nome_completo' => 'required|string|max:255',
+            'cpf' => 'required|string|size:14|unique:users,cpf',
+            'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
+            'data_nascimento' => 'required|date|before:today',
+            'sexo' => 'required|in:M,F',
+            'telefone' => 'nullable|string|max:20',
+            'celular' => 'required|string|max:20',
             'terms' => 'required|accepted',
             'privacy' => 'required|accepted',
         ], [
-            'name.required' => 'O nome é obrigatório.',
-            'name.max' => 'O nome não pode ter mais de 255 caracteres.',
+            'nome_completo.required' => 'O nome completo é obrigatório.',
+            'nome_completo.max' => 'O nome completo não pode ter mais de 255 caracteres.',
+            'cpf.required' => 'O CPF é obrigatório.',
+            'cpf.size' => 'O CPF deve ter 14 caracteres (com pontos e hífen).',
+            'cpf.unique' => 'Este CPF já está cadastrado.',
             'email.required' => 'O e-mail é obrigatório.',
             'email.email' => 'O e-mail deve ter um formato válido.',
             'email.unique' => 'Este e-mail já está cadastrado.',
             'password.required' => 'A senha é obrigatória.',
             'password.min' => 'A senha deve ter pelo menos 8 caracteres.',
             'password.confirmed' => 'A confirmação da senha não confere.',
+            'data_nascimento.required' => 'A data de nascimento é obrigatória.',
+            'data_nascimento.date' => 'A data de nascimento deve ser uma data válida.',
+            'data_nascimento.before' => 'A data de nascimento deve ser anterior a hoje.',
+            'sexo.required' => 'O sexo é obrigatório.',
+            'sexo.in' => 'O sexo deve ser Masculino ou Feminino.',
+            'celular.required' => 'O celular é obrigatório.',
             'terms.required' => 'Você deve aceitar os termos de uso.',
             'terms.accepted' => 'Você deve aceitar os termos de uso.',
             'privacy.required' => 'Você deve aceitar a política de privacidade.',
@@ -52,23 +66,29 @@ class RegisterController extends Controller
         }
 
         try {
-            // Criar o usuário
+            // Criar usuário com todos os dados
             $user = User::create([
-                'name' => $request->name,
+                'name' => $request->nome_completo,
                 'email' => $request->email,
-                'password' => $request->password, // O mutator já faz o hash
-                'role' => 'user',
-                'active' => true,
+                'password' => Hash::make($request->password),
+                'role' => 'cidadao',
                 'email_verification_token' => Str::random(60),
                 'terms_accepted_at' => now(),
                 'privacy_accepted_at' => now(),
+                'cpf' => $request->cpf,
+                'data_nascimento' => $request->data_nascimento,
+                'sexo' => $request->sexo,
+                'telefone' => $request->telefone,
+                'celular' => $request->celular,
+                'status_verificacao' => 'pendente',
             ]);
 
             // Enviar email de verificação
-            $this->sendVerificationEmail($user);
+            $this->sendVerificationEmailUser($user);
 
             return redirect()->route('register.success')
-                           ->with('email', $user->email);
+                           ->with('email', $user->email)
+                           ->with('message', 'Cadastro realizado com sucesso! Verifique seu e-mail para ativar sua conta.');
 
         } catch (\Exception $e) {
             return back()->with('error', 'Erro ao criar conta: ' . $e->getMessage())->withInput();
@@ -106,14 +126,24 @@ class RegisterController extends Controller
                            ->with('error', 'Token de verificação expirado. Solicite um novo.');
         }
 
-        // Verificar email
         $user->update([
             'email_verified_at' => now(),
             'email_verification_token' => null,
+            'active' => true, // Ativar a conta após verificação
         ]);
 
-        return redirect()->route('login')
-                       ->with('success', 'Email verificado com sucesso! Você já pode fazer login.');
+        // Se for cidadão, marcar como verificado
+        if ($user->role === 'cidadao') {
+            $user->update([
+                'verificado' => true,
+            ]);
+        }
+
+        $message = $user->role === 'cidadao' 
+            ? 'E-mail verificado com sucesso! Sua conta de cidadão foi ativada. Você já pode fazer login.'
+            : 'E-mail verificado com sucesso! Você já pode fazer login.';
+
+        return redirect()->route('login')->with('success', $message);
     }
 
     /**
@@ -122,14 +152,17 @@ class RegisterController extends Controller
     public function resendVerification(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email'
+            'email' => 'required|email',
         ], [
             'email.required' => 'O e-mail é obrigatório.',
             'email.email' => 'O e-mail deve ter um formato válido.',
-            'email.exists' => 'Este e-mail não está cadastrado.',
         ]);
 
         $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->with('error', 'Este e-mail não está cadastrado.');
+        }
 
         if ($user->email_verified_at) {
             return back()->with('error', 'Este e-mail já foi verificado.');
@@ -141,7 +174,7 @@ class RegisterController extends Controller
         ]);
 
         // Enviar email
-        $this->sendVerificationEmail($user);
+        $this->sendVerificationEmailUser($user);
 
         return back()->with('success', 'Email de verificação reenviado com sucesso!');
     }
@@ -155,9 +188,9 @@ class RegisterController extends Controller
     }
 
     /**
-     * Envia email de verificação
+     * Envia email de verificação para usuário
      */
-    private function sendVerificationEmail(User $user)
+    private function sendVerificationEmailUser(User $user)
     {
         try {
             Mail::to($user->email)->send(new EmailVerification($user));

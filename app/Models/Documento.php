@@ -63,6 +63,11 @@ class Documento extends Model
         return $this->belongsTo(Vereador::class, 'autor_id');
     }
 
+    public function usuarioUpload()
+    {
+        return $this->belongsTo(User::class, 'usuario_upload_id');
+    }
+
     public function projetoLei()
     {
         return $this->belongsTo(ProjetoLei::class, 'projeto_lei_id');

@@ -273,7 +273,7 @@
                         </a>
                         @endif
 
-                        <button type="button" class="btn btn-outline-warning" onclick="toggleDestaque()">
+                        <button type="button" class="btn btn-outline-warning" data-action="toggle-destaque">
                             <i class="fas fa-star me-2"></i>
                             {{ $documento->destaque ? 'Remover Destaque' : 'Destacar' }}
                         </button>

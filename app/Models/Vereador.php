@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage;
 
 class Vereador extends Model
 {
@@ -35,7 +36,14 @@ class Vereador extends Model
         'votos_contrarios',
         'abstencoes',
         'presencas_sessoes',
-        'observacoes'
+        'observacoes',
+        // Novos campos para presidente/vice
+        'presidente',
+        'vice_presidente',
+        'presidente_inicio',
+        'presidente_fim',
+        'vice_inicio',
+        'vice_fim'
     ];
 
     protected $casts = [
@@ -48,7 +56,14 @@ class Vereador extends Model
         'votos_favoraveis' => 'integer',
         'votos_contrarios' => 'integer',
         'abstencoes' => 'integer',
-        'presencas_sessoes' => 'integer'
+        'presencas_sessoes' => 'integer',
+        // Novos casts
+        'presidente' => 'boolean',
+        'vice_presidente' => 'boolean',
+        'presidente_inicio' => 'date',
+        'presidente_fim' => 'date',
+        'vice_inicio' => 'date',
+        'vice_fim' => 'date'
     ];
 
     protected $dates = [
@@ -122,7 +137,28 @@ class Vereador extends Model
     protected function fotoUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->foto ? asset('files/' . $this->foto) : asset('images/vereador-placeholder.jpg'),
+            get: function () {
+                $foto = $this->foto;
+
+                // Se já for uma URL absoluta, retorna como está
+                if ($foto && preg_match('#^https?://#', $foto)) {
+                    return $foto;
+                }
+
+                // Normaliza caminho e verifica existência no disco 'public'
+                if ($foto) {
+                    $path = ltrim($foto, '/');
+                    // Remove prefixo 'storage/' se vier salvo com ele
+                    $path = preg_replace('#^storage/#', '', $path);
+
+                    if (Storage::disk('public')->exists($path)) {
+                        return Storage::url($path);
+                    }
+                }
+
+                // Fallback para placeholder padrão
+                return asset('images/placeholder-vereador.svg');
+            },
         );
     }
 
@@ -148,6 +184,16 @@ class Vereador extends Model
 
     public function isPresidente()
     {
+        // Usa os campos booleanos e datas de mandato
+        if ($this->presidente) {
+            // Presidente é considerado ativo se a data atual está entre início e fim (ou sem fim)
+            $hoje = now()->startOfDay();
+            $inicio = $this->presidente_inicio;
+            $fim = $this->presidente_fim;
+            return (!$inicio || $inicio->lte($hoje)) && (!$fim || $fim->gte($hoje));
+        }
+
+        // Fallback: antigo formato via comissoes JSON, se necessário
         $comissoes = $this->comissoes ?? [];
         if (is_string($comissoes)) {
             $comissoes = json_decode($comissoes, true) ?? [];
@@ -157,11 +203,42 @@ class Vereador extends Model
 
     public function isVicePresidente()
     {
+        if ($this->vice_presidente) {
+            $hoje = now()->startOfDay();
+            $inicio = $this->vice_inicio;
+            $fim = $this->vice_fim;
+            return (!$inicio || $inicio->lte($hoje)) && (!$fim || $fim->gte($hoje));
+        }
+
         $comissoes = $this->comissoes ?? [];
         if (is_string($comissoes)) {
             $comissoes = json_decode($comissoes, true) ?? [];
         }
         return in_array('vice-presidente', $comissoes);
+    }
+
+    public function scopePresidenteAtivo($query)
+    {
+        $hoje = now()->toDateString();
+        return $query->where('presidente', true)
+                     ->where(function($q) use ($hoje) {
+                         $q->whereNull('presidente_inicio')->orWhereDate('presidente_inicio', '<=', $hoje);
+                     })
+                     ->where(function($q) use ($hoje) {
+                         $q->whereNull('presidente_fim')->orWhereDate('presidente_fim', '>=', $hoje);
+                     });
+    }
+
+    public function scopeViceAtivo($query)
+    {
+        $hoje = now()->toDateString();
+        return $query->where('vice_presidente', true)
+                     ->where(function($q) use ($hoje) {
+                         $q->whereNull('vice_inicio')->orWhereDate('vice_inicio', '<=', $hoje);
+                     })
+                     ->where(function($q) use ($hoje) {
+                         $q->whereNull('vice_fim')->orWhereDate('vice_fim', '>=', $hoje);
+                     });
     }
 
     // Validações customizadas

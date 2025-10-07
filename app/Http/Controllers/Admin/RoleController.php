@@ -126,9 +126,10 @@ class RoleController extends Controller
                                 ->get()
                                 ->groupBy('module');
 
+        $permissionsByModule = $permissions; // Alias para compatibilidade com a view
         $rolePermissions = $role->permissions->pluck('id')->toArray();
 
-        return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissions'));
+        return view('admin.roles.edit', compact('role', 'permissions', 'permissionsByModule', 'rolePermissions'));
     }
 
     /**

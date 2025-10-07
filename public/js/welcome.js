@@ -63,30 +63,13 @@ document.addEventListener('DOMContentLoaded', function() {
         setupSliderEvents();
         
         // Inicializar o carousel do Bootstrap
-        const carousel = new bootstrap.Carousel(heroSlider, {
+        // Observação: o Bootstrap já suporta intervalos por slide via data-bs-interval em cada .carousel-item,
+        // portanto não precisamos reinicializar o carousel manualmente ao trocar de slide.
+        new bootstrap.Carousel(heroSlider, {
             interval: sliderData[0]?.interval || 5000,
             wrap: true,
             touch: true,
             pause: 'hover'
-        });
-        
-        // Atualizar intervalo quando o slide muda
-        heroSlider.addEventListener('slide.bs.carousel', function(event) {
-            const nextSlide = slides[event.to];
-            const nextInterval = parseInt(nextSlide.getAttribute('data-bs-interval')) || 5000;
-            
-            // Parar o carousel atual
-            carousel.dispose();
-            
-            // Reinicializar com novo intervalo
-            setTimeout(() => {
-                const newCarousel = new bootstrap.Carousel(heroSlider, {
-                    interval: nextInterval,
-                    wrap: true,
-                    touch: true,
-                    pause: 'hover'
-                });
-            }, 100);
         });
     }
     
@@ -307,4 +290,30 @@ document.addEventListener('DOMContentLoaded', function() {
             if (carousel) carousel.cycle();
         }
     };
+
+    // ========================================
+    // Imagens da seção "Últimas Notícias"
+    // Alterna entre contain/cover conforme orientação da imagem
+    // ========================================
+    try {
+        const newsImages = document.querySelectorAll('.news-image');
+        if (newsImages && newsImages.length > 0) {
+            newsImages.forEach((img) => {
+                const applyOrientationClass = () => {
+                    if (!img || !img.naturalWidth || !img.naturalHeight) return;
+                    const isPortrait = img.naturalHeight > img.naturalWidth;
+                    img.classList.toggle('portrait', isPortrait);
+                    img.classList.toggle('landscape', !isPortrait);
+                };
+
+                if (img.complete) {
+                    applyOrientationClass();
+                } else {
+                    img.addEventListener('load', applyOrientationClass, { once: true });
+                }
+            });
+        }
+    } catch (e) {
+        console.warn('Falha ao aplicar orientação em imagens de notícias:', e);
+    }
 });

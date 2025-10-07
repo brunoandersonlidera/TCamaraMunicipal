@@ -158,12 +158,27 @@
                                     <select class="form-select @error('role') is-invalid @enderror" 
                                             id="role" name="role" required>
                                         <option value="">Selecione o tipo</option>
-                                        <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>
-                                            Administrador
-                                        </option>
-                                        <option value="user" {{ old('role') === 'user' ? 'selected' : '' }}>
-                                            Usuário
-                                        </option>
+                                        @foreach($roles as $role)
+                                            @php
+                                                $displayName = match($role->name) {
+                                                    'admin' => 'Administrador',
+                                                    'super-admin' => 'Super Administrador',
+                                                    'secretario' => 'Secretário',
+                                                    'responsavel_esic' => 'Responsável e-SIC',
+                                                    'ouvidor' => 'Ouvidor',
+                                                    'vereador' => 'Vereador',
+                                                    'presidente' => 'Presidente',
+                                                    'editor' => 'Editor',
+                                                    'protocolo' => 'Protocolo',
+                                                    'contador' => 'Contador',
+                                                    'cidadao' => 'Cidadão',
+                                                    default => ucfirst(str_replace(['_', '-'], ' ', $role->name))
+                                                };
+                                            @endphp
+                                            <option value="{{ $role->name }}" {{ old('role') === $role->name ? 'selected' : '' }}>
+                                                {{ $displayName }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                     @error('role')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -189,8 +204,17 @@
                         <div class="alert alert-info">
                             <h6><i class="fas fa-info-circle me-2"></i>Tipos de Usuário:</h6>
                             <ul class="mb-0">
-                                <li><strong>Administrador:</strong> Acesso total ao sistema, pode gerenciar usuários, conteúdo e configurações</li>
-                                <li><strong>Usuário:</strong> Acesso limitado, pode visualizar e editar conteúdo básico</li>
+                                <li><strong>Super Administrador:</strong> Acesso total ao sistema, pode gerenciar tudo</li>
+                                <li><strong>Administrador:</strong> Acesso administrativo completo</li>
+                                <li><strong>Secretário:</strong> Gerencia documentos e processos administrativos</li>
+                                <li><strong>Responsável e-SIC:</strong> Gerencia solicitações de informação</li>
+                                <li><strong>Ouvidor:</strong> Gerencia ouvidoria e manifestações</li>
+                                <li><strong>Vereador:</strong> Acesso específico para vereadores</li>
+                                <li><strong>Presidente:</strong> Presidente da câmara</li>
+                                <li><strong>Editor:</strong> Pode editar conteúdo do site</li>
+                                <li><strong>Protocolo:</strong> Gerencia protocolos e documentos</li>
+                                <li><strong>Contador:</strong> Acesso a informações financeiras</li>
+                                <li><strong>Cidadão:</strong> Acesso básico para cidadãos</li>
                             </ul>
                         </div>
                     </div>

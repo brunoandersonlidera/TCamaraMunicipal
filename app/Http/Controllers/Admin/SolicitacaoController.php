@@ -68,7 +68,12 @@ class SolicitacaoController extends Controller
             'esclarecimento' => 'Pedido de Esclarecimento',
             'reclamacao' => 'Reclamação',
             'sugestao' => 'Sugestão',
-            'outros' => 'Outros'
+            'outros' => 'Outros',
+            'contratos' => 'Contratos',
+            'licitacoes' => 'Licitações',
+            'despesas' => 'Despesas',
+            'receitas' => 'Receitas',
+            'transparencia' => 'Transparência'
         ];
 
         // Status disponíveis
@@ -100,6 +105,15 @@ class SolicitacaoController extends Controller
             $solicitacao->update(['visualizada_em' => now()]);
         }
 
+        // Buscar solicitação anterior e próxima para navegação
+        $anterior = EsicSolicitacao::where('id', '<', $solicitacao->id)
+                                  ->orderBy('id', 'desc')
+                                  ->first();
+        
+        $proximo = EsicSolicitacao::where('id', '>', $solicitacao->id)
+                                 ->orderBy('id', 'asc')
+                                 ->first();
+
         $tipos = [
             'informacao' => 'Solicitação de Informação',
             'documento' => 'Solicitação de Documento',
@@ -109,7 +123,15 @@ class SolicitacaoController extends Controller
             'outros' => 'Outros'
         ];
 
-        return view('admin.solicitacoes.show', compact('solicitacao', 'tipos'));
+        // Status disponíveis
+        $statusOptions = [
+            'pendente' => 'Pendente',
+            'em_andamento' => 'Em Andamento',
+            'respondida' => 'Respondida',
+            'arquivada' => 'Arquivada'
+        ];
+
+        return view('admin.solicitacoes.show', compact('solicitacao', 'tipos', 'anterior', 'proximo', 'statusOptions'));
     }
 
     /**

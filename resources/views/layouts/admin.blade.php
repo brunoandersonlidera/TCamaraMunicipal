@@ -123,6 +123,32 @@
                         Páginas Institucionais
                     </a>
                 </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.media.index') }}" class="nav-link {{ request()->routeIs('admin.media.*') ? 'active' : '' }}">
+                        <i class="fas fa-photo-video"></i>
+                        Biblioteca de Mídia
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Tramitação -->
+            <div class="nav-section">
+                <div class="nav-section-title">Tramitação</div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.tramitacao.index') }}" class="nav-link {{ request()->routeIs('admin.tramitacao.*') ? 'active' : '' }}">
+                        <i class="fas fa-route"></i>
+                        Tramitação de Projetos
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('admin.protocolos.index') }}" class="nav-link {{ request()->routeIs('admin.protocolos.*') ? 'active' : '' }}">
+                        <i class="fas fa-file-signature"></i>
+                        Protocolos
+                    </a>
+                </div>
             </div>
             
             <!-- Transparência -->
@@ -268,10 +294,30 @@
     
     <!-- Main Content -->
     <main class="admin-main">
+        <!-- Impersonation Banner -->
+        @if(session('impersonate_admin_id'))
+            <div class="alert alert-warning alert-dismissible fade show mb-0 rounded-0 border-0" role="alert" style="background: linear-gradient(45deg, #ff9800, #ffc107); color: #000;">
+                <div class="container-fluid d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-secret me-2"></i>
+                        <strong>Modo Impersonificação Ativo:</strong>
+                        <span class="ms-2">Você está logado como <strong>{{ auth()->user()->name }}</strong></span>
+                    </div>
+                    <div>
+                        <a href="{{ route('admin.users.stop-impersonate') }}" class="btn btn-dark btn-sm me-2">
+                            <i class="fas fa-undo me-1"></i>
+                            Voltar ao Admin Original
+                        </a>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        @endif
+        
         <!-- Header -->
         <header class="admin-header">
             <div class="d-flex align-items-center">
-                <button class="btn btn-link mobile-menu-btn me-3" onclick="toggleSidebar()">
+                <button class="btn btn-link mobile-menu-btn me-3" data-action="toggle-sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
                 
@@ -290,10 +336,26 @@
             <div class="d-flex align-items-center gap-3">
                 <div class="dropdown">
                     <button class="btn btn-link text-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-user-circle me-2"></i>
+                        @if(session('impersonate_admin_id'))
+                            <i class="fas fa-user-secret me-2 text-warning"></i>
+                        @else
+                            <i class="fas fa-user-circle me-2"></i>
+                        @endif
                         {{ auth()->user()->name }}
+                        @if(session('impersonate_admin_id'))
+                            <span class="badge bg-warning text-dark ms-1">Impersonificação</span>
+                        @endif
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
+                        @if(session('impersonate_admin_id'))
+                            <li>
+                                <a class="dropdown-item text-warning" href="{{ route('admin.users.stop-impersonate') }}">
+                                    <i class="fas fa-undo me-2"></i>
+                                    Voltar ao Admin Original
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                        @endif
                         <li>
                             <a class="dropdown-item" href="{{ route('home') }}" target="_blank">
                                 <i class="fas fa-home me-2"></i>
@@ -364,6 +426,7 @@
     <script src="{{ asset('js/tipos-sessao.js') }}"></script>
     <script src="{{ asset('js/admin-events.js') }}"></script>
     <script src="{{ asset('js/admin-layout.js') }}"></script>
+    <script src="{{ asset('js/admin-actions.js') }}"></script>
     
     @stack('scripts')
 </body>

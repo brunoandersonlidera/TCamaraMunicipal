@@ -109,7 +109,7 @@
                             <div class="col-md-5">
                                 <div class="position-relative">
                                     @if($sessaoDestaque->getThumbnailUrl())
-                                        <img src="{{ $sessaoDestaque->getThumbnailUrl() }}" alt="Sessão {{ $sessaoDestaque->numero_sessao }}" class="img-fluid rounded sessao-thumbnail-destaque">
+                                        <img src="{{ $sessaoDestaque->getThumbnailUrl() }}" alt="Sessão {{ $sessaoDestaque->numero_sessao }}" class="img-fluid rounded sessao-thumbnail-destaque" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-video.svg') }}';">
                                     @else
                                         <div class="sessao-thumbnail-placeholder-destaque">
                                             <i class="fas fa-play-circle"></i>
@@ -218,7 +218,7 @@
                                 <div class="card card-custom h-100 sessao-gravada-card">
                                     <div class="position-relative">
                                         @if($sessao->getThumbnailUrl())
-                                            <img src="{{ $sessao->getThumbnailUrl() }}" alt="Sessão {{ $sessao->numero_sessao }}" class="card-img-top sessao-thumbnail">
+                                            <img src="{{ $sessao->getThumbnailUrl() }}" alt="Sessão {{ $sessao->numero_sessao }}" class="card-img-top sessao-thumbnail" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-video.svg') }}';">
                                         @else
                                             <div class="sessao-thumbnail-placeholder">
                                                 <i class="fas fa-play-circle"></i>

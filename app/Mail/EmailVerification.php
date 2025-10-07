@@ -9,6 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use App\Models\User;
+use App\Models\Cidadao;
 
 class EmailVerification extends Mailable
 {
@@ -20,10 +21,18 @@ class EmailVerification extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user)
+    public function __construct(User|Cidadao $user)
     {
         $this->user = $user;
-        $this->verificationUrl = route('verify.email', ['token' => $user->email_verification_token]);
+        
+        // Determinar o token correto baseado no tipo de modelo
+        if ($user instanceof Cidadao) {
+            $token = $user->token_ativacao;
+        } else {
+            $token = $user->email_verification_token;
+        }
+        
+        $this->verificationUrl = route('verify.email', ['token' => $token]);
     }
 
     /**

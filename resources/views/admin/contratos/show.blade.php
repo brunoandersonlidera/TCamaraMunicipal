@@ -580,13 +580,13 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="numero_aditivo" class="form-label">Número do Aditivo</label>
-                                <input type="text" class="form-control" id="numero_aditivo" name="numero" required>
+                                <input type="text" class="form-control" id="numero_aditivo" name="numero_aditivo" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="tipo_aditivo" class="form-label">Tipo</label>
-                                <select class="form-control" id="tipo_aditivo" name="tipo" required onchange="toggleAditivoFields()">
+                                <select class="form-control" id="tipo_aditivo" name="tipo" required data-action="toggle-aditivo-fields">
                                     <option value="">Selecione</option>
                                     <option value="prazo">Prazo</option>
                                     <option value="valor">Valor</option>

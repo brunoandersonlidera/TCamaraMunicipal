@@ -1,0 +1,7 @@
+Este é um arquivo de teste para verificar a funcionalidade de upload da biblioteca de mídia.
+
+Data: 2024
+Sistema: TCamaraMunicipal
+Funcionalidade: Upload de Mídia
+
+Este arquivo pode ser usado para testar se o sistema de upload está funcionando corretamente.

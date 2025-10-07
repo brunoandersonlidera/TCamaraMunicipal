@@ -79,14 +79,14 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Solicitante</label>
-                                <div class="form-control-plaintext">{{ $solicitacao->nome }}</div>
+                                <div class="form-control-plaintext">{{ $solicitacao->nome_solicitante }}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">E-mail</label>
                                 <div class="form-control-plaintext">
-                                    <a href="mailto:{{ $solicitacao->email }}">{{ $solicitacao->email }}</a>
+                                    <a href="mailto:{{ $solicitacao->email_solicitante }}">{{ $solicitacao->email_solicitante }}</a>
                                 </div>
                             </div>
                         </div>
@@ -96,14 +96,14 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Telefone</label>
-                                <div class="form-control-plaintext">{{ $solicitacao->telefone ?: 'Não informado' }}</div>
+                                <div class="form-control-plaintext">{{ $solicitacao->telefone_solicitante ?: 'Não informado' }}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Tipo</label>
                                 <div class="form-control-plaintext">
-                                    <span class="badge bg-light text-dark">{{ $tipos[$solicitacao->tipo] ?? $solicitacao->tipo }}</span>
+                                    <span class="badge bg-light text-dark">{{ $tipos[$solicitacao->categoria] ?? $solicitacao->categoria }}</span>
                                 </div>
                             </div>
                         </div>
@@ -378,7 +378,7 @@
                 <div class="card-body">
                     <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" id="arquivada" 
-                               {{ $solicitacao->arquivada ? 'checked' : '' }} onchange="toggleArquivo()">
+                               {{ $solicitacao->arquivada ? 'checked' : '' }} data-action="toggle-arquivo">
                         <label class="form-check-label" for="arquivada">
                             Arquivada
                         </label>

@@ -84,6 +84,43 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // Galeria: garantir que o slide aberto corresponde ao thumbnail clicado
+    (function() {
+        const thumbs = document.querySelectorAll('[data-bs-target="#galeriaModal"][data-bs-slide-to]');
+        let selectedIndex = 0;
+
+        const modalEl = document.getElementById('galeriaModal');
+        const carouselEl = document.getElementById('galeriaCarousel');
+
+        thumbs.forEach((thumb) => {
+            thumb.addEventListener('click', function() {
+                const idx = parseInt(thumb.getAttribute('data-bs-slide-to'), 10);
+                selectedIndex = isNaN(idx) ? 0 : idx;
+
+                // Se o modal já estiver aberto, muda imediatamente o slide
+                if (modalEl && modalEl.classList.contains('show') && carouselEl && window.bootstrap && window.bootstrap.Carousel) {
+                    let carousel = window.bootstrap.Carousel.getInstance(carouselEl);
+                    if (!carousel) {
+                        carousel = new window.bootstrap.Carousel(carouselEl, { interval: false });
+                    }
+                    carousel.to(selectedIndex);
+                }
+            });
+        });
+
+        if (modalEl) {
+            modalEl.addEventListener('shown.bs.modal', function() {
+                if (carouselEl && window.bootstrap && window.bootstrap.Carousel) {
+                    let carousel = window.bootstrap.Carousel.getInstance(carouselEl);
+                    if (!carousel) {
+                        carousel = new window.bootstrap.Carousel(carouselEl, { interval: false });
+                    }
+                    carousel.to(selectedIndex);
+                }
+            });
+        }
+    })();
 });
 
 // Gerenciamento de tags

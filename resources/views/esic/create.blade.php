@@ -37,6 +37,25 @@
                     </div>
                 @endif
 
+                <!-- DEBUG: Status do usuário -->
+                <div class="alert alert-info">
+                    <h5>DEBUG - Status do Usuário:</h5>
+                    <ul>
+                        <li><strong>Usuário logado:</strong> {{ $user ? 'SIM' : 'NÃO' }}</li>
+                        @if($user)
+                            <li><strong>Nome:</strong> {{ $user->name }}</li>
+                            <li><strong>Email:</strong> {{ $user->email }}</li>
+                            <li><strong>Email verificado:</strong> {{ $user->email_verified_at ? 'SIM (' . $user->email_verified_at . ')' : 'NÃO' }}</li>
+                            <li><strong>Role:</strong> {{ $user->role ?? 'N/A' }}</li>
+                            <li><strong>Ativo:</strong> {{ $user->active ? 'SIM' : 'NÃO' }}</li>
+                            @if($user->role === 'cidadao')
+                                <li><strong>Cidadão:</strong> {{ $user->nome_completo ?? $user->name }}</li>
+                                <li><strong>Status Verificação:</strong> {{ $user->status_verificacao ?? 'Não verificado' }}</li>
+                            @endif
+                        @endif
+                    </ul>
+                </div>
+
                 <!-- Formulário -->
                 <div class="form-card">
                     <form action="{{ route('esic.store') }}" method="POST" id="esicForm">
@@ -53,12 +72,12 @@
                                 <div class="col-md-8 mb-3">
                                     <label for="nome_solicitante" class="form-label required">Nome Completo</label>
                                     <input type="text" class="form-control" id="nome_solicitante" name="nome_solicitante" 
-                                           value="{{ old('nome_solicitante') }}" required>
+                                           value="{{ old('nome_solicitante', $user ? $user->name : '') }}" required>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="cpf_solicitante" class="form-label">CPF</label>
                                     <input type="text" class="form-control" id="cpf_solicitante" name="cpf_solicitante" 
-                                           value="{{ old('cpf_solicitante') }}" placeholder="000.000.000-00">
+                                           value="{{ old('cpf_solicitante', $user && $user->role === 'cidadao' ? $user->cpf : '') }}" placeholder="000.000.000-00">
                                 </div>
                             </div>
 
@@ -66,12 +85,12 @@
                                 <div class="col-md-8 mb-3">
                                     <label for="email_solicitante" class="form-label required">E-mail</label>
                                     <input type="email" class="form-control" id="email_solicitante" name="email_solicitante" 
-                                           value="{{ old('email_solicitante') }}" required>
+                                           value="{{ old('email_solicitante', $user ? $user->email : '') }}" required>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="telefone_solicitante" class="form-label">Telefone</label>
                                     <input type="text" class="form-control" id="telefone_solicitante" name="telefone_solicitante" 
-                                           value="{{ old('telefone_solicitante') }}" placeholder="(00) 00000-0000">
+                                           value="{{ old('telefone_solicitante', $user ? ($user->phone ?? $user->celular) : '') }}" placeholder="(00) 00000-0000">
                                 </div>
                             </div>
                         </div>
@@ -94,11 +113,11 @@
                                     <label for="categoria" class="form-label required">Categoria</label>
                                     <select class="form-select" id="categoria" name="categoria" required>
                                         <option value="">Selecione...</option>
-                                        <option value="atos_legislativos" {{ old('categoria') == 'atos_legislativos' ? 'selected' : '' }}>Atos Legislativos</option>
-                                        <option value="informacoes_financeiras" {{ old('categoria') == 'informacoes_financeiras' ? 'selected' : '' }}>Informações Financeiras</option>
-                                        <option value="informacoes_administrativas" {{ old('categoria') == 'informacoes_administrativas' ? 'selected' : '' }}>Informações Administrativas</option>
-                                        <option value="documentos_publicos" {{ old('categoria') == 'documentos_publicos' ? 'selected' : '' }}>Documentos Públicos</option>
-                                        <option value="outros" {{ old('categoria') == 'outros' ? 'selected' : '' }}>Outros</option>
+                                        @foreach(\App\Models\EsicSolicitacao::getCategorias() as $key => $nome)
+                                            <option value="{{ $key }}" {{ old('categoria') == $key ? 'selected' : '' }}>
+                                                {{ $nome }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
@@ -148,7 +167,7 @@
                             <div id="endereco_section" class="mb-3" style="display: none;">
                                 <label for="endereco_solicitante" class="form-label required">Endereço Completo</label>
                                 <textarea class="form-control" id="endereco_solicitante" name="endereco_solicitante" rows="3" 
-                                          placeholder="Rua, número, complemento, bairro, cidade, CEP">{{ old('endereco_solicitante') }}</textarea>
+                                          placeholder="Rua, número, complemento, bairro, cidade, CEP">{{ old('endereco_solicitante', $user ? ($user->address ?? $user->endereco) : '') }}</textarea>
                             </div>
                         </div>
 
@@ -187,9 +206,9 @@
                                 </ul>
                                 
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="aceite_termos" name="aceite_termos" 
-                                           required {{ old('aceite_termos') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="aceite_termos">
+                                    <input class="form-check-input" type="checkbox" id="aceita_termos" name="aceita_termos" 
+                                           required {{ old('aceita_termos') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="aceita_termos">
                                         <strong>Aceito os termos de uso e política de privacidade</strong>
                                     </label>
                                 </div>

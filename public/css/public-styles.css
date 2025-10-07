@@ -1343,3 +1343,137 @@
     background-color: #dc3545;
     transition: width 0.3s ease;
 }
+
+/* ===== Últimas Notícias (Home) ===== */
+.card-news {
+    border: 1px solid #e9ecef;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    background: #fff;
+}
+
+.card-news:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 28px rgba(0,0,0,0.12);
+}
+
+.card-news .card-body {
+    padding: 1rem 1rem 1.25rem 1rem;
+}
+
+.news-image-wrapper {
+    height: 240px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+}
+
+/* Variante para páginas de detalhe (imagem maior) */
+.news-image-wrapper-lg {
+    height: 400px;
+}
+
+@media (max-width: 992px) {
+    .news-image-wrapper-lg { height: 360px; }
+}
+
+@media (max-width: 768px) {
+    .news-image-wrapper-lg { height: 280px; }
+}
+
+/* Variante para cartões menores (Relacionadas / sidebar) */
+.news-image-wrapper-sm {
+    height: 120px;
+}
+
+@media (max-width: 992px) {
+    .news-image-wrapper-sm { height: 110px; }
+}
+
+@media (max-width: 768px) {
+    .news-image-wrapper-sm { height: 100px; }
+}
+
+/* Conteúdo do detalhe da notícia: tipografia e espaçamento profissional */
+.content-body {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #1f2937; /* slate-800 */
+}
+.content-body p { margin-bottom: 1.25rem; }
+.content-body h2 { font-size: 1.75rem; margin: 1.5rem 0 1rem; }
+.content-body h3 { font-size: 1.5rem; margin: 1.25rem 0 .75rem; }
+.content-body h4 { font-size: 1.25rem; margin: 1rem 0 .5rem; }
+.content-body img { max-width: 100%; height: auto; border-radius: 8px; margin: 1rem 0; }
+.content-body blockquote {
+    border-left: 4px solid #3b82f6; /* blue-500 */
+    padding: .75rem 1rem;
+    background: #f8fafc; /* slate-50 */
+    border-radius: 8px;
+}
+.content-body ul, .content-body ol { margin-bottom: 1.25rem; }
+.content-body a { color: #1d4ed8; text-decoration: underline; }
+.content-body a:hover { color: #1e40af; }
+
+/* Cartões de notícia e itens relacionados */
+.card-news { border-radius: 16px; overflow: hidden; position: relative; }
+.related-item { transition: background-color .2s ease, box-shadow .2s ease; }
+.related-item:hover { background: #f8fafc; }
+.related-title { color: #0f172a; font-weight: 600; }
+
+.news-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* preencher largura do card */
+    object-position: top center; /* evitar corte na parte superior */
+}
+
+/* Mantém comportamento consistente independentemente da orientação */
+.news-image.landscape,
+.news-image.portrait {
+    object-fit: cover;
+    object-position: top center;
+}
+
+@media (max-width: 992px) {
+    .news-image-wrapper { height: 220px; }
+}
+
+@media (max-width: 768px) {
+    .news-image-wrapper { height: 200px; }
+}
+
+.card-news .card-title {
+    font-weight: 700;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-news .badge {
+    border-radius: 999px;
+}
+
+.card-news .btn-outline-primary {
+    border-radius: 10px;
+}
+
+/* Chips de tags (corrige texto branco em fundo branco) */
+.tag-chip {
+    display: inline-block;
+    background: #eef2ff; /* indigo-50 */
+    color: #1f2937; /* slate-800 */
+    border: 1px solid #c7d2fe; /* indigo-200 */
+    border-radius: 999px;
+    font-size: 0.875rem;
+    padding: .25rem .6rem;
+}

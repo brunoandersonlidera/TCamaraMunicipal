@@ -203,7 +203,7 @@
                                     <!-- Excluir -->
                                     <form method="POST" action="{{ route('admin.noticias.destroy', $noticia) }}" 
                                           style="display: inline;" 
-                                          onsubmit="return confirm('Tem certeza que deseja excluir esta notícia?')">
+                                          data-confirm="Tem certeza que deseja excluir esta notícia?">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-outline-danger" title="Excluir">

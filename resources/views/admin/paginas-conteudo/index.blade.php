@@ -78,7 +78,7 @@
                                                     </form>
                                                     <form action="{{ route('admin.paginas-conteudo.destroy', $pagina) }}" 
                                                           method="POST" class="d-inline"
-                                                          onsubmit="return confirm('Tem certeza que deseja excluir esta página?')">
+                                                          data-confirm="Tem certeza que deseja excluir esta página?">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">

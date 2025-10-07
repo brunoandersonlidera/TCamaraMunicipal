@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Noticia;
+use App\Models\Media;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -75,16 +76,29 @@ class NoticiaController extends Controller
      */
     public function store(Request $request)
     {
+        // Normalizar checkboxes e tags antes da validação para evitar erro de "deve ser verdadeiro ou falso"
+        $request->merge([
+            'publicado' => $request->has('publicado'),
+            'destaque' => $request->has('destaque'),
+            'permite_comentarios' => $request->has('permite_comentarios'),
+            'tags' => is_array($request->input('tags'))
+                ? array_map(function ($t) { return ($t === '' || $t === null) ? null : (string) $t; }, $request->input('tags'))
+                : $request->input('tags'),
+        ]);
+
         $validated = $request->validate([
             'titulo' => 'required|string|max:255',
             'resumo' => 'nullable|string|max:500',
             'conteudo' => 'required|string',
             'categoria' => 'nullable|string|max:100',
             'tags' => 'nullable|array',
-            'tags.*' => 'string|max:50',
+            'tags.*' => 'nullable|string|max:50',
             'imagem_destaque' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'imagem_destaque_existing' => 'nullable|string',
             'galeria_imagens' => 'nullable|array',
             'galeria_imagens.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'galeria_existing' => 'nullable|array',
+            'galeria_existing.*' => 'string',
             'data_publicacao' => 'required|date',
             'publicado' => 'boolean',
             'destaque' => 'boolean',
@@ -99,18 +113,37 @@ class NoticiaController extends Controller
         // Definir autor
         $validated['autor_id'] = Auth::id();
         
-        // Upload da imagem de destaque
+        // Imagem de destaque: upload OU seleção existente da biblioteca
         if ($request->hasFile('imagem_destaque')) {
             $validated['imagem_destaque'] = $request->file('imagem_destaque')->store('noticias', 'public');
+            // Registrar na biblioteca de mídia
+            $this->registerMediaFromPath(
+                $validated['imagem_destaque'],
+                'noticias',
+                $request->file('imagem_destaque')->getClientOriginalName()
+            );
+        } elseif (!empty($validated['imagem_destaque_existing'])) {
+            $validated['imagem_destaque'] = $validated['imagem_destaque_existing'];
         }
         
-        // Upload das imagens da galeria
+        // Galeria de imagens: uploads e/ou seleção existente da biblioteca
+        $existingGaleria = $request->input('galeria_existing', []);
         if ($request->hasFile('galeria_imagens')) {
             $galeria = [];
             foreach ($request->file('galeria_imagens') as $imagem) {
-                $galeria[] = $imagem->store('noticias/galeria', 'public');
+                $path = $imagem->store('noticias/galeria', 'public');
+                $galeria[] = $path;
+                // Registrar cada imagem da galeria na biblioteca
+                $this->registerMediaFromPath($path, 'galeria', $imagem->getClientOriginalName());
             }
-            $validated['galeria_imagens'] = $galeria;
+            // Combinar com seleções existentes, se houver
+            if (!empty($existingGaleria)) {
+                $validated['galeria_imagens'] = array_merge($galeria, $existingGaleria);
+            } else {
+                $validated['galeria_imagens'] = $galeria;
+            }
+        } elseif (!empty($existingGaleria)) {
+            $validated['galeria_imagens'] = $existingGaleria;
         }
         
         // Filtrar tags vazias
@@ -151,16 +184,29 @@ class NoticiaController extends Controller
      */
     public function update(Request $request, Noticia $noticia)
     {
+        // Normalizar checkboxes e tags antes da validação
+        $request->merge([
+            'publicado' => $request->has('publicado'),
+            'destaque' => $request->has('destaque'),
+            'permite_comentarios' => $request->has('permite_comentarios'),
+            'tags' => is_array($request->input('tags'))
+                ? array_map(function ($t) { return ($t === '' || $t === null) ? null : (string) $t; }, $request->input('tags'))
+                : $request->input('tags'),
+        ]);
+
         $validated = $request->validate([
             'titulo' => 'required|string|max:255',
             'resumo' => 'nullable|string|max:500',
             'conteudo' => 'required|string',
             'categoria' => 'nullable|string|max:100',
             'tags' => 'nullable|array',
-            'tags.*' => 'string|max:50',
+            'tags.*' => 'nullable|string|max:50',
             'imagem_destaque' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'imagem_destaque_existing' => 'nullable|string',
             'galeria_imagens' => 'nullable|array',
             'galeria_imagens.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'galeria_existing' => 'nullable|array',
+            'galeria_existing.*' => 'string',
             'data_publicacao' => 'required|date',
             'publicado' => 'boolean',
             'destaque' => 'boolean',
@@ -174,29 +220,64 @@ class NoticiaController extends Controller
             $validated['slug'] = $this->generateUniqueSlug($validated['titulo'], $noticia->id);
         }
         
-        // Upload da nova imagem de destaque
+        // Imagem de destaque: novo upload OU seleção existente
         if ($request->hasFile('imagem_destaque')) {
             // Deletar imagem antiga se existir
-            if ($noticia->imagem_destaque) {
+            if (!empty($noticia->imagem_destaque) && Storage::disk('public')->exists($noticia->imagem_destaque)) {
                 Storage::disk('public')->delete($noticia->imagem_destaque);
             }
             $validated['imagem_destaque'] = $request->file('imagem_destaque')->store('noticias', 'public');
+            // Registrar na biblioteca de mídia
+            $this->registerMediaFromPath(
+                $validated['imagem_destaque'],
+                'noticias',
+                $request->file('imagem_destaque')->getClientOriginalName()
+            );
+        } elseif (!empty($validated['imagem_destaque_existing'])) {
+            $novoPath = $validated['imagem_destaque_existing'];
+            // Se a imagem anterior era arquivo local diferente da nova seleção, remove com segurança
+            if (!empty($noticia->imagem_destaque) && $noticia->imagem_destaque !== $novoPath && Storage::disk('public')->exists($noticia->imagem_destaque)) {
+                Storage::disk('public')->delete($noticia->imagem_destaque);
+            }
+            $validated['imagem_destaque'] = $novoPath;
         }
         
-        // Upload das novas imagens da galeria
+        // Galeria: novos uploads e/ou seleção existente
+        $existingGaleria = $request->input('galeria_existing', []);
         if ($request->hasFile('galeria_imagens')) {
             // Deletar imagens antigas se existirem
             if ($noticia->galeria_imagens) {
                 foreach ($noticia->galeria_imagens as $imagem) {
-                    Storage::disk('public')->delete($imagem);
+                    if (!empty($imagem) && Storage::disk('public')->exists($imagem)) {
+                        Storage::disk('public')->delete($imagem);
+                    }
                 }
             }
-            
+
             $galeria = [];
             foreach ($request->file('galeria_imagens') as $imagem) {
-                $galeria[] = $imagem->store('noticias/galeria', 'public');
+                $path = $imagem->store('noticias/galeria', 'public');
+                $galeria[] = $path;
+                // Registrar cada imagem da galeria na biblioteca
+                $this->registerMediaFromPath($path, 'galeria', $imagem->getClientOriginalName());
             }
-            $validated['galeria_imagens'] = $galeria;
+            // Combinar com seleções existentes, se houver
+            if (!empty($existingGaleria)) {
+                $validated['galeria_imagens'] = array_merge($galeria, $existingGaleria);
+            } else {
+                $validated['galeria_imagens'] = $galeria;
+            }
+        } elseif (!empty($existingGaleria)) {
+            // Sem novos uploads: atualizar para seleção existente
+            // Remover arquivos antigos que não estejam na nova seleção
+            if ($noticia->galeria_imagens) {
+                foreach ($noticia->galeria_imagens as $imagem) {
+                    if (!in_array($imagem, $existingGaleria, true) && !empty($imagem) && Storage::disk('public')->exists($imagem)) {
+                        Storage::disk('public')->delete($imagem);
+                    }
+                }
+            }
+            $validated['galeria_imagens'] = $existingGaleria;
         }
         
         // Filtrar tags vazias
@@ -293,5 +374,51 @@ class NoticiaController extends Controller
         }
         
         return $slug;
+    }
+
+    /**
+     * Registra um arquivo já salvo no disco "public" na biblioteca de mídia.
+     */
+    private function registerMediaFromPath(string $path, string $category = null, ?string $originalName = null): void
+    {
+        try {
+            $disk = 'public';
+            $fileName = basename($path);
+            $mimeType = Storage::disk($disk)->mimeType($path) ?? 'application/octet-stream';
+            $size = Storage::disk($disk)->size($path) ?? 0;
+
+            Media::create([
+                // Campos Spatie
+                'model_type' => null,
+                'model_id' => null,
+                'uuid' => (string) Str::uuid(),
+                'collection_name' => $category ?? 'default',
+                'name' => pathinfo($fileName, PATHINFO_FILENAME),
+                'file_name' => $fileName,
+                'mime_type' => $mimeType,
+                'disk' => $disk,
+                'conversions_disk' => $disk,
+                'size' => $size,
+                'manipulations' => [],
+                'custom_properties' => [],
+                'generated_conversions' => [],
+                'responsive_images' => [],
+
+                // Campos customizados
+                'original_name' => $originalName ?? $fileName,
+                'title' => $originalName ?? $fileName,
+                'alt_text' => null,
+                'description' => null,
+                'category' => $category,
+                'uploaded_by' => Auth::id(),
+            ]);
+        } catch (\Throwable $e) {
+            // Evitar quebra do fluxo da notícia caso o registro de mídia falhe; apenas logar
+            \Log::warning('Falha ao registrar mídia para notícia', [
+                'path' => $path,
+                'category' => $category,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

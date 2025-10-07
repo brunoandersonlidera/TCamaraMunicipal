@@ -14,13 +14,7 @@
             <div class="col-lg-4 text-center">
                 <div class="position-relative mb-4">
                     <div class="vereador-profile-photo-container">
-                        @if($vereador->foto)
-                            <img src="{{ $vereador->foto }}" alt="{{ $vereador->nome }}" class="vereador-profile-photo">
-                        @else
-                            <div class="vereador-profile-photo-placeholder">
-                                <i class="fas fa-user"></i>
-                            </div>
-                        @endif
+                        <img src="{{ $vereador->foto_url }}" alt="{{ $vereador->nome }}" class="vereador-profile-photo" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-vereador.svg') }}';">
                     </div>
                     @if($vereador->isPresidente())
                     <div class="presidente-badge-profile">

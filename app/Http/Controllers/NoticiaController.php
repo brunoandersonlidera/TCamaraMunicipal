@@ -61,13 +61,17 @@ class NoticiaController extends Controller
     }
     
     /**
-     * Exibe uma notícia específica
+     * Exibe uma notícia específica via slug
      */
-    public function show($id)
+    public function show(Noticia $noticia)
     {
-        $noticia = Noticia::publicadas()
-            ->with('autor')
-            ->findOrFail($id);
+        // Garantir que a notícia está publicada para acesso público
+        if (!$noticia->isPublicada()) {
+            abort(404);
+        }
+
+        // Carregar relacionamento do autor
+        $noticia->load('autor');
         
         // Incrementar visualizações
         $noticia->increment('visualizacoes');

@@ -46,7 +46,7 @@
                         <div class="col-md-3">
                             <form method="GET" action="{{ route('admin.comites-iniciativa-popular.index') }}">
                                 <input type="hidden" name="search" value="{{ request('search') }}">
-                                <select class="form-select" name="status" onchange="this.form.submit()">
+                                <select class="form-select" name="status" data-auto-submit="true">
                                     <option value="">Todos os status</option>
                                     <option value="ativo" {{ request('status') == 'ativo' ? 'selected' : '' }}>Ativo</option>
                                     <option value="validado" {{ request('status') == 'validado' ? 'selected' : '' }}>Validado</option>
@@ -59,7 +59,7 @@
                             <form method="GET" action="{{ route('admin.comites-iniciativa-popular.index') }}">
                                 <input type="hidden" name="search" value="{{ request('search') }}">
                                 <input type="hidden" name="status" value="{{ request('status') }}">
-                                <select class="form-select" name="assinaturas" onchange="this.form.submit()">
+                                <select class="form-select" name="assinaturas" data-auto-submit="true">
                                     <option value="">Todas as assinaturas</option>
                                     <option value="atingiu" {{ request('assinaturas') == 'atingiu' ? 'selected' : '' }}>Atingiu mínimo</option>
                                     <option value="nao_atingiu" {{ request('assinaturas') == 'nao_atingiu' ? 'selected' : '' }}>Não atingiu mínimo</option>
@@ -154,7 +154,7 @@
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                                 <button type="button" class="btn btn-sm btn-{{ $comite->status == 'ativo' ? 'secondary' : 'success' }}" 
-                                                        onclick="toggleStatus({{ $comite->id }})" 
+                                                        data-action="toggle-status" data-id="{{ $comite->id }}" 
                                                         title="{{ $comite->status == 'ativo' ? 'Desativar' : 'Ativar' }}">
                                                     <i class="fas fa-{{ $comite->status == 'ativo' ? 'pause' : 'play' }}"></i>
                                                 </button>

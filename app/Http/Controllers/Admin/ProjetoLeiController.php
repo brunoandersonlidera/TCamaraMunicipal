@@ -303,6 +303,194 @@ class ProjetoLeiController extends Controller
     }
 
     /**
+     * Exibe a linha do tempo de tramitação do projeto
+     */
+    public function tramitacao(ProjetoLei $projetoLei)
+    {
+        $projetoLei->load(['autor', 'relator', 'coautores']);
+        
+        $historico = collect($projetoLei->historico_tramitacao ?? [])
+            ->sortByDesc('data')
+            ->values();
+
+        $vereadores = Vereador::where('status', 'ativo')->orderBy('nome')->get();
+
+        return view('admin.projetos-lei.tramitacao', compact('projetoLei', 'historico', 'vereadores'));
+    }
+
+    /**
+     * Gera protocolo automático para o projeto
+     */
+    public function gerarProtocolo(ProjetoLei $projetoLei)
+    {
+        if ($projetoLei->protocolo_numero) {
+            return redirect()->back()->with('error', 'Este projeto já possui protocolo!');
+        }
+
+        $protocolo = $projetoLei->gerarProtocolo();
+        $projetoLei->save();
+
+        $projetoLei->adicionarHistoricoTramitacao(
+            "Protocolo gerado: {$protocolo}",
+            null,
+            auth()->id()
+        );
+
+        return redirect()->back()->with('success', "Protocolo {$protocolo} gerado com sucesso!");
+    }
+
+    /**
+     * Atualiza status de tramitação
+     */
+    public function atualizarStatus(Request $request, ProjetoLei $projetoLei)
+    {
+        $request->validate([
+            'status' => 'required|string',
+            'observacao' => 'nullable|string|max:1000'
+        ]);
+
+        $statusAnterior = $projetoLei->status;
+        $projetoLei->status = $request->status;
+
+        // Atualizar datas específicas baseadas no status
+        switch ($request->status) {
+            case ProjetoLei::STATUS_DISTRIBUIDO:
+                $projetoLei->data_distribuicao = now();
+                break;
+            case ProjetoLei::STATUS_APROVADO:
+                $projetoLei->data_aprovacao = now();
+                break;
+            case ProjetoLei::STATUS_ENVIADO_EXECUTIVO:
+                $projetoLei->data_envio_executivo = now();
+                break;
+            case ProjetoLei::STATUS_PROMULGADO:
+                $projetoLei->data_promulgacao = now();
+                break;
+        }
+
+        $projetoLei->adicionarHistoricoTramitacao(
+            "Status alterado de '{$statusAnterior}' para '{$request->status}'",
+            $request->observacao,
+            auth()->id()
+        );
+
+        $projetoLei->save();
+
+        return redirect()->back()->with('success', 'Status atualizado com sucesso!');
+    }
+
+    /**
+     * Inicia consulta pública
+     */
+    public function iniciarConsultaPublica(Request $request, ProjetoLei $projetoLei)
+    {
+        $request->validate([
+            'prazo_dias' => 'required|integer|min:1|max:90'
+        ]);
+
+        $projetoLei->iniciarConsultaPublica($request->prazo_dias);
+        $projetoLei->save();
+
+        return redirect()->back()->with('success', 'Consulta pública iniciada com sucesso!');
+    }
+
+    /**
+     * Finaliza consulta pública
+     */
+    public function finalizarConsultaPublica(ProjetoLei $projetoLei)
+    {
+        $projetoLei->finalizarConsultaPublica();
+        $projetoLei->save();
+
+        return redirect()->back()->with('success', 'Consulta pública finalizada com sucesso!');
+    }
+
+    /**
+     * Adiciona entrada ao histórico de tramitação
+     */
+    public function adicionarHistorico(Request $request, ProjetoLei $projetoLei)
+    {
+        $request->validate([
+            'acao' => 'required|string|max:255',
+            'observacao' => 'nullable|string|max:1000'
+        ]);
+
+        $projetoLei->adicionarHistoricoTramitacao(
+            $request->acao,
+            $request->observacao,
+            auth()->id()
+        );
+
+        $projetoLei->save();
+
+        return redirect()->back()->with('success', 'Entrada adicionada ao histórico!');
+    }
+
+    /**
+     * Registra votação do projeto
+     */
+    public function registrarVotacao(Request $request, ProjetoLei $projetoLei)
+    {
+        $request->validate([
+            'turno' => 'required|in:primeiro,segundo',
+            'votos_favoraveis' => 'required|integer|min:0',
+            'votos_contrarios' => 'required|integer|min:0',
+            'abstencoes' => 'required|integer|min:0',
+            'ausencias' => 'required|integer|min:0',
+            'resultado' => 'required|in:aprovado,rejeitado',
+            'observacao' => 'nullable|string|max:1000'
+        ]);
+
+        $dadosVotacao = [
+            'votos_favoraveis' => $request->votos_favoraveis,
+            'votos_contrarios' => $request->votos_contrarios,
+            'abstencoes' => $request->abstencoes,
+            'ausencias' => $request->ausencias,
+            'resultado' => $request->resultado,
+            'data_votacao' => now(),
+            'observacao' => $request->observacao
+        ];
+
+        if ($request->turno === 'primeiro') {
+            $projetoLei->votos_favoraveis = $request->votos_favoraveis;
+            $projetoLei->votos_contrarios = $request->votos_contrarios;
+            $projetoLei->abstencoes = $request->abstencoes;
+            $projetoLei->ausencias = $request->ausencias;
+            $projetoLei->resultado_primeira_votacao = $dadosVotacao;
+            $projetoLei->data_primeira_votacao = now();
+
+            if ($request->resultado === 'aprovado' && $projetoLei->exigeDoisTurnos()) {
+                $projetoLei->status = ProjetoLei::STATUS_APROVADO_1_TURNO;
+            } elseif ($request->resultado === 'aprovado') {
+                $projetoLei->status = ProjetoLei::STATUS_APROVADO;
+                $projetoLei->data_aprovacao = now();
+            } else {
+                $projetoLei->status = ProjetoLei::STATUS_REJEITADO;
+            }
+        } else {
+            $projetoLei->resultado_segunda_votacao = $dadosVotacao;
+            $projetoLei->data_segunda_votacao = now();
+
+            if ($request->resultado === 'aprovado') {
+                $projetoLei->status = ProjetoLei::STATUS_APROVADO;
+                $projetoLei->data_aprovacao = now();
+            } else {
+                $projetoLei->status = ProjetoLei::STATUS_REJEITADO;
+            }
+        }
+
+        $projetoLei->adicionarHistoricoTramitacao(
+            "Votação em {$request->turno} turno: {$request->resultado}",
+            "Favoráveis: {$request->votos_favoraveis}, Contrários: {$request->votos_contrarios}, Abstenções: {$request->abstencoes}",
+            auth()->id()
+        );
+
+        $projetoLei->save();
+
+        return redirect()->back()->with('success', 'Votação registrada com sucesso!');
+    }
+
+    /**
      * Toggle status do projeto
      */
     public function toggleStatus(Request $request, ProjetoLei $projetoLei)

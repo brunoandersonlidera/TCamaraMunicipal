@@ -32,8 +32,16 @@ class VereadorController extends Controller
      */
     public function getForHomepage()
     {
+        $hoje = now()->toDateString();
         $presidente = Vereador::ativos()
-            ->whereJsonContains('comissoes', 'presidente')
+            ->where('presidente', true)
+            ->where(function($q) use ($hoje) {
+                $q->whereNull('presidente_inicio')->orWhereDate('presidente_inicio', '<=', $hoje);
+            })
+            ->where(function($q) use ($hoje) {
+                $q->whereNull('presidente_fim')->orWhereDate('presidente_fim', '>=', $hoje);
+            })
+            ->orderBy('nome_parlamentar')
             ->first();
             
         $vereadores = Vereador::ativos()

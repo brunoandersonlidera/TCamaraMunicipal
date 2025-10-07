@@ -360,11 +360,15 @@ class Sessao extends Model
         }
 
         $videoId = $this->getVideoId();
-        if (!$videoId) return null;
+        if (!$videoId) {
+            // Fallback para thumbnail local quando não for possível extrair o ID
+            return asset('images/placeholder-video.svg');
+        }
 
         switch ($this->plataforma_video) {
             case 'youtube':
-                return "https://img.youtube.com/vi/{$videoId}/maxresdefault.jpg";
+                // maxresdefault pode não existir e retornar 404; hqdefault é mais confiável
+                return "https://img.youtube.com/vi/{$videoId}/hqdefault.jpg";
             case 'vimeo':
                 // Para Vimeo, seria necessário fazer uma chamada à API
                 return null;

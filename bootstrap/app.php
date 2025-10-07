@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'validate.autoria' => \App\Http\Middleware\ValidateAutoriaType::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'permission' => \App\Http\Middleware\PermissionMiddleware::class,
+            'cidadao.auth' => \App\Http\Middleware\CidadaoAuth::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

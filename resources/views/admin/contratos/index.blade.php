@@ -256,13 +256,13 @@
                                             @endif
                                             <button type="button" 
                                                     class="btn btn-sm btn-toggle"
-                                                    onclick="toggleStatus({{ $contrato->id }})"
+                                                    data-action="toggle-status" data-id="{{ $contrato->id }}"
                                                     title="{{ $contrato->publico ? 'Tornar Privado' : 'Tornar Público' }}">
                                                 <i class="fas fa-{{ $contrato->publico ? 'eye-slash' : 'eye' }}"></i>
                                             </button>
                                             <button type="button" 
                                                     class="btn btn-sm btn-delete" 
-                                                    onclick="confirmDelete({{ $contrato->id }})"
+                                                    data-action="confirm-delete" data-id="{{ $contrato->id }}"
                                                     title="Excluir">
                                                 <i class="fas fa-trash"></i>
                                             </button>

@@ -105,6 +105,7 @@
                         <i class="fas fa-landmark" style="font-size: 12rem; opacity: 0.1;"></i>
                     </div>
                 @endif
+                
             </div>
         </div>
     </div>
@@ -204,11 +205,12 @@
         <div class="row g-4">
             @forelse($ultimasNoticias as $noticia)
                 <div class="col-lg-4 col-md-6">
-                    <div class="card card-custom h-100">
+                    <div class="card card-custom card-news h-100">
                         @if($noticia->imagem_destaque)
-                            <img src="{{ asset('storage/' . $noticia->imagem_destaque) }}" 
-                                 class="card-img-top" alt="{{ $noticia->titulo }}"
-                                 style="height: 200px; object-fit: cover;">
+                            <div class="news-image-wrapper">
+                                <img src="{{ asset('storage/' . $noticia->imagem_destaque) }}" 
+                                     class="news-image" alt="{{ $noticia->titulo }}">
+                            </div>
                         @endif
                         <div class="card-body">
                             <div class="d-flex align-items-center mb-3">
@@ -224,7 +226,7 @@
                             <p class="card-text text-muted">
                                 {{ Str::limit(strip_tags($noticia->resumo ?: $noticia->conteudo), 100) }}
                             </p>
-                            <a href="{{ route('noticias.show', $noticia->id) }}" class="btn btn-sm btn-outline-primary">
+                            <a href="{{ route('noticias.show', $noticia->slug) }}" class="btn btn-sm btn-outline-primary">
                                 Leia mais
                                 <i class="fas fa-arrow-right ms-1"></i>
                             </a>
@@ -262,7 +264,7 @@
         
         <!-- Carrossel Completo de Vereadores (incluindo Presidente) -->
         <div class="vereadores-carrossel-completo">
-            <div class="carrossel-track">
+            <div class="carrossel-track" style="--num-slides: {{ ($presidente ? 1 : 0) + ($vicepresidente ? 1 : 0) + ($vereadores->count()) }};">
                 <!-- Presidente como primeiro card do carrossel -->
                 @if($presidente)
                 <div class="vereador-slide">
@@ -294,6 +296,46 @@
                                     Ver Perfil
                                 </a>
                                 <a href="{{ route('calendario.agenda.vereador', $presidente->id) }}" class="btn btn-sm btn-outline-light">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    Ver Agenda
+                                </a>
+                            </div>
+                </div>
+                </div>
+                </div>
+                @endif
+
+                <!-- Vice-Presidente como segundo card do carrossel -->
+                @if($vicepresidente)
+                <div class="vereador-slide">
+                    <div class="card card-custom h-100 presidente-card">
+                        <div class="card-body text-center p-3">
+                            <div class="position-relative mb-3">
+                                <div class="vereador-mini-photo-container">
+                                    @if($vicepresidente->foto)
+                                        <img src="{{ $vicepresidente->foto_url }}" alt="{{ $vicepresidente->nome }}" class="vereador-mini-photo">
+                                    @else
+                                        <div class="vereador-mini-photo-placeholder">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="presidente-badge">
+                                    <i class="fas fa-medal"></i>
+                                    <span>VICE-PRESIDENTE</span>
+                                </div>
+                            </div>
+                            <h6 class="fw-bold mb-1">{{ $vicepresidente->nome }}</h6>
+                            <p class="text-muted small mb-3">
+                                <i class="fas fa-flag me-1"></i>
+                                {{ $vicepresidente->partido }}
+                            </p>
+                            <div class="d-flex gap-1 flex-column">
+                                <a href="{{ route('vereadores.show', $vicepresidente->id) }}" class="btn btn-sm btn-outline-light">
+                                    <i class="fas fa-eye me-1"></i>
+                                    Ver Perfil
+                                </a>
+                                <a href="{{ route('calendario.agenda.vereador', $vicepresidente->id) }}" class="btn btn-sm btn-outline-light">
                                     <i class="fas fa-calendar me-1"></i>
                                     Ver Agenda
                                 </a>
@@ -368,6 +410,46 @@
                                     Ver Perfil
                                 </a>
                                 <a href="{{ route('calendario.agenda.vereador', $presidente->id) }}" class="btn btn-sm btn-outline-light">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    Ver Agenda
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+                
+                <!-- Duplicação do Vice-Presidente para efeito contínuo -->
+                @if($vicepresidente)
+                <div class="vereador-slide">
+                    <div class="card card-custom h-100 presidente-card">
+                        <div class="card-body text-center p-3">
+                            <div class="position-relative mb-3">
+                                <div class="vereador-mini-photo-container">
+                                    @if($vicepresidente->foto)
+                                        <img src="{{ $vicepresidente->foto_url }}" alt="{{ $vicepresidente->nome }}" class="vereador-mini-photo">
+                                    @else
+                                        <div class="vereador-mini-photo-placeholder">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="presidente-badge">
+                                    <i class="fas fa-medal"></i>
+                                    <span>VICE-PRESIDENTE</span>
+                                </div>
+                            </div>
+                            <h6 class="fw-bold mb-1">{{ $vicepresidente->nome }}</h6>
+                            <p class="text-muted small mb-3">
+                                <i class="fas fa-flag me-1"></i>
+                                {{ $vicepresidente->partido }}
+                            </p>
+                            <div class="d-flex gap-1 flex-column">
+                                <a href="{{ route('vereadores.show', $vicepresidente->id) }}" class="btn btn-sm btn-outline-light">
+                                    <i class="fas fa-eye me-1"></i>
+                                    Ver Perfil
+                                </a>
+                                <a href="{{ route('calendario.agenda.vereador', $vicepresidente->id) }}" class="btn btn-sm btn-outline-light">
                                     <i class="fas fa-calendar me-1"></i>
                                     Ver Agenda
                                 </a>
@@ -462,7 +544,7 @@
                             <div class="col-md-4">
                                 <div class="position-relative">
                                     @if($sessaoDestaque->getThumbnailUrl())
-                                        <img src="{{ $sessaoDestaque->getThumbnailUrl() }}" alt="Sessão {{ $sessaoDestaque->numero_sessao }}" class="img-fluid rounded sessao-thumbnail-destaque">
+                                        <img src="{{ $sessaoDestaque->getThumbnailUrl() }}" alt="Sessão {{ $sessaoDestaque->numero_sessao }}" class="img-fluid rounded sessao-thumbnail-destaque" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-video.svg') }}';">
                                     @else
                                         <div class="sessao-thumbnail-placeholder-destaque">
                                             <i class="fas fa-play-circle"></i>
@@ -556,7 +638,7 @@
                 <div class="card card-custom h-100 sessao-gravada-card">
                     <div class="position-relative">
                         @if($sessao->getThumbnailUrl())
-                            <img src="{{ $sessao->getThumbnailUrl() }}" alt="Sessão {{ $sessao->numero_sessao }}" class="card-img-top sessao-thumbnail">
+                            <img src="{{ $sessao->getThumbnailUrl() }}" alt="Sessão {{ $sessao->numero_sessao }}" class="card-img-top sessao-thumbnail" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-video.svg') }}';">
                         @else
                             <div class="sessao-thumbnail-placeholder">
                                 <i class="fas fa-play-circle"></i>

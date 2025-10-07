@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use App\Models\User;
 
 class UserAreaController extends Controller
@@ -40,6 +41,7 @@ class UserAreaController extends Controller
     public function profile()
     {
         $user = Auth::user();
+        
         return view('user.profile', compact('user'));
     }
 
@@ -50,35 +52,120 @@ class UserAreaController extends Controller
     {
         $user = Auth::user();
 
-        $validator = Validator::make($request->all(), [
+        // Validações básicas para todos os usuários
+        $rules = [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:20',
-            'birth_date' => 'nullable|date|before:today',
-            'address' => 'nullable|string|max:500',
-        ], [
-            'name.required' => 'O campo nome é obrigatório.',
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone' => 'required|string|max:20',
+            'birth_date' => 'required|date',
+            'address' => 'required|string|max:500',
+            'cargo' => 'nullable|string|max:255',
+            'setor' => 'nullable|string|max:255',
+            'observacoes' => 'nullable|string|max:1000',
+        ];
+
+        // Adicionar validações específicas para cidadãos
+        if ($user->role === 'cidadao') {
+            $rules = array_merge($rules, [
+                'cpf' => [
+                    'required',
+                    'string',
+                    'size:14',
+                    Rule::unique('users', 'cpf')->ignore($user->id)
+                ],
+                'rg' => 'nullable|string|max:20',
+                'sexo' => 'nullable|in:M,F,O',
+                'estado_civil' => 'nullable|in:solteiro,casado,divorciado,viuvo,uniao_estavel',
+                'profissao' => 'nullable|string|max:255',
+                'telefone_fixo' => 'nullable|string|max:20',
+                'celular' => 'nullable|string|max:20',
+                'cep' => 'nullable|string|max:10',
+                'endereco_detalhado' => 'nullable|string|max:255',
+                'numero' => 'nullable|string|max:10',
+                'complemento' => 'nullable|string|max:100',
+                'bairro' => 'nullable|string|max:100',
+                'cidade' => 'nullable|string|max:100',
+                'estado' => 'nullable|string|size:2',
+                'titulo_eleitor' => 'nullable|string|max:20',
+                'zona_eleitoral' => 'nullable|string|max:10',
+                'secao_eleitoral' => 'nullable|string|max:10',
+            ]);
+        }
+
+        $messages = [
+            'name.required' => 'O nome é obrigatório.',
             'name.max' => 'O nome não pode ter mais de 255 caracteres.',
-            'email.required' => 'O campo email é obrigatório.',
-            'email.email' => 'Por favor, insira um email válido.',
-            'email.unique' => 'Este email já está sendo usado por outro usuário.',
+            'email.required' => 'O e-mail é obrigatório.',
+            'email.email' => 'O e-mail deve ter um formato válido.',
+            'email.max' => 'O e-mail não pode ter mais de 255 caracteres.',
+            'email.unique' => 'Este e-mail já está sendo usado por outro usuário.',
+            'phone.required' => 'O telefone é obrigatório.',
             'phone.max' => 'O telefone não pode ter mais de 20 caracteres.',
-            'birth_date.date' => 'Por favor, insira uma data válida.',
-            'birth_date.before' => 'A data de nascimento deve ser anterior a hoje.',
+            'birth_date.required' => 'A data de nascimento é obrigatória.',
+            'birth_date.date' => 'A data de nascimento deve ser uma data válida.',
+            'address.required' => 'O endereço é obrigatório.',
             'address.max' => 'O endereço não pode ter mais de 500 caracteres.',
-        ]);
+            'cargo.max' => 'O cargo não pode ter mais de 255 caracteres.',
+            'setor.max' => 'O setor não pode ter mais de 255 caracteres.',
+            'observacoes.max' => 'As observações não podem ter mais de 1000 caracteres.',
+            'cpf.required' => 'O CPF é obrigatório.',
+            'cpf.size' => 'O CPF deve ter exatamente 14 caracteres (formato: 000.000.000-00).',
+            'cpf.unique' => 'Este CPF já está cadastrado no sistema.',
+        ];
+
+        // Validação adicional para cidadãos (apenas campos que ainda existem)
+        if ($user->role === 'cidadao') {
+            // Não há campos adicionais específicos para validar, 
+            // pois agora usamos campos unificados
+        }
+
+        $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
+        // Atualiza dados na tabela users
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'birth_date' => $request->birth_date,
             'address' => $request->address,
+            'cargo' => $request->cargo,
+            'setor' => $request->setor,
+            'observacoes' => $request->observacoes,
         ]);
+
+        // Atualizar dados específicos do cidadão se aplicável
+        if ($user->role === 'cidadao') {
+            // Dados específicos do cidadão para atualizar diretamente no usuário
+            $cidadaoData = [];
+            
+            // Adicionar campos específicos do cidadão se fornecidos
+            if ($request->has('cpf')) $cidadaoData['cpf'] = $request->cpf;
+            if ($request->has('rg')) $cidadaoData['rg'] = $request->rg;
+            if ($request->has('sexo')) $cidadaoData['sexo'] = $request->sexo;
+            if ($request->has('estado_civil')) $cidadaoData['estado_civil'] = $request->estado_civil;
+            if ($request->has('profissao')) $cidadaoData['profissao'] = $request->profissao;
+            if ($request->has('telefone_fixo')) $cidadaoData['telefone'] = $request->telefone_fixo;
+            if ($request->has('celular')) $cidadaoData['celular'] = $request->celular;
+            if ($request->has('cep')) $cidadaoData['cep'] = $request->cep;
+            if ($request->has('endereco_detalhado')) $cidadaoData['endereco'] = $request->endereco_detalhado;
+            if ($request->has('numero')) $cidadaoData['numero'] = $request->numero;
+            if ($request->has('complemento')) $cidadaoData['complemento'] = $request->complemento;
+            if ($request->has('bairro')) $cidadaoData['bairro'] = $request->bairro;
+            if ($request->has('cidade')) $cidadaoData['cidade'] = $request->cidade;
+            if ($request->has('estado')) $cidadaoData['estado'] = $request->estado;
+            if ($request->has('titulo_eleitor')) $cidadaoData['titulo_eleitor'] = $request->titulo_eleitor;
+            if ($request->has('zona_eleitoral')) $cidadaoData['zona_eleitoral'] = $request->zona_eleitoral;
+            if ($request->has('secao_eleitoral')) $cidadaoData['secao_eleitoral'] = $request->secao_eleitoral;
+            
+            // Atualizar os dados do cidadão diretamente no usuário
+            if (!empty($cidadaoData)) {
+                $user->update($cidadaoData);
+            }
+        }
 
         return back()->with('success', 'Perfil atualizado com sucesso!');
     }

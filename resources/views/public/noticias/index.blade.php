@@ -74,11 +74,12 @@
                     <div class="row">
                         @foreach($noticias as $noticia)
                             <div class="col-md-6 mb-4">
-                                <div class="card h-100 shadow-sm">
+                                <div class="card card-news h-100 shadow-sm">
                                     @if($noticia->imagem_destaque)
-                                        <img src="{{ asset('storage/' . $noticia->imagem_destaque) }}" 
-                                             class="card-img-top" alt="{{ $noticia->titulo }}"
-                                             style="height: 200px; object-fit: cover;">
+                                        <div class="news-image-wrapper">
+                                            <img src="{{ asset('storage/' . $noticia->imagem_destaque) }}" 
+                                                 class="news-image" alt="{{ $noticia->titulo }}">
+                                        </div>
                                     @endif
                                     
                                     <div class="card-body d-flex flex-column">
@@ -89,7 +90,7 @@
                                         @endif
                                         
                                         <h5 class="card-title">
-                                            <a href="{{ route('noticias.show', $noticia->id) }}" 
+                                            <a href="{{ route('noticias.show', $noticia->slug) }}" 
                                                class="text-decoration-none text-dark">
                                                 {{ $noticia->titulo }}
                                             </a>
@@ -110,7 +111,7 @@
                                             </small>
                                         </div>
                                         
-                                        <a href="{{ route('noticias.show', $noticia->id) }}" 
+                                        <a href="{{ route('noticias.show', $noticia->slug) }}" 
                                            class="btn btn-outline-primary btn-sm mt-2">
                                             Ler mais <i class="fas fa-arrow-right ms-1"></i>
                                         </a>
@@ -152,7 +153,7 @@
                             @foreach($noticiasDestaque as $destaque)
                                 <div class="p-3 border-bottom">
                                     <h6 class="mb-2">
-                                        <a href="{{ route('noticias.show', $destaque->id) }}" 
+                                        <a href="{{ route('noticias.show', $destaque->slug) }}" 
                                            class="text-decoration-none">
                                             {{ Str::limit($destaque->titulo, 60) }}
                                         </a>

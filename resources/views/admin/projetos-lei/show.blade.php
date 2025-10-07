@@ -113,11 +113,12 @@
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Autor Principal:</label>
                                 <div class="d-flex align-items-center">
-                                    @if($projetoLei->isAutoriaVereador() && $projetoLei->autor && $projetoLei->autor->foto)
-                                        <img src="{{ asset('storage/' . $projetoLei->autor->foto) }}" 
+                                    @if($projetoLei->isAutoriaVereador() && $projetoLei->autor)
+                                        <img src="{{ $projetoLei->autor->foto_url }}" 
                                              alt="{{ $projetoLei->getAutorCompleto() }}" 
                                              class="rounded-circle me-3" 
-                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                             style="width: 50px; height: 50px; object-fit: cover;"
+                                             onerror="this.onerror=null;this.src='{{ asset('images/placeholder-vereador.svg') }}';">
                                     @else
                                         <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3" 
                                              style="width: 50px; height: 50px;">

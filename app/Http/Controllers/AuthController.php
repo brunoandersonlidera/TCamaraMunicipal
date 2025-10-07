@@ -31,6 +31,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
         $remember = $request->boolean('remember');
 
+        // Primeiro tenta autenticar como usuário administrativo
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
@@ -48,6 +49,10 @@ class AuthController extends Controller
             // Redireciona baseado no role
             if ($user->isAdmin()) {
                 return redirect()->intended('/admin/dashboard');
+            } elseif ($user->role === 'cidadao') {
+                // Para cidadãos, também autenticar no guard cidadao
+                Auth::guard('cidadao')->login($user, $remember);
+                return redirect()->intended('/cidadao/dashboard');
             }
 
             return redirect()->intended('/');
@@ -63,7 +68,9 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        // Fazer logout de ambos os guards
         Auth::logout();
+        Auth::guard('cidadao')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

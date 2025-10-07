@@ -12,8 +12,8 @@
                 <img src="{{ $brasao }}" alt="Brasão" class="brasao-header me-2">
             @else
                 <i class="fas fa-landmark me-2"></i>
+                {{ $nomeCamara }}
             @endif
-            {{ $nomeCamara }}
         </a>
         
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,9 @@
                                 </a></li>
                                 <li><hr class="dropdown-divider"></li>
                             @endif
+                            <li><a class="dropdown-item" href="{{ route('cidadao.dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard do Cidadão
+                            </a></li>
                             <li><a class="dropdown-item" href="{{ route('esic.dashboard') }}">
                                 <i class="fas fa-file-alt me-2"></i>Meus Pedidos e-SIC
                             </a></li>

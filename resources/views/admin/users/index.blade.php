@@ -38,7 +38,8 @@
                     <select class="form-select" id="role" name="role">
                         <option value="">Todos os tipos</option>
                         <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Administrador</option>
-                        <option value="user" {{ request('role') === 'user' ? 'selected' : '' }}>Usuário</option>
+                        <option value="funcionario" {{ request('role') === 'funcionario' ? 'selected' : '' }}>Funcionário</option>
+                        <option value="cidadao" {{ request('role') === 'cidadao' ? 'selected' : '' }}>Cidadão</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -72,7 +73,10 @@
                                 <th>Avatar</th>
                                 <th>Nome</th>
                                 <th>Email</th>
+                                <th>CPF</th>
                                 <th>Tipo</th>
+                                <th>Verificação</th>
+                                <th>Permissões</th>
                                 <th>Status</th>
                                 <th>Último Acesso</th>
                                 <th>Ações</th>
@@ -89,18 +93,97 @@
                                 </td>
                                 <td>
                                     <div>
-                                        <strong>{{ $user->name }}</strong>
+                                        <strong>
+                                            @if($user->role === 'cidadao' && $user->nome_completo)
+                                    {{ $user->nome_completo }}
+                                            @else
+                                                {{ $user->name }}
+                                            @endif
+                                        </strong>
                                         @if($user->cargo)
                                             <br><small class="text-muted">{{ $user->cargo }}</small>
+                                        @elseif($user->role === 'cidadao' && $user->profissao)
+                                            <br><small class="text-muted">{{ $user->profissao }}</small>
                                         @endif
                                     </div>
                                 </td>
                                 <td>{{ $user->email }}</td>
                                 <td>
+                                    @if($user->cpf)
+                                        {{ $user->cpf }}
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
                                     @if($user->role === 'admin')
                                         <span class="badge bg-danger">Administrador</span>
+                                    @elseif($user->role === 'funcionario')
+                                        <span class="badge bg-primary">Funcionário</span>
+                                    @elseif($user->role === 'cidadao')
+                                        <span class="badge bg-success">Cidadão</span>
                                     @else
-                                        <span class="badge bg-secondary">Usuário</span>
+                                        <span class="badge bg-secondary">{{ ucfirst($user->role) }}</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($user->role === 'cidadao')
+                                        @if($user->status_verificacao === 'verificado')
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check-circle me-1"></i>Verificado
+                                            </span>
+                                        @elseif($user->status_verificacao === 'pendente')
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-clock me-1"></i>Pendente
+                                            </span>
+                                            <div class="mt-1">
+                                                <button class="btn btn-xs btn-success me-1" data-action="verify-citizen" data-id="{{ $user->id }}" title="Aprovar">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button class="btn btn-xs btn-danger" data-action="reject-citizen" data-id="{{ $user->id }}" title="Rejeitar">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        @elseif($user->status_verificacao === 'rejeitado')
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times-circle me-1"></i>Rejeitado
+                                            </span>
+                                            <div class="mt-1">
+                                                <button class="btn btn-xs btn-success" data-action="verify-citizen" data-id="{{ $user->id }}" title="Aprovar">
+                                                    <i class="fas fa-check"></i> Aprovar
+                                                </button>
+                                            </div>
+                                        @else
+                                            <span class="badge bg-secondary">Não definido</span>
+                                        @endif
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($user->role === 'cidadao')
+                                        <div class="d-flex flex-column gap-1">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input permission-toggle" type="checkbox" 
+                                                       data-user-id="{{ $user->id }}" 
+                                                       data-permission="pode_assinar"
+                                                       {{ $user->pode_assinar ? 'checked' : '' }}>
+                                                <label class="form-check-label small">
+                                                    Pode Assinar
+                                                </label>
+                                            </div>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input permission-toggle" type="checkbox" 
+                                                       data-user-id="{{ $user->id }}" 
+                                                       data-permission="pode_criar_comite"
+                                                       {{ $user->pode_criar_comite ? 'checked' : '' }}>
+                                                <label class="form-check-label small">
+                                                    Pode Criar Comitê
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td>

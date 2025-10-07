@@ -19,6 +19,7 @@ class EsicSolicitacao extends Model
     protected $fillable = [
         'protocolo',
         'user_id',
+        'data_solicitacao',
         'nome_solicitante',
         'email_solicitante',
         'telefone_solicitante',
@@ -32,8 +33,6 @@ class EsicSolicitacao extends Model
         'status',
         'arquivada',
         'arquivada_em',
-        'prioridade',
-        'data_solicitacao',
         'data_limite_resposta',
         'data_resposta',
         'resposta',
@@ -41,7 +40,6 @@ class EsicSolicitacao extends Model
         'observacoes_internas',
         'anexos',
         'metadata',
-        'ip_solicitante',
         'user_agent',
         'origem',
         'anonima',
@@ -594,20 +592,12 @@ class EsicSolicitacao extends Model
                 $solicitacao->protocolo = $solicitacao->gerarProtocolo();
             }
             
-            if (empty($solicitacao->data_solicitacao)) {
-                $solicitacao->data_solicitacao = now();
-            }
-            
             if (empty($solicitacao->data_limite_resposta)) {
                 $solicitacao->data_limite_resposta = $solicitacao->calcularDataLimite();
             }
             
             if (empty($solicitacao->status)) {
                 $solicitacao->status = self::STATUS_PENDENTE;
-            }
-            
-            if (empty($solicitacao->prioridade)) {
-                $solicitacao->prioridade = self::PRIORIDADE_NORMAL;
             }
         });
 

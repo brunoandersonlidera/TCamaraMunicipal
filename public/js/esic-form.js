@@ -1,9 +1,16 @@
 /**
- * E-SIC Form JavaScript
- * Funcionalidades para o formulário de solicitação E-SIC
+ * E-SIC Form JavaScript - Versão Simplificada
+ * Funcionalidades básicas para o formulário de solicitação E-SIC
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Função para logs (temporariamente apenas console)
+    function logToFile(message, data = null) {
+        console.log(message, data);
+    }
+    
+    logToFile('🚀 E-SIC Form JavaScript carregado');
+    
     // Elementos do formulário
     const form = document.getElementById('esicForm');
     const formaRecebimento = document.querySelectorAll('input[name="forma_recebimento"]');
@@ -12,7 +19,130 @@ document.addEventListener('DOMContentLoaded', function() {
     const cpfField = document.getElementById('cpf_solicitante');
     const telefoneField = document.getElementById('telefone_solicitante');
     const descricaoField = document.getElementById('descricao');
-    const aceiteTernosField = document.getElementById('aceite_termos');
+    const aceiteTernosField = document.getElementById('aceita_termos');
+
+    // Verificar se o formulário existe
+    if (!form) {
+        logToFile('❌ Formulário E-SIC não encontrado!');
+        return;
+    }
+
+    logToFile('✅ Formulário encontrado', {formId: form.id, formAction: form.action});
+
+    // DEBUG: Adicionar múltiplos listeners para capturar todos os eventos
+    logToFile('DEBUG: Adicionando listeners de debug...');
+    
+    // Override preventDefault para detectar quem está cancelando
+    const originalPreventDefault = Event.prototype.preventDefault;
+    Event.prototype.preventDefault = function() {
+        if (this.type === 'submit' && this.target === form) {
+            logToFile('🚨 ALERTA: preventDefault() foi chamado no formulário!', {
+                stackTrace: new Error().stack
+            });
+        }
+        return originalPreventDefault.call(this);
+    };
+    
+    // Listener para submit (com prioridade máxima)
+    form.addEventListener('submit', function(e) {
+        logToFile('=== DEBUG SUBMIT EVENT ===');
+        logToFile('Event details', {
+            type: e.type,
+            target: e.target.tagName,
+            defaultPrevented: e.defaultPrevented,
+            formAction: form.action,
+            formMethod: form.method,
+            formEnctype: form.enctype
+        });
+        
+        // Verificar dados do formulário
+        const formData = new FormData(form);
+        const formDataObj = {};
+        for (let [key, value] of formData.entries()) {
+            formDataObj[key] = value;
+        }
+        logToFile('Form data entries', formDataObj);
+        
+        // Verificar campos obrigatórios
+        const requiredFields = form.querySelectorAll('[required]');
+        let hasErrors = false;
+        const requiredFieldsStatus = {};
+        
+        requiredFields.forEach(field => {
+            const isEmpty = !field.value.trim();
+            requiredFieldsStatus[field.name || field.id] = {
+                isEmpty: isEmpty,
+                value: field.value
+            };
+            if (isEmpty) hasErrors = true;
+        });
+        
+        logToFile('Checking required fields', requiredFieldsStatus);
+        logToFile('Has validation errors', hasErrors);
+        
+        // Verificar validação HTML5
+        const isValidHTML5 = form.checkValidity();
+        logToFile('HTML5 validation passed', isValidHTML5);
+        
+        if (!isValidHTML5) {
+            const invalidFields = form.querySelectorAll(':invalid');
+            const invalidFieldsData = {};
+            invalidFields.forEach(field => {
+                invalidFieldsData[field.name || field.id] = field.validationMessage;
+            });
+            logToFile('HTML5 validation errors', invalidFieldsData);
+        }
+        
+        // Verificar se o evento será cancelado
+        if (e.defaultPrevented) {
+            logToFile('ATENÇÃO: Submit foi cancelado por preventDefault()');
+        } else {
+            logToFile('Submit deve prosseguir normalmente');
+        }
+        
+        // Forçar submissão se não houver erros
+        if (!hasErrors && isValidHTML5 && !e.defaultPrevented) {
+            logToFile('🚀 Tentando forçar submissão...');
+            // Não fazer preventDefault aqui para deixar o submit natural acontecer
+        }
+        
+        logToFile('=== FIM DEBUG SUBMIT ===');
+    }, true); // Usar capture para pegar antes de outros listeners
+    
+    // Listener adicional para capturar se alguém está cancelando
+    form.addEventListener('submit', function(e) {
+        logToFile('DEBUG: Submit listener secundário', {defaultPrevented: e.defaultPrevented});
+    }, false);
+    
+    // Debug para botão de submit
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) {
+        logToFile('DEBUG: Submit button encontrado', {
+            id: submitButton.id,
+            type: submitButton.type,
+            disabled: submitButton.disabled
+        });
+        
+        submitButton.addEventListener('click', function(e) {
+            logToFile('=== DEBUG BUTTON CLICK ===', {
+                target: e.target.tagName,
+                type: e.target.type,
+                disabled: e.target.disabled,
+                defaultPrevented: e.defaultPrevented
+            });
+        });
+    } else {
+        logToFile('DEBUG: Submit button NÃO encontrado!');
+    }
+    
+    // Debug para todos os inputs
+    const allInputs = form.querySelectorAll('input, select, textarea');
+    logToFile(`DEBUG: Total de campos encontrados: ${allInputs.length}`);
+    
+    // Adicionar listener para beforeunload para ver se a página está sendo recarregada
+    window.addEventListener('beforeunload', function(e) {
+        logToFile('DEBUG: Página sendo descarregada/recarregada');
+    });
 
     // Inicialização
     init();
@@ -22,40 +152,37 @@ document.addEventListener('DOMContentLoaded', function() {
         setupMasks();
         setupValidation();
         setupCharacterCount();
-        setupFormSubmission();
+        
+        // Log para debug
+        console.log('Inicialização completa');
     }
 
     /**
      * Configurar forma de recebimento
      */
     function setupFormaRecebimento() {
-        formaRecebimento.forEach(radio => {
-            radio.addEventListener('change', function() {
-                toggleEnderecoSection();
+        if (formaRecebimento.length > 0) {
+            formaRecebimento.forEach(radio => {
+                radio.addEventListener('change', toggleEnderecoSection);
             });
-        });
-
-        // Verificar estado inicial
-        toggleEnderecoSection();
+            
+            // Verificar estado inicial
+            toggleEnderecoSection();
+        }
     }
 
     function toggleEnderecoSection() {
         const selectedValue = document.querySelector('input[name="forma_recebimento"]:checked')?.value;
         
-        if (selectedValue === 'correio') {
-            enderecoSection.style.display = 'block';
-            enderecoField.required = true;
-            
-            // Animação suave
-            enderecoSection.style.opacity = '0';
-            setTimeout(() => {
-                enderecoSection.style.transition = 'opacity 0.3s ease';
-                enderecoSection.style.opacity = '1';
-            }, 10);
-        } else {
-            enderecoSection.style.display = 'none';
-            enderecoField.required = false;
-            enderecoField.value = '';
+        if (enderecoSection && enderecoField) {
+            if (selectedValue === 'correio') {
+                enderecoSection.style.display = 'block';
+                enderecoField.required = true;
+            } else {
+                enderecoSection.style.display = 'none';
+                enderecoField.required = false;
+                enderecoField.value = '';
+            }
         }
     }
 
@@ -78,7 +205,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (telefoneField) {
             telefoneField.addEventListener('input', function(e) {
                 let value = e.target.value.replace(/\D/g, '');
-                
                 if (value.length <= 10) {
                     value = value.replace(/(\d{2})(\d)/, '($1) $2');
                     value = value.replace(/(\d{4})(\d)/, '$1-$2');
@@ -86,7 +212,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     value = value.replace(/(\d{2})(\d)/, '($1) $2');
                     value = value.replace(/(\d{5})(\d)/, '$1-$2');
                 }
-                
                 e.target.value = value;
             });
         }
@@ -107,7 +232,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Validação de CPF
         if (cpfField) {
             cpfField.addEventListener('blur', function() {
-                validateCPF(this);
+                if (this.value) {
+                    validateCPF(this);
+                }
             });
         }
 
@@ -120,39 +247,58 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function validateEmail(field) {
-        const email = field.value.trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        
-        if (email && !emailRegex.test(email)) {
-            showFieldError(field, 'Por favor, insira um e-mail válido.');
-            return false;
-        } else {
-            clearFieldError(field);
-            return true;
+    /**
+     * Configurar contador de caracteres
+     */
+    function setupCharacterCount() {
+        if (descricaoField) {
+            const maxLength = descricaoField.getAttribute('maxlength') || 2000;
+            const counter = document.createElement('div');
+            counter.className = 'character-counter text-muted small mt-1';
+            counter.textContent = `0/${maxLength} caracteres`;
+            
+            descricaoField.parentNode.appendChild(counter);
+            
+            descricaoField.addEventListener('input', function() {
+                const currentLength = this.value.length;
+                counter.textContent = `${currentLength}/${maxLength} caracteres`;
+                
+                if (currentLength > maxLength * 0.9) {
+                    counter.classList.add('text-warning');
+                } else {
+                    counter.classList.remove('text-warning');
+                }
+                
+                if (currentLength >= maxLength) {
+                    counter.classList.add('text-danger');
+                } else {
+                    counter.classList.remove('text-danger');
+                }
+            });
         }
+    }
+
+    /**
+     * Funções de validação
+     */
+    function validateRequired(field) {
+        const isValid = field.value.trim() !== '';
+        toggleFieldError(field, isValid, 'Este campo é obrigatório.');
+        return isValid;
+    }
+
+    function validateEmail(field) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isValid = emailRegex.test(field.value);
+        toggleFieldError(field, isValid, 'Por favor, insira um email válido.');
+        return isValid;
     }
 
     function validateCPF(field) {
         const cpf = field.value.replace(/\D/g, '');
-        
-        if (cpf && !isValidCPF(cpf)) {
-            showFieldError(field, 'CPF inválido.');
-            return false;
-        } else {
-            clearFieldError(field);
-            return true;
-        }
-    }
-
-    function validateRequired(field) {
-        if (!field.value.trim()) {
-            showFieldError(field, 'Este campo é obrigatório.');
-            return false;
-        } else {
-            clearFieldError(field);
-            return true;
-        }
+        const isValid = isValidCPF(cpf);
+        toggleFieldError(field, isValid, 'Por favor, insira um CPF válido.');
+        return isValid;
     }
 
     function isValidCPF(cpf) {
@@ -164,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let i = 0; i < 9; i++) {
             sum += parseInt(cpf.charAt(i)) * (10 - i);
         }
-        let remainder = 11 - (sum % 11);
+        let remainder = (sum * 10) % 11;
         if (remainder === 10 || remainder === 11) remainder = 0;
         if (remainder !== parseInt(cpf.charAt(9))) return false;
 
@@ -172,184 +318,42 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let i = 0; i < 10; i++) {
             sum += parseInt(cpf.charAt(i)) * (11 - i);
         }
-        remainder = 11 - (sum % 11);
+        remainder = (sum * 10) % 11;
         if (remainder === 10 || remainder === 11) remainder = 0;
-        if (remainder !== parseInt(cpf.charAt(10))) return false;
+        return remainder === parseInt(cpf.charAt(10));
+    }
 
-        return true;
+    function toggleFieldError(field, isValid, message) {
+        const errorElement = field.parentNode.querySelector('.invalid-feedback');
+        
+        if (isValid) {
+            field.classList.remove('is-invalid');
+            if (errorElement) {
+                errorElement.remove();
+            }
+        } else {
+            field.classList.add('is-invalid');
+            if (!errorElement) {
+                showFieldError(field, message);
+            }
+        }
     }
 
     function showFieldError(field, message) {
-        clearFieldError(field);
-        
-        if (field && field.classList) {
-            try {
-                field.classList.add('is-invalid');
-            } catch (error) {
-                console.warn('Erro ao adicionar classe de erro:', error);
-            }
+        // Remove erro anterior se existir
+        const existingError = field.parentNode.querySelector('.invalid-feedback');
+        if (existingError) {
+            existingError.remove();
         }
-        
+
+        // Criar elemento de erro
         const errorDiv = document.createElement('div');
         errorDiv.className = 'invalid-feedback';
         errorDiv.textContent = message;
         
-        if (field && field.parentNode) {
-            field.parentNode.appendChild(errorDiv);
-        }
-    }
-
-    function clearFieldError(field) {
-        if (field && field.classList) {
-            try {
-                field.classList.remove('is-invalid');
-            } catch (error) {
-                console.warn('Erro ao remover classe de erro:', error);
-            }
-        }
-        
-        if (field && field.parentNode) {
-            const errorDiv = field.parentNode.querySelector('.invalid-feedback');
-            if (errorDiv) {
-                errorDiv.remove();
-            }
-        }
-    }
-
-    /**
-     * Configurar contador de caracteres
-     */
-    function setupCharacterCount() {
-        if (descricaoField) {
-            const maxLength = 2000;
-            const counterDiv = document.createElement('div');
-            counterDiv.className = 'character-counter text-muted small mt-1';
-            descricaoField.parentNode.appendChild(counterDiv);
-
-            function updateCounter() {
-                const currentLength = descricaoField.value.length;
-                const remaining = maxLength - currentLength;
-                
-                counterDiv.textContent = `${currentLength}/${maxLength} caracteres`;
-                
-                if (remaining < 100) {
-                    if (counterDiv && counterDiv.classList) {
-                        try {
-                            counterDiv.classList.add('text-warning');
-                            counterDiv.classList.remove('text-muted');
-                        } catch (error) {
-                            console.warn('Erro ao alterar classe do contador:', error);
-                        }
-                    }
-                } else {
-                    if (counterDiv && counterDiv.classList) {
-                        try {
-                            counterDiv.classList.add('text-muted');
-                            counterDiv.classList.remove('text-warning');
-                        } catch (error) {
-                            console.warn('Erro ao alterar classe do contador:', error);
-                        }
-                    }
-                }
-            }
-
-            descricaoField.addEventListener('input', updateCounter);
-            updateCounter();
-        }
-    }
-
-    /**
-     * Configurar submissão do formulário
-     */
-    function setupFormSubmission() {
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                if (!validateForm()) {
-                    e.preventDefault();
-                    showFormErrors();
-                } else {
-                    showSubmissionLoader();
-                }
-            });
-        }
-    }
-
-    function validateForm() {
-        let isValid = true;
-        
-        // Validar campos obrigatórios
-        const requiredFields = form.querySelectorAll('[required]');
-        requiredFields.forEach(field => {
-            if (!validateRequired(field)) {
-                isValid = false;
-            }
-        });
-
-        // Validar email
-        const emailField = document.getElementById('email_solicitante');
-        if (emailField && !validateEmail(emailField)) {
-            isValid = false;
-        }
-
-        // Validar CPF se preenchido
-        if (cpfField && cpfField.value && !validateCPF(cpfField)) {
-            isValid = false;
-        }
-
-        // Validar aceite de termos
-        if (aceiteTernosField && !aceiteTernosField.checked) {
-            showFieldError(aceiteTernosField, 'Você deve aceitar os termos de uso.');
-            isValid = false;
-        }
-
-        return isValid;
-    }
-
-    function showFormErrors() {
-        // Scroll para o primeiro erro
-        const firstError = form.querySelector('.is-invalid');
-        if (firstError) {
-            firstError.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center' 
-            });
-            firstError.focus();
-        }
-
-        // Mostrar alerta geral
-        showAlert('Por favor, corrija os erros no formulário antes de continuar.', 'danger');
-    }
-
-    function showSubmissionLoader() {
-        const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
-        }
-    }
-
-    function showAlert(message, type = 'info') {
-        // Remove alertas existentes
-        const existingAlerts = document.querySelectorAll('.dynamic-alert');
-        existingAlerts.forEach(alert => alert.remove());
-
-        // Cria novo alerta
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type} alert-dismissible fade show dynamic-alert`;
-        alertDiv.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-
-        // Insere no topo do formulário
-        form.insertBefore(alertDiv, form.firstChild);
-
-        // Auto-remove após 5 segundos
-        setTimeout(() => {
-            if (alertDiv.parentNode) {
-                alertDiv.remove();
-            }
-        }, 5000);
+        // Inserir após o campo
+        field.parentNode.appendChild(errorDiv);
+        field.classList.add('is-invalid');
     }
 
     /**
@@ -367,6 +371,10 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
+    // SISTEMA DE RASCUNHO DESABILITADO TEMPORARIAMENTE
+    // Para evitar interferência na submissão do formulário
+    
+    /*
     // Salvar rascunho automaticamente
     const saveFormData = debounce(function() {
         const formData = new FormData(form);
@@ -421,8 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Limpar rascunho ao enviar com sucesso
     form.addEventListener('submit', function() {
-        if (validateForm()) {
-            localStorage.removeItem('esic_form_draft');
-        }
+        localStorage.removeItem('esic_form_draft');
     });
+    */
 });

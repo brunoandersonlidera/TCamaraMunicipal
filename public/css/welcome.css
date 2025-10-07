@@ -424,7 +424,7 @@
 }
 
 /* Pausar animação ao hover */
-.vereadores-carrossel:hover .carrossel-track {
+.vereadores-carrossel-completo:hover .carrossel-track {
     animation-play-state: paused;
 }
 
@@ -435,7 +435,7 @@
 }
 
 /* Cards dos vereadores no carrossel */
-.vereadores-carrossel .vereador-slide .vereador-mini-card {
+.vereadores-carrossel-completo .vereador-slide .vereador-mini-card {
     transition: all 0.4s ease;
     border: none;
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
@@ -444,13 +444,13 @@
     border-radius: 20px;
 }
 
-.vereadores-carrossel .vereador-slide .vereador-mini-card:hover {
+.vereadores-carrossel-completo .vereador-slide .vereador-mini-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 15px 35px rgba(0,0,0,0.15);
 }
 
 /* Card body dos vereadores com melhor espaçamento */
-.vereadores-carrossel .vereador-slide .vereador-mini-card .card-body {
+.vereadores-carrossel-completo .vereador-slide .vereador-mini-card .card-body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -459,12 +459,20 @@
 }
 
 /* Animação de scroll horizontal */
+/* Variáveis para distância de scroll e responsividade */
+.carrossel-track {
+    --slide-width: 340px; /* valor padrão, ajustado por breakpoints */
+    --gap: 1.5rem;
+    --num-slides: 9; /* será sobrescrito inline pela view */
+    --scroll-distance: calc(var(--num-slides) * var(--slide-width) + (var(--num-slides) - 1) * var(--gap));
+}
+
 @keyframes scrollHorizontal {
     0% {
         transform: translateX(0);
     }
     100% {
-        transform: translateX(-3060px); /* 9 cards * 340px */
+        transform: translateX(calc(-1 * var(--scroll-distance)));
     }
 }
 
@@ -479,9 +487,8 @@
         animation-duration: 42s;
     }
     
-    .vereador-slide {
-        flex: 0 0 300px;
-    }
+    .carrossel-track { --slide-width: 300px; }
+    .vereador-slide { flex: 0 0 var(--slide-width); }
     
     .vereadores-carrossel .vereador-slide .vereador-mini-card {
         min-height: 420px !important;
@@ -494,9 +501,8 @@
         padding: 20px;
     }
     
-    .vereador-slide {
-        flex: 0 0 280px;
-    }
+    .carrossel-track { --slide-width: 280px; }
+    .vereador-slide { flex: 0 0 var(--slide-width); }
     
     .carrossel-track {
         animation-duration: 40s;
@@ -513,9 +519,8 @@
         min-height: 400px;
     }
     
-    .vereador-slide {
-        flex: 0 0 260px;
-    }
+    .carrossel-track { --slide-width: 260px; }
+    .vereador-slide { flex: 0 0 var(--slide-width); }
     
     .carrossel-track {
         gap: 1rem;
@@ -545,24 +550,13 @@
         padding: 0.5rem;
     }
     
-    .vereador-slide {
-        flex: 0 0 260px;
-    }
-    
-    .carrossel-track {
-        gap: 0.5rem;
-        animation-duration: 20s;
-    }
+    .carrossel-track { --slide-width: 260px; gap: 0.5rem; animation-duration: 20s; }
+    .vereador-slide { flex: 0 0 var(--slide-width); }
 }
 
 @media (max-width: 576px) {
-    .vereador-slide {
-        flex: 0 0 240px;
-    }
-    
-    .carrossel-track {
-        animation-duration: 15s;
-    }
+    .carrossel-track { --slide-width: 240px; animation-duration: 15s; }
+    .vereador-slide { flex: 0 0 var(--slide-width); }
 }
 
 /* Efeitos visuais adicionais */
