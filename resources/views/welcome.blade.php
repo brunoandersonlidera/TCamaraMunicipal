@@ -15,15 +15,35 @@
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="container">
-        <div class="row align-items-center min-vh-75">
+        <div class="row align-items-center min-vh-50">
             <!-- Texto Dinâmico - Lado Esquerdo -->
             <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4 animate-fade-in-up">
-                    {{ $heroConfig->titulo }}
-                </h1>
-                <p class="lead mb-4 animate-fade-in-up" style="animation-delay: 0.2s;">
-                    {{ $heroConfig->descricao }}
-                </p>
+                @if(optional($heroConfig->imagemTopo)->url)
+                    <div class="mb-3 text-center animate-fade-in-up" style="animation-delay: 0.05s;">
+                        <img src="{{ optional($heroConfig->imagemTopo)->url }}" 
+                             alt="{{ optional($heroConfig->imagemTopo)->alt_text ?? ($heroConfig->titulo ?? 'Imagem do Hero') }}" 
+                             class="{{ ($heroConfig->centralizar_imagem_topo ?? true) ? 'img-fluid mx-auto d-block hero-top-image' : 'img-fluid hero-top-image' }}" 
+                             style="max-height: {{ $heroConfig->imagem_topo_altura_px ?? 160 }}px; width: auto; object-fit: contain;">
+                    </div>
+                @endif
+                @if(!empty($heroConfig->titulo))
+                    <h1 class="display-4 fw-bold mb-4 animate-fade-in-up">
+                        {{ $heroConfig->titulo }}
+                    </h1>
+                @endif
+                <div class="animate-fade-in-up" style="animation-delay: 0.2s;">
+                    <div class="d-flex {{ ($heroConfig->centralizar_imagem_descricao ?? false) ? 'justify-content-center align-items-center' : 'align-items-start' }}">
+                        @if(optional($heroConfig->imagemDescricao)->url)
+                            <img src="{{ optional($heroConfig->imagemDescricao)->url }}" 
+                                 alt="{{ optional($heroConfig->imagemDescricao)->alt_text ?? 'Imagem descritiva' }}" 
+                                 class="me-3 flex-shrink-0 hero-desc-image {{ ($heroConfig->centralizar_imagem_descricao ?? false) ? 'mx-auto d-block' : '' }}" 
+                                 style="max-height: {{ $heroConfig->imagem_descricao_altura_px ?? 96 }}px; width: auto; object-fit: contain; @if(!empty($heroConfig->imagem_descricao_largura_px)) max-width: {{ $heroConfig->imagem_descricao_largura_px }}px; @endif">
+                        @endif
+                        <p class="lead mb-0">
+                            {{ $heroConfig->descricao }}
+                        </p>
+                    </div>
+                </div>
                 <div class="d-flex gap-3 flex-wrap animate-fade-in-up" style="animation-delay: 0.4s;">
                     <a href="{{ $heroConfig->botao_primario_link }}" 
                        class="btn btn-primary-custom"
@@ -156,7 +176,7 @@
                         <div class="col-lg-3 col-md-4 col-sm-6 col-6">
                             <a href="#" 
                                class="btn btn-acesso-rapido d-flex flex-column align-items-center p-3 h-100 text-decoration-none"
-                               style="background-color: #28a745; color: white; border: 2px solid #28a745;">
+                               style="background-color: var(--theme-success, #28a745); color: white; border: 2px solid var(--theme-success, #28a745);">
                                 <i class="fas fa-gavel mb-2" style="font-size: 2.5rem;"></i>
                                 <span class="fw-bold text-center" style="font-size: 0.9rem; line-height: 1.2;">Projetos de Lei</span>
                                 <small class="text-center mt-1 opacity-75" style="font-size: 0.75rem;">Em tramitação</small>
@@ -898,6 +918,10 @@
         </div>
     </div>
 </section>
+<!-- Botão flutuante: Rolar Para Cima -->
+<button id="scrollTopBtn" class="scroll-to-top" aria-label="Rolar para cima" title="Rolar para cima">
+    <i class="fas fa-arrow-up"></i>
+</button>
 @endsection
 
 @push('scripts')

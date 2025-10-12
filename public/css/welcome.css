@@ -583,3 +583,55 @@
     z-index: 1;
     pointer-events: none;
 }
+
+/* ========================================
+   BOTÃO FLUTUANTE: ROLAR PARA CIMA
+   ======================================== */
+.scroll-to-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--theme-primary, #0d6efd);
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050; /* acima de cards/carrossel */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+}
+
+.scroll-to-top.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.scroll-to-top:hover {
+    background: #0b5ed7; /* tom mais escuro do primary */
+}
+
+.scroll-to-top:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(13,110,253,0.25);
+}
+
+.scroll-to-top i {
+    font-size: 1.25rem;
+}
+
+@media (max-width: 576px) {
+    .scroll-to-top {
+        bottom: 16px;
+        right: 16px;
+        width: 44px;
+        height: 44px;
+    }
+}
