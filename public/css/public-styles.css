@@ -56,9 +56,9 @@
 
 /* Cartas de Serviço */
 .hero-section {
-    background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+    background: linear-gradient(135deg, var(--theme-primary, #6f42c1) 0%, var(--theme-secondary, #e83e8c) 100%);
     color: white;
-    padding: 80px 0;
+    padding: 20px 0; /* reduzido para diminuir a largura vertical do container externo do hero */
     position: relative;
 }
 
@@ -121,7 +121,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(135deg, #6f42c1, #e83e8c);
+    background: linear-gradient(135deg, var(--theme-accent, #6f42c1), var(--theme-secondary, #e83e8c));
 }
 
 .service-card:hover {
@@ -132,7 +132,7 @@
 .service-icon {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #6f42c1, #e83e8c);
+    background: linear-gradient(135deg, var(--theme-primary, #6f42c1), var(--theme-accent, #e83e8c));
     border-radius: 15px;
     display: flex;
     align-items: center;
@@ -186,7 +186,7 @@
 }
 
 .btn-view {
-    background: linear-gradient(135deg, #6f42c1, #e83e8c);
+    background: linear-gradient(135deg, var(--theme-accent, #6f42c1), var(--theme-secondary, #e83e8c));
     color: white;
     border: none;
     padding: 10px 20px;
@@ -300,7 +300,7 @@
 }
 
 .form-control:focus {
-    border-color: #6f42c1;
+    border-color: var(--theme-primary, #6f42c1);
     box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
     background: white;
 }
@@ -315,13 +315,13 @@
 }
 
 .form-select:focus {
-    border-color: #6f42c1;
+    border-color: var(--theme-primary, #6f42c1);
     box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
     background: white;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #6f42c1, #e83e8c);
+    background: linear-gradient(135deg, var(--theme-primary, #6f42c1), var(--theme-accent, #e83e8c));
     border: none;
     border-radius: 10px;
     padding: 15px 30px;
@@ -336,8 +336,8 @@
 }
 
 .btn-outline-primary {
-    border: 2px solid #6f42c1;
-    color: #6f42c1;
+    border: 2px solid var(--theme-primary, #6f42c1);
+    color: var(--theme-primary, #6f42c1);
     background: transparent;
     border-radius: 10px;
     padding: 12px 25px;
@@ -346,8 +346,8 @@
 }
 
 .btn-outline-primary:hover {
-    background: linear-gradient(135deg, #6f42c1, #e83e8c);
-    border-color: #6f42c1;
+    background: linear-gradient(135deg, var(--theme-primary, #6f42c1), var(--theme-accent, #e83e8c));
+    border-color: var(--theme-primary, #6f42c1);
     color: white;
     transform: translateY(-2px);
 }
@@ -359,7 +359,7 @@
 
 .page-link {
     border: none;
-    color: #6f42c1;
+    color: var(--theme-primary, #6f42c1);
     padding: 12px 18px;
     margin: 0 5px;
     border-radius: 8px;
@@ -368,14 +368,14 @@
 }
 
 .page-link:hover {
-    background: #6f42c1;
+    background: var(--theme-primary, #6f42c1);
     color: white;
     transform: translateY(-1px);
 }
 
 .page-item.active .page-link {
-    background: linear-gradient(135deg, #6f42c1, #e83e8c);
-    border-color: #6f42c1;
+    background: linear-gradient(135deg, var(--theme-primary, #6f42c1), var(--theme-accent, #e83e8c));
+    border-color: var(--theme-primary, #6f42c1);
 }
 
 .empty-state {
@@ -730,7 +730,7 @@
 }
 
 .btn-secondary {
-    background: #6c757d;
+    background: var(--theme-secondary, #6c757d);
     border: none;
     border-radius: 10px;
     padding: 15px 30px;
@@ -744,7 +744,7 @@
 }
 
 .btn-secondary:hover {
-    background: #5a6268;
+    background: var(--theme-secondary-hover, #5a6268);
     color: white;
     transform: translateY(-2px);
 }

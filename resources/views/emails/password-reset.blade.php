@@ -32,7 +32,7 @@
         .logo {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            background: linear-gradient(135deg, var(--theme-primary, #f59e0b), var(--theme-accent, #d97706));
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -73,7 +73,7 @@
         
         .reset-button {
             display: inline-block;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            background: linear-gradient(135deg, var(--theme-primary, #f59e0b), var(--theme-accent, #d97706));
             color: white;
             text-decoration: none;
             padding: 15px 30px;
@@ -86,7 +86,7 @@
         }
         
         .reset-button:hover {
-            background: linear-gradient(135deg, #d97706, #b45309);
+            background: linear-gradient(135deg, var(--theme-accent, #d97706), var(--theme-secondary, #b45309));
             transform: translateY(-2px);
         }
         
@@ -119,12 +119,15 @@
             padding-top: 20px;
             border-top: 1px solid #e5e7eb;
             text-align: center;
-            color: #6b7280;
             font-size: 14px;
+            /* Compatível com tema quando renderizado em contexto web, com fallback seguro */
+            background-color: #1f2937; /* fallback sólido para clientes sem suporte a var() */
+            background: var(--footer-bg, linear-gradient(135deg, #1f2937 0%, #374151 100%));
+            color: white;
         }
         
         .footer a {
-            color: #3b82f6;
+            color: var(--theme-primary, #3b82f6);
             text-decoration: none;
         }
         
@@ -225,7 +228,7 @@
                 Para dúvidas, entre em contato através do nosso 
                 <a href="{{ route('home') }}">site oficial</a>.
             </p>
-            <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
+            <p style="margin-top: 15px; font-size: 12px; color: rgba(255,255,255,0.85);">
                 © {{ date('Y') }} Câmara Municipal. Todos os direitos reservados.
             </p>
         </div>

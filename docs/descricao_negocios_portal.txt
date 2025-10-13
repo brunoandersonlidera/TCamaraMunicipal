@@ -1,0 +1,74 @@
+Portal da Câmara Municipal — Guia Simples para o Cidadão
+
+Objetivo do Portal
+O site existe para aproximar a Câmara Municipal dos moradores da cidade. Ele facilita o acesso às notícias, às reuniões dos vereadores, às leis e aos gastos públicos, além de oferecer canais de participação e atendimento.
+
+O que você encontra no portal
+1) Notícias e Comunicados
+   - Acompanhe novidades, avisos oficiais e informações de interesse público.
+
+2) Sessões da Câmara
+   - Veja a agenda das sessões e os detalhes do que foi discutido e votado.
+   - Consulte atas, pautas e resultados das votações quando disponíveis.
+   - Acompanhe as sessões em tempo real (quando disponível), com transmissão e painel de votação.
+   - Veja o resultado das votações por projeto e por vereador.
+
+3) Projetos de Lei
+   - Pesquise propostas em andamento, entenda o objetivo de cada projeto e acompanhe seu status até virar lei ou ser arquivado.
+   - Quem pode propor: vereadores e Prefeitura (projetos do Executivo).
+   - Iniciativa popular: o portal orienta a formação de comitês, a coleta de assinaturas e o envio da proposta à Câmara.
+   - Tramitação básica: apresentação, análise pelas comissões, pareceres, discussão em plenário, votação e sanção ou veto.
+
+4) Leis Municipais
+   - Consulte leis já aprovadas, com informações básicas para entender seus efeitos no dia a dia.
+
+5) Transparência (Prestação de Contas)
+   - Licitações: processos de compra e contratação de serviços.
+   - Contratos: acordos firmados pela Câmara, seus valores e prazos.
+   - Receitas e Despesas: de onde vem o dinheiro e como ele é utilizado.
+   - Folha de Pagamento: gastos com pessoal e remuneração.
+   - Objetivo: permitir que qualquer cidadão veja como o dinheiro público é administrado.
+
+6) Ouvidoria
+   - Canal para enviar reclamações, sugestões, elogios e denúncias.
+   - Você recebe protocolo e pode acompanhar sua manifestação.
+
+7) e-SIC (Pedido de Informação)
+   - Solicite informações oficiais com base na Lei de Acesso à Informação.
+   - Acompanhe seu pedido até receber a resposta.
+
+8) Calendário
+   - Datas de sessões, audiências e eventos públicos.
+
+9) Busca
+   - Ferramenta para encontrar rapidamente notícias, sessões, leis e outros conteúdos.
+
+10) Contato
+   - Informações de telefone, e-mail e endereço para atendimento ao cidadão.
+
+11) Vereadores
+   - Perfil dos vereadores, suas propostas e atuação.
+
+12) Carta de Serviços
+   - Lista clara dos serviços oferecidos pela Câmara, com orientações de como solicitar cada um.
+
+13) Documentos e Arquivos
+   - Acesso a documentos públicos organizados por tema (ex.: atas, editais, relatórios).
+
+14) Área do Cidadão
+   - Cadastro e login para acessar serviços específicos (quando disponíveis).
+   - Recuperação de senha para facilitar o acesso.
+
+15) Acesso Rápido
+   - Atalhos para os conteúdos mais buscados (ex.: transparência, sessões, notícias).
+
+Boas práticas
+- Informação confiável: conteúdos oficiais e atualizados.
+- Participação fácil: use a Ouvidoria e o e-SIC para ser ouvido.
+- Navegação simples: menus, busca e páginas pensadas para facilitar a vida do cidadão.
+- Segurança e privacidade: seus dados são tratados com cuidado e conforme a lei.
+
+
+Em resumo
+O portal reúne informações essenciais sobre a Câmara Municipal e oferece canais claros de participação e atendimento. Ele foi feito para você entender, acompanhar e fiscalizar a atuação dos representantes da cidade de forma simples e transparente.
+Todo o sistema está em conformidade com a LGPD e GDPR, e atende às normas de Segurança e Privacidade.

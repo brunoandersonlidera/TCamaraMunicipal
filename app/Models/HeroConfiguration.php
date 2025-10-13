@@ -9,6 +9,13 @@ class HeroConfiguration extends Model
     protected $fillable = [
         'titulo',
         'descricao',
+        'imagem_topo_id',
+        'imagem_topo_altura_px',
+        'centralizar_imagem_topo',
+        'imagem_descricao_id',
+        'imagem_descricao_altura_px',
+        'imagem_descricao_largura_px',
+        'centralizar_imagem_descricao',
         'botao_primario_texto',
         'botao_primario_link',
         'botao_primario_nova_aba',
@@ -16,14 +23,34 @@ class HeroConfiguration extends Model
         'botao_secundario_link',
         'botao_secundario_nova_aba',
         'mostrar_slider',
-        'ativo'
+        'ativo',
+        // Novos campos de slider/hero
+        'intervalo',
+        'transicao',
+        'autoplay',
+        'pausar_hover',
+        'mostrar_indicadores',
+        'mostrar_controles'
     ];
 
     protected $casts = [
         'botao_primario_nova_aba' => 'boolean',
         'botao_secundario_nova_aba' => 'boolean',
         'mostrar_slider' => 'boolean',
-        'ativo' => 'boolean'
+        'ativo' => 'boolean',
+        'imagem_topo_id' => 'integer',
+        'imagem_topo_altura_px' => 'integer',
+        'centralizar_imagem_topo' => 'boolean',
+        'imagem_descricao_id' => 'integer',
+        'imagem_descricao_altura_px' => 'integer',
+        'imagem_descricao_largura_px' => 'integer',
+        'centralizar_imagem_descricao' => 'boolean',
+        // Casts dos novos campos
+        'intervalo' => 'integer',
+        'autoplay' => 'boolean',
+        'pausar_hover' => 'boolean',
+        'mostrar_indicadores' => 'boolean',
+        'mostrar_controles' => 'boolean'
     ];
 
     /**
@@ -65,5 +92,18 @@ class HeroConfiguration extends Model
         $this->update(['ativo' => true]);
         
         return $this;
+    }
+
+    /**
+     * Relações com a biblioteca de mídia
+     */
+    public function imagemTopo()
+    {
+        return $this->belongsTo(\App\Models\Media::class, 'imagem_topo_id');
+    }
+
+    public function imagemDescricao()
+    {
+        return $this->belongsTo(\App\Models\Media::class, 'imagem_descricao_id');
     }
 }

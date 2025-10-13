@@ -17,7 +17,8 @@
     }
     .page-content h1, .page-content h2, .page-content h3, 
     .page-content h4, .page-content h5, .page-content h6 {
-        color: #2c3e50;
+        /* Usar cor de título baseada no tema */
+        color: var(--theme-heading, #2c3e50);
         margin-top: 2rem;
         margin-bottom: 1rem;
     }
@@ -43,11 +44,12 @@
     }
     
     .page-content blockquote {
-        border-left: 4px solid #007bff;
+        /* Borda do bloco de citação segue a cor primária do tema */
+        border-left: 4px solid var(--theme-primary, #0d6efd);
         padding-left: 1.5rem;
         margin: 2rem 0;
         font-style: italic;
-        color: #6c757d;
+        color: var(--theme-text-muted, #6c757d);
     }
     
     .page-content img {
@@ -72,12 +74,13 @@
     }
     
     .page-content table th {
-        background-color: #f8f9fa;
+        background-color: var(--theme-light, #f8f9fa);
         font-weight: 600;
     }
     
     .page-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /* Gradiente do cabeçalho controlado por variáveis de tema */
+        background: linear-gradient(135deg, var(--theme-primary, #667eea) 0%, var(--theme-primary-dark, #764ba2) 100%);
         color: white;
         padding: 2rem 0;
         margin-bottom: 2rem;
@@ -92,11 +95,11 @@
     }
     
     .last-updated {
-        background: #f8f9fa;
-        border-top: 1px solid #dee2e6;
+        background: var(--theme-light, #f8f9fa);
+        border-top: 1px solid var(--theme-border, #dee2e6);
         padding: 1rem;
         font-size: 0.9rem;
-        color: #6c757d;
+        color: var(--theme-text-muted, #6c757d);
         text-align: center;
     }
 </style>

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
+use App\Http\Controllers\ThemeCssController;
 use App\Http\Controllers\VereadorController;
 use App\Http\Controllers\SessaoController;
 use App\Http\Controllers\UserAreaController;
@@ -37,6 +38,9 @@ Route::get('/files/{path}', function ($path) {
         'Cache-Control' => 'public, max-age=31536000',
     ]);
 })->where('path', '.*');
+
+// CSS dinâmico de tema
+Route::get('/theme.css', [ThemeCssController::class, 'css'])->name('theme.css');
 
 // Rota personalizada para servir imagens do public/images
 Route::get('/images/{path}', function ($path) {
@@ -123,8 +127,8 @@ Route::get('/', function () {
     // Buscar slides ativos para o hero section
     $slides = \App\Models\Slide::ativos()->ordenados()->get();
     
-    // Buscar configurações do hero section
-    $heroConfig = \App\Models\HeroConfiguration::getActive();
+    // Buscar configurações do hero section (carregar relações de mídia para preview)
+    $heroConfig = \App\Models\HeroConfiguration::getActive()->load(['imagemTopo', 'imagemDescricao']);
     
     // Buscar últimas notícias para a página inicial
     $ultimasNoticias = Noticia::publicadas()
@@ -693,6 +697,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Futuras rotas administrativas podem ser adicionadas aqui
     // Route::resource('users', UserController::class);
     // Route::resource('noticias', NoticiaController::class);
+    
+    // Rotas administrativas para Temas do Site (Sistema de Temas Dinâmicos)
+    Route::resource('temas', \App\Http\Controllers\Admin\ThemeController::class, [
+        'as' => 'admin',
+        'parameters' => ['temas' => 'theme']
+    ]);
+    Route::post('temas/{theme}/activate', [\App\Http\Controllers\Admin\ThemeController::class, 'activate'])
+        ->name('admin.temas.activate');
+    Route::post('temas/{theme}/schedule', [\App\Http\Controllers\Admin\ThemeController::class, 'schedule'])
+        ->name('admin.temas.schedule');
+    Route::get('temas/{theme}/preview', [\App\Http\Controllers\Admin\ThemeController::class, 'preview'])
+        ->name('admin.temas.preview');
 });
 
 // ========================================

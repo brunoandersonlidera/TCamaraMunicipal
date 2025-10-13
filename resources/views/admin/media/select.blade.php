@@ -43,16 +43,17 @@
         </div>
         <div class="collapse mt-2" id="quickUploadPanel">
             <div class="card card-body p-2">
-                <form id="mediaQuickUploadForm" method="POST" action="/admin/media" enctype="multipart/form-data" data-ml-handled="1" onsubmit="return mlQuickUploadSubmit(event);">
+                <form id="mediaQuickUploadForm" method="POST" action="/admin/media" enctype="multipart/form-data" data-ml-handled="1" onsubmit="return mlQuickUploadSubmit(event);" novalidate>
                     @csrf
                     <div class="row g-2 align-items-end">
                         <div class="col-md-6">
                             <label class="form-label form-label-sm" for="quickUploadFiles">Arquivos</label>
-                            <input type="file" name="files[]" id="quickUploadFiles" class="form-control form-control-sm" multiple accept="image/*,video/*,application/pdf,.doc,.docx">
+                            <input type="file" name="files[]" id="quickUploadFiles" class="form-control form-control-sm" multiple accept="image/*,video/*,application/pdf,.doc,.docx" form="mediaQuickUploadForm">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label form-label-sm" for="quickUploadCategory">Categoria</label>
-                            <select name="category" id="quickUploadCategory" class="form-select form-select-sm" required>
+                            <!-- Removido 'required' para evitar bloqueio de submissões do formulário pai quando este seletor estiver embutido em outra view -->
+                            <select name="category" id="quickUploadCategory" class="form-select form-select-sm" form="mediaQuickUploadForm">
                                 <option value="">Selecione uma categoria</option>
                                 @foreach($categories as $key => $label)
                                     <option value="{{ $key }}" {{ request('category') == $key ? 'selected' : '' }}>{{ $label }}</option>
@@ -60,7 +61,7 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <button type="submit" class="btn btn-sm btn-success w-100" id="quickUploadBtn">
+                            <button type="submit" class="btn btn-sm btn-success w-100" id="quickUploadBtn" form="mediaQuickUploadForm">
                                 <i class="fas fa-cloud-upload-alt me-1"></i> Enviar
                             </button>
                         </div>

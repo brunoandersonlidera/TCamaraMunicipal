@@ -52,6 +52,9 @@
     <link href="{{ asset('css/app-layout.css') }}" rel="stylesheet">
     <link href="{{ asset('css/public-styles.css') }}" rel="stylesheet">
     <link href="{{ asset('css/leis-formatacao.css') }}" rel="stylesheet">
+    <!-- CSS dinâmico de tema (carregado por último para sobrescrever cores/gradientes) -->
+    @php $themePreview = request()->query('theme_preview'); @endphp
+    <link href="{{ $themePreview ? route('theme.css', ['theme_preview' => $themePreview]) : route('theme.css') }}" rel="stylesheet">
     
     <!-- JavaScript Direto -->
     <script src="{{ asset('js/app-layout.js') }}" defer></script>

@@ -40,7 +40,7 @@
     text-align: center;
     margin-bottom: 3rem;
     padding: 3rem 2rem;
-    background: linear-gradient(135deg, var(--esic-primary), var(--esic-secondary));
+    background: linear-gradient(135deg, var(--theme-primary, var(--esic-primary)), var(--theme-secondary, var(--esic-secondary)));
     color: white;
     border-radius: 1rem;
     box-shadow: var(--esic-shadow-lg);
@@ -80,7 +80,7 @@
 }
 
 .card-header {
-    background: linear-gradient(135deg, var(--esic-primary), var(--esic-secondary));
+    background: linear-gradient(135deg, var(--theme-primary, var(--esic-primary)), var(--theme-secondary, var(--esic-secondary)));
     color: white;
     padding: 1.5rem;
     border-bottom: none;
@@ -108,7 +108,7 @@
 
 /* ===== HERO SECTION ===== */
 .hero-section {
-    background: linear-gradient(135deg, var(--esic-primary), var(--esic-secondary));
+    background: linear-gradient(135deg, var(--theme-primary, var(--esic-primary)), var(--theme-secondary, var(--esic-secondary)));
     color: white;
     padding: 4rem 0;
     margin-bottom: 3rem;

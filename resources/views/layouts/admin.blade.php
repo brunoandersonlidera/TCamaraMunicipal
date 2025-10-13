@@ -283,6 +283,13 @@
                 </div>
                 
                 <div class="nav-item">
+                    <a href="{{ route('admin.temas.index') }}" class="nav-link {{ request()->routeIs('admin.temas.*') ? 'active' : '' }}">
+                        <i class="fas fa-palette"></i>
+                        Temas do Site
+                    </a>
+                </div>
+                
+                <div class="nav-item">
                     <a href="{{ route('home') }}" class="nav-link" target="_blank">
                         <i class="fas fa-external-link-alt"></i>
                         Ver Site

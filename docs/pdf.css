@@ -1,0 +1,53 @@
+/* Estilo para PDF (md-to-pdf) */
+@page {
+  margin: 24mm;
+}
+:root {
+  --accent: #0b6efd;
+  --text: #1f2937;
+  --muted: #6b7280;
+}
+html { font-size: 11pt; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  color: var(--text);
+  line-height: 1.5;
+}
+h1, h2, h3 {
+  color: var(--accent);
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+h1 { font-size: 22pt; border-bottom: 2px solid var(--accent); padding-bottom: 6px; }
+h2 { font-size: 16pt; margin-top: 18px; }
+h3 { font-size: 13pt; margin-top: 14px; }
+
+p { margin: 0 0 10px 0; }
+ul { margin: 0 0 10px 20px; }
+li { margin: 4px 0; }
+
+/* Blocos de destaque */
+.callout {
+  border-left: 4px solid var(--accent);
+  background: #f5f8ff;
+  padding: 10px 12px;
+  margin: 10px 0 14px 0;
+}
+.muted { color: var(--muted); }
+
+/* Rodapé visual simples */
+footer {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  font-size: 9pt;
+  color: var(--muted);
+}
+
+/* Capa e elementos visuais */
+.cover-logo {
+  width: 80px;
+  display: block;
+  margin: 0 auto 8px auto;
+}
+.center { text-align: center; }

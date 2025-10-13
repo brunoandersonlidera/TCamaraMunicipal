@@ -20,6 +20,7 @@
 @section('title', 'Missão, Visão e Valores - Câmara Municipal')
 
 @section('content')
+<div class="missao-page">
 <div class="container py-5">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
@@ -281,11 +282,28 @@
         </div>
     </div>
 </div>
+</div>
 
 <style>
-.page-header {
-    border-bottom: 3px solid #007bff;
+/* Tematização escopada para a página de Missão/Visão/Valores */
+.missao-page .page-header {
+    border-bottom: 3px solid var(--theme-primary, #007bff);
     padding-bottom: 2rem;
+}
+
+.missao-page .page-header h1 {
+    color: var(--theme-heading, #2c3e50);
+}
+
+.missao-page .page-header .lead {
+    color: var(--theme-text-muted, #6c757d);
+}
+
+.missao-page .card-header.bg-primary,
+.missao-page .card-header.bg-success,
+.missao-page .card-header.bg-warning {
+    background: linear-gradient(135deg, var(--theme-primary, #667eea) 0%, var(--theme-primary-dark, #764ba2) 100%);
+    color: #fff;
 }
 
 .mission-pillar {
@@ -310,9 +328,9 @@
 
 .value-item {
     padding: 1.5rem;
-    background: #f8f9fa;
+    background: var(--theme-light, #f8f9fa);
     border-radius: 0.5rem;
-    border-left: 4px solid #ffc107;
+    border-left: 4px solid var(--theme-primary, #007bff);
     height: 100%;
     transition: box-shadow 0.3s ease;
 }

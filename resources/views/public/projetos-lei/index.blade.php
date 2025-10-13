@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{{ asset('css/public-styles.css') }}">
     <style>
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--theme-primary, #667eea) 0%, var(--theme-primary-dark, #764ba2) 100%);
             color: white;
             padding: 4rem 0 2rem;
             margin-bottom: 2rem;
@@ -35,8 +35,8 @@
         }
         
         .projeto-destaque {
-            border-left: 5px solid #ffc107;
-            background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+            border-left: 5px solid var(--theme-accent, #ffc107);
+            background: linear-gradient(135deg, var(--theme-light, #fff9e6) 0%, var(--theme-light, #ffffff) 100%);
         }
         
         .status-badge {
@@ -48,10 +48,10 @@
             letter-spacing: 0.5px;
         }
         
-        .status-tramitando { background: #fff3cd; color: #856404; }
-        .status-aprovado { background: #d1edff; color: #0c5460; }
-        .status-rejeitado { background: #f8d7da; color: #721c24; }
-        .status-arquivado { background: #e2e3e5; color: #383d41; }
+        .status-tramitando { background: var(--theme-warning-bg, #fff3cd); color: var(--theme-warning-text, #856404); }
+        .status-aprovado { background: var(--theme-info-bg, #d1edff); color: var(--theme-info-text, #0c5460); }
+        .status-rejeitado { background: var(--theme-danger-bg, #f8d7da); color: var(--theme-danger-text, #721c24); }
+        .status-arquivado { background: var(--theme-secondary-bg, #e2e3e5); color: var(--theme-secondary-text, #383d41); }
         
         .btn-action {
             border-radius: 25px;
@@ -64,30 +64,30 @@
         }
         
         .btn-primary-custom {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--theme-primary, #667eea) 0%, var(--theme-primary-dark, #764ba2) 100%);
             border: none;
             color: white;
         }
         
         .btn-primary-custom:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 15px var(--theme-primary-shadow, rgba(102, 126, 234, 0.4));
         }
         
         .btn-outline-custom {
-            border: 2px solid #667eea;
-            color: #667eea;
+            border: 2px solid var(--theme-primary, #667eea);
+            color: var(--theme-primary, #667eea);
             background: transparent;
         }
         
         .btn-outline-custom:hover {
-            background: #667eea;
+            background: var(--theme-primary, #667eea);
             color: white;
             transform: translateY(-2px);
         }
         
         .destaque-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, var(--theme-light, #f8f9fa) 0%, var(--theme-border, #e9ecef) 100%);
             padding: 3rem 0;
             margin-bottom: 3rem;
             border-radius: 20px;
@@ -105,7 +105,7 @@
         
         .stats-icon {
             font-size: 3rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--theme-primary, #667eea) 0%, var(--theme-primary-dark, #764ba2) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 1rem;
@@ -114,7 +114,7 @@
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
-            color: #6c757d;
+            color: var(--theme-text-muted, #6c757d);
         }
         
         .empty-state i {
