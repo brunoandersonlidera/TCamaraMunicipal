@@ -149,10 +149,15 @@ body {
     padding-top: 20px;
     border-top: 1px solid #e5e7eb;
     text-align: center;
+    /* Torna o rodapé dinâmico com o tema aplicado, mantendo um fallback seguro */
+    background-color: #1f2937; /* fallback sólido para clientes sem suporte a var() */
+    background: var(--footer-bg, linear-gradient(135deg, #1f2937 0%, #374151 100%));
+    color: white;
 }
 
 .footer-text {
-    color: #6b7280;
+    /* Ajuste para melhor contraste sobre fundo escuro em tema */
+    color: rgba(255, 255, 255, 0.85);
     font-size: 14px;
     margin: 10px 0;
 }
@@ -162,7 +167,7 @@ body {
 }
 
 .footer-links a {
-    color: #3b82f6;
+    color: var(--theme-primary, #3b82f6);
     text-decoration: none;
     margin: 0 10px;
     font-size: 14px;

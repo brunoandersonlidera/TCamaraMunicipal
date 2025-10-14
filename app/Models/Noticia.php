@@ -102,9 +102,34 @@ class Noticia extends Model
     protected function imagemDestaqueUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->imagem_destaque 
-                ? asset('storage/' . $this->imagem_destaque) 
-                : asset('images/noticia-placeholder.jpg'),
+            get: function () {
+                $img = $this->imagem_destaque;
+
+                // Placeholder quando não houver imagem
+                if (empty($img)) {
+                    return asset('images/noticia-placeholder.jpg');
+                }
+
+                // URL absoluta já válida
+                if (preg_match('#^https?://#', $img)) {
+                    return $img;
+                }
+
+                // Caminhos em public/images
+                if (str_starts_with($img, '/images/')) {
+                    return asset($img);
+                }
+                if (str_starts_with($img, 'images/')) {
+                    return asset('/' . $img);
+                }
+
+                // Normalizar valores salvos com prefixo /storage ou storage
+                $path = ltrim($img, '/');
+                $path = preg_replace('#^storage/#', '', $path);
+
+                // Usar Storage::url() para respeitar a URL configurada do disco (agora /files)
+                return \Illuminate\Support\Facades\Storage::url($path);
+            },
         );
     }
 
@@ -186,10 +211,28 @@ class Noticia extends Model
     public function getGaleriaImagensUrls()
     {
         if (!$this->galeria_imagens) return [];
-        
+
         return collect($this->galeria_imagens)->map(function ($imagem) {
-            return asset('storage/' . $imagem);
-        })->toArray();
+            if (empty($imagem)) return null;
+
+            // URL absoluta
+            if (preg_match('#^https?://#', $imagem)) {
+                return $imagem;
+            }
+
+            // public/images
+            if (str_starts_with($imagem, '/images/')) {
+                return asset($imagem);
+            }
+            if (str_starts_with($imagem, 'images/')) {
+                return asset('/' . $imagem);
+            }
+
+            // Normalizar e usar Storage::url()
+            $path = ltrim($imagem, '/');
+            $path = preg_replace('#^storage/#', '', $path);
+            return \Illuminate\Support\Facades\Storage::url($path);
+        })->filter()->toArray();
     }
 
     public function getTagsFormatadas()

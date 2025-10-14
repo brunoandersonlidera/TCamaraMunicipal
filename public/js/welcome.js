@@ -316,4 +316,42 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (e) {
         console.warn('Falha ao aplicar orientação em imagens de notícias:', e);
     }
+
+    // ========================================
+    // Botão "Rolar Para Cima"
+    // Mostra ao iniciar rolagem e faz scroll suave ao topo
+    // ========================================
+    try {
+        const scrollBtn = document.getElementById('scrollTopBtn');
+        if (scrollBtn) {
+            const threshold = 200; // px a partir do topo para exibir
+
+            const toggleVisibility = () => {
+                if (window.scrollY > threshold) {
+                    scrollBtn.classList.add('show');
+                    scrollBtn.setAttribute('aria-hidden', 'false');
+                } else {
+                    scrollBtn.classList.remove('show');
+                    scrollBtn.setAttribute('aria-hidden', 'true');
+                }
+            };
+
+            // Inicializa estado ao carregar
+            toggleVisibility();
+            window.addEventListener('scroll', toggleVisibility, { passive: true });
+
+            // Clique para rolar ao topo
+            scrollBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                try {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } catch (err) {
+                    // Fallback caso o smooth não seja suportado
+                    window.scrollTo(0, 0);
+                }
+            });
+        }
+    } catch (e) {
+        console.warn('Falha ao inicializar o botão de rolar para cima:', e);
+    }
 });

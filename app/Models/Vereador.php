@@ -20,6 +20,7 @@ class Vereador extends Model
         'email',
         'telefone',
         'foto',
+        'foto_tipo',
         'biografia',
         'data_nascimento',
         'profissao',
@@ -88,6 +89,15 @@ class Vereador extends Model
     {
         return $this->hasMany(Documento::class, 'usuario_upload_id');
     }
+    
+    /**
+     * Relacionamento com a mídia da foto
+     */
+    public function fotoMedia()
+    {
+        // Relacionamento simples sem condição WHERE, a verificação do tipo será feita no accessor
+        return $this->belongsTo(Media::class, 'foto', 'id');
+    }
 
     // Scopes
     public function scopeAtivos($query)
@@ -139,7 +149,22 @@ class Vereador extends Model
         return Attribute::make(
             get: function () {
                 $foto = $this->foto;
+                $fotoTipo = $this->foto_tipo ?? 'path'; // Default para compatibilidade
 
+                // Se for um ID de mídia, buscar a URL através do relacionamento
+                if ($foto && $fotoTipo === 'media_id' && is_numeric($foto)) {
+                    try {
+                        // Buscar a mídia diretamente pelo ID em vez de usar o relacionamento
+                        $media = Media::find($foto);
+                        if ($media) {
+                            return $media->url;
+                        }
+                    } catch (\Exception $e) {
+                        // Log do erro e continua para os próximos métodos
+                        \Log::error("Erro ao buscar mídia ID {$foto}: " . $e->getMessage());
+                    }
+                }
+                
                 // Se já for uma URL absoluta, retorna como está
                 if ($foto && preg_match('#^https?://#', $foto)) {
                     return $foto;

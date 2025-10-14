@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Media;
+use App\Models\MediaCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -54,8 +55,19 @@ class MediaController extends Controller
                 ]
             ]);
         }
+        
+        // Obter categorias do banco de dados
+        $dbCategories = MediaCategory::active()->ordered()->get();
+        
+        // Converter para o formato esperado pela view (slug => nome)
+        $categories = $dbCategories->pluck('name', 'slug')->toArray();
+        
+        // Se não houver categorias no banco, usar as categorias padrão
+        if (empty($categories)) {
+            $categories = Media::getCategories();
+        }
 
-        return view('admin.media.index', compact('medias'));
+        return view('admin.media.index', compact('medias', 'categories'));
     }
 
     /**
@@ -63,7 +75,17 @@ class MediaController extends Controller
      */
     public function create(): View
     {
-        $categories = Media::getCategories();
+        // Obter categorias do banco de dados
+        $dbCategories = MediaCategory::active()->ordered()->get();
+        
+        // Converter para o formato esperado pela view (slug => nome)
+        $categories = $dbCategories->pluck('name', 'slug')->toArray();
+        
+        // Se não houver categorias no banco, usar as categorias padrão
+        if (empty($categories)) {
+            $categories = Media::getCategories();
+        }
+        
         return view('admin.media.create', compact('categories'));
     }
 
@@ -73,14 +95,14 @@ class MediaController extends Controller
     public function store(Request $request): JsonResponse|RedirectResponse
     {
         $request->validate([
-            // Limites: até 20 arquivos por envio, cada um com até 50MB
-            'files' => 'required|array|min:1|max:20',
-            'files.*' => 'required|file|max:51200', // 50MB máximo
-            'category' => 'required|string|in:' . implode(',', array_keys(Media::getCategories())),
-            'alt_text.*' => 'nullable|string|max:255',
-            'title.*' => 'nullable|string|max:255',
-            'description.*' => 'nullable|string|max:1000',
-        ]);
+                // Limites: até 20 arquivos por envio, cada um com até 50MB
+                'files' => 'required|array|min:1|max:20',
+                'files.*' => 'required|file|max:51200', // 50MB máximo
+                'category_id' => 'required|integer|exists:media_categories,id',
+                'alt_text.*' => 'nullable|string|max:255',
+                'title.*' => 'nullable|string|max:255',
+                'description.*' => 'nullable|string|max:1000',
+            ]);
 
         $uploadedFiles = [];
         $errors = [];
@@ -102,7 +124,7 @@ class MediaController extends Controller
                         'model_type' => null, // Para arquivos independentes
                         'model_id' => null,
                         'uuid' => Str::uuid(),
-                        'collection_name' => $request->category,
+                        'collection_name' => $request->category_id,
                         'name' => $request->input("title.{$index}") ?: pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
                         'file_name' => $filename,
                         'path' => $storedPath,
@@ -124,7 +146,7 @@ class MediaController extends Controller
                         'alt_text' => $request->input("alt_text.{$index}"),
                         'title' => $request->input("title.{$index}") ?: $file->getClientOriginalName(),
                         'description' => $request->input("description.{$index}"),
-                        'category' => $request->category,
+                        'category_id' => $request->category_id,
                         'uploaded_by' => Auth::id(),
                     ]);
 
@@ -171,10 +193,17 @@ class MediaController extends Controller
      */
     public function show(Media $media): JsonResponse
     {
-        $media->load('uploader');
+        // Carregar relações necessárias para dados completos no modal
+        $media->load(['uploader', 'mediaCategory']);
         
         // Garantir que os accessors (url, public_url, formatted_size, etc.) sejam incluídos no JSON
         $mediaArray = $media->toArray();
+        
+        // Incluir informações explícitas da categoria
+        $mediaArray['category_id'] = $media->category_id;
+        $mediaArray['category_slug'] = optional($media->mediaCategory)->slug ?? ($media->category ?? null);
+        $mediaArray['category_name'] = optional($media->mediaCategory)->name ?? null;
+        $mediaArray['category_icon'] = optional($media->mediaCategory)->icon ?? null;
         
         return response()->json([
             'success' => true,
@@ -183,45 +212,104 @@ class MediaController extends Controller
     }
 
     /**
+     * Exibe o formulário de edição de mídia
+     */
+    public function edit($id): View
+    {
+        $media = Media::findOrFail($id);
+        $categories = MediaCategory::active()->ordered()->get();
+        
+        return view('admin.media.edit', compact('media', 'categories'));
+    }
+
+    /**
      * Atualiza informações de um arquivo de mídia
      */
-    public function update(Request $request, Media $media): JsonResponse
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'alt_text' => 'nullable|string|max:255',
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'category' => 'nullable|string|in:' . implode(',', array_keys(Media::getCategories())),
-        ]);
+        try {
+            $media = Media::findOrFail($id);
+            
+            // DEBUG: Log dos dados recebidos
+            \Log::info('=== DEBUG MEDIA UPDATE ===');
+            \Log::info('Media ID: ' . $media->id);
+            \Log::info('Dados recebidos:', $request->all());
+            \Log::info('Category ID antes da atualização: ' . $media->category_id);
+            
+            // Validar os dados
+            $request->validate([
+                'alt_text' => 'nullable|string|max:255',
+                'title' => 'nullable|string|max:255',
+                'description' => 'nullable|string|max:1000',
+                'category_id' => 'required|integer|exists:media_categories,id',
+            ]);
 
-        // Atualizar apenas custom_properties (evita erro SQL 1364 em campos inexistentes)
-        $customProperties = $media->custom_properties ?? [];
-        
-        if ($request->has('alt_text')) {
-            $customProperties['alt_text'] = $request->alt_text;
-        }
-        if ($request->has('title')) {
-            $customProperties['title'] = $request->title;
-        }
-        if ($request->has('description')) {
-            $customProperties['description'] = $request->description;
-        }
-        
-        // Atualizar collection_name se categoria mudou
-        if ($request->has('category')) {
-            $customProperties['category'] = $request->category;
-            $media->collection_name = $request->category;
-        }
-        
-        // Salvar apenas custom_properties e collection_name (campos que existem na tabela Spatie)
-        $media->custom_properties = $customProperties;
-        $media->save();
+            // DEBUG: Log dos dados validados
+            \Log::info('Dados validados com sucesso');
+            \Log::info('Category ID a ser salvo: ' . $request->category_id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Arquivo atualizado com sucesso!',
-            'data' => $media
-        ]);
+            // Preparar dados validados
+            $validatedData = [
+                'alt_text' => $request->alt_text,
+                'title' => $request->title,
+                'description' => $request->description,
+                'category_id' => $request->category_id,
+            ];
+
+            // Atualizar os campos diretamente no modelo
+            $updateResult = $media->update($validatedData);
+            \Log::info('Resultado da atualização: ' . ($updateResult ? 'sucesso' : 'falha'));
+            \Log::info('Category ID após atualização (sem fresh): ' . $media->category_id);
+            
+            $updatedMedia = $media->fresh();
+            if ($updatedMedia) {
+                \Log::info('Category ID após fresh: ' . $updatedMedia->category_id);
+                \Log::info('Dados após atualização: ' . json_encode($updatedMedia->toArray()));
+            } else {
+                \Log::error('Fresh retornou null para media ID: ' . $media->id);
+            }
+            
+            // Verificar se a requisição é AJAX
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Arquivo atualizado com sucesso!',
+                    'data' => $updatedMedia
+                ]);
+            }
+
+            // Para requisições normais (da página de edição), redirecionar com mensagem de sucesso
+            return redirect()->route('admin.media.index')
+                ->with('success', 'Mídia atualizada com sucesso!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dados inválidos.',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+
+        } catch (\Exception $e) {
+            \Log::error('Erro ao atualizar mídia: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao atualizar arquivo: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->with('error', 'Erro ao atualizar mídia: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -286,7 +374,7 @@ class MediaController extends Controller
      */
     public function select(Request $request): View
     {
-        $query = Media::orderBy('created_at', 'desc');
+        $query = Media::with('mediaCategory')->orderBy('created_at', 'desc');
 
         // Filtros específicos para seleção
         if ($request->filled('type')) {
@@ -297,10 +385,20 @@ class MediaController extends Controller
             $query->byCategory($request->category);
         }
 
-        $medias = $query->paginate(12);
-        $categories = Media::getCategories();
+        $media = $query->paginate(12);
+        
+        // Obter categorias do banco de dados
+        $dbCategories = MediaCategory::active()->ordered()->get();
+        
+        // Converter para o formato esperado pela view (slug => nome)
+        $categories = $dbCategories->pluck('name', 'slug')->toArray();
+        
+        // Se não houver categorias no banco, usar as categorias padrão
+        if (empty($categories)) {
+            $categories = Media::getCategories();
+        }
 
-        return view('admin.media.select', compact('medias', 'categories'));
+        return view('admin.media.select', compact('media', 'categories'));
     }
 
     /**
@@ -308,7 +406,7 @@ class MediaController extends Controller
      */
     public function api(Request $request): JsonResponse
     {
-        $query = Media::orderBy('created_at', 'desc');
+        $query = Media::with('mediaCategory')->orderBy('created_at', 'desc');
 
         // Filtros
         if ($request->filled('category')) {

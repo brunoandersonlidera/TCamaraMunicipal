@@ -17,7 +17,8 @@
     }
     .page-content h1, .page-content h2, .page-content h3, 
     .page-content h4, .page-content h5, .page-content h6 {
-        color: #2c3e50;
+        /* Usar cor de título baseada no tema */
+        color: var(--theme-heading, #2c3e50);
         margin-top: 2rem;
         margin-bottom: 1rem;
     }
@@ -43,11 +44,12 @@
     }
     
     .page-content blockquote {
-        border-left: 4px solid #007bff;
+        /* Borda do bloco de citação segue a cor primária do tema */
+        border-left: 4px solid var(--theme-primary, #0d6efd);
         padding-left: 1.5rem;
         margin: 2rem 0;
         font-style: italic;
-        color: #6c757d;
+        color: var(--theme-text-muted, #6c757d);
     }
     
     .page-content img {
@@ -72,12 +74,13 @@
     }
     
     .page-content table th {
-        background-color: #f8f9fa;
+        background-color: var(--theme-light, #f8f9fa);
         font-weight: 600;
     }
     
     .page-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /* Gradiente do cabeçalho controlado por variáveis de tema */
+        background: linear-gradient(135deg, var(--theme-primary, #667eea) 0%, var(--theme-primary-dark, #764ba2) 100%);
         color: white;
         padding: 3rem 0;
         margin-bottom: 3rem;
@@ -100,7 +103,8 @@
     }
     
     .sidebar-card .card-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /* Gradiente do cabeçalho da sidebar controlado por variáveis de tema */
+        background: linear-gradient(135deg, var(--theme-primary, #667eea) 0%, var(--theme-primary-dark, #764ba2) 100%);
         color: white;
         padding: 1rem 1.5rem;
         border: none;
@@ -121,17 +125,18 @@
     
     .sidebar-nav .nav-link:hover,
     .sidebar-nav .nav-link.active {
-        background: #007bff;
+        /* Hover/ativo seguem a cor primária do tema */
+        background: var(--theme-primary, #0d6efd);
         color: white;
         transform: translateX(5px);
     }
     
     .last-updated {
-        background: #f8f9fa;
-        border-top: 1px solid #dee2e6;
+        background: var(--theme-light, #f8f9fa);
+        border-top: 1px solid var(--theme-border, #dee2e6);
         padding: 1rem 2rem;
         font-size: 0.9rem;
-        color: #6c757d;
+        color: var(--theme-text-muted, #6c757d);
     }
     
     .quick-links {
@@ -154,8 +159,8 @@
     }
     
     .quick-links a:hover {
-        background: #f8f9fa;
-        color: #007bff;
+        background: var(--theme-light, #f8f9fa);
+        color: var(--theme-primary, #0d6efd);
         transform: translateX(3px);
     }
     

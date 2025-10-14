@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ asset('css/calendario.css') }}">
     <style>
         .vereador-header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            background: linear-gradient(135deg, var(--theme-primary-dark, #2c3e50) 0%, var(--theme-primary, #34495e) 100%);
             color: white;
             padding: 2rem 0;
             margin-bottom: 2rem;
@@ -65,23 +65,23 @@
             text-align: center;
             padding: 1rem;
             border-radius: 8px;
-            background: #f8f9fa;
+            background: var(--theme-light, #f8f9fa);
         }
         
         .stat-number {
             font-size: 2rem;
             font-weight: 700;
-            color: #2c3e50;
+            color: var(--theme-heading, #2c3e50);
             margin-bottom: 0.5rem;
         }
         
         .stat-label {
-            color: #6c757d;
+            color: var(--theme-text-muted, #6c757d);
             font-size: 0.9rem;
         }
         
         .voltar-btn {
-            background: #3498db;
+            background: var(--theme-primary, #3498db);
             color: white;
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
@@ -94,7 +94,7 @@
         }
         
         .voltar-btn:hover {
-            background: #2980b9;
+            background: var(--theme-primary-dark, #2980b9);
             color: white;
             text-decoration: none;
             transform: translateY(-2px);

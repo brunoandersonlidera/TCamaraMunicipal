@@ -3,6 +3,7 @@
 @section('title', 'Contato - Câmara Municipal')
 
 @section('content')
+<div class="contato-page">
 <div class="container py-5">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
@@ -264,69 +265,108 @@
         </div>
     </div>
 </div>
+</div>
 
 <style>
-.page-header {
-    border-bottom: 3px solid #007bff;
+/* Tematização escopada para a página de Contato */
+.contato-page .page-header {
+    border-bottom: 3px solid var(--theme-primary, #007bff);
     padding-bottom: 2rem;
 }
 
-.contact-item {
-    border-bottom: 1px solid #e9ecef;
+.contato-page .page-header h1 {
+    color: var(--theme-heading, #2c3e50);
+}
+
+.contato-page .page-header .lead {
+    color: var(--theme-text-muted, #6c757d);
+}
+
+.contato-page .text-primary,
+.contato-page .text-info,
+.contato-page .text-success,
+.contato-page .text-secondary {
+    color: var(--theme-primary, #007bff) !important;
+}
+
+.contato-page a {
+    color: var(--theme-primary, #007bff);
+}
+
+.contato-page .card-header.bg-primary,
+.contato-page .card-header.bg-success,
+.contato-page .card-header.bg-info,
+.contato-page .card-header.bg-secondary {
+    background: linear-gradient(135deg, var(--theme-primary, #667eea) 0%, var(--theme-primary-dark, #764ba2) 100%);
+    color: #fff;
+}
+
+.contato-page .contact-item {
+    border-bottom: 1px solid var(--theme-border, #e9ecef);
     padding-bottom: 1.5rem;
 }
 
-.contact-item:last-child {
+.contato-page .contact-item:last-child {
     border-bottom: none;
     padding-bottom: 0;
 }
 
-.contact-icon {
+.contato-page .contact-icon {
     margin-right: 1rem;
     min-width: 60px;
 }
 
-.contact-info h5 {
-    color: #495057;
+.contato-page .contact-info h5 {
+    color: var(--theme-heading, #2c3e50);
 }
 
-.channel-item {
+.contato-page .channel-item {
     padding: 1.5rem;
     border-radius: 0.5rem;
     transition: transform 0.3s ease;
 }
 
-.channel-item:hover {
+.contato-page .channel-item:hover {
     transform: translateY(-5px);
-    background-color: #f8f9fa;
+    background-color: var(--theme-light, #f8f9fa);
 }
 
-.map-placeholder {
+.contato-page .map-placeholder {
     height: 300px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: linear-gradient(135deg, var(--theme-light, #f8f9fa) 0%, var(--theme-border, #e9ecef) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.map-content {
+.contato-page .map-content {
     text-align: center;
 }
 
-.form-control:focus,
-.form-select:focus {
-    border-color: #28a745;
-    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+.contato-page .form-control:focus,
+.contato-page .form-select:focus {
+    border-color: var(--theme-primary, #007bff);
+    box-shadow: 0 0 0 0.2rem var(--theme-primary-shadow, rgba(0, 123, 255, 0.25));
 }
 
-.btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
+.contato-page .btn-success {
+    background-color: var(--theme-primary, #007bff);
+    border-color: var(--theme-primary, #007bff);
 }
 
-.btn-success:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
+.contato-page .btn-success:hover {
+    background-color: var(--theme-primary-dark, #0056b3);
+    border-color: var(--theme-primary-dark, #0056b3);
+}
+
+.contato-page .btn-outline-info {
+    color: var(--theme-primary, #007bff);
+    border-color: var(--theme-primary, #007bff);
+}
+
+.contato-page .btn-outline-info:hover {
+    background: var(--theme-primary, #007bff);
+    color: #fff;
 }
 </style>
 @endsection

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ConfiguracaoGeral;
 use App\Models\Media;
+use App\Models\MediaCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -50,7 +51,18 @@ class ConfiguracaoGeralController extends Controller
      */
     public function create()
     {
-        return view('admin.configuracao-geral.create');
+        // Obter categorias do banco de dados
+        $dbCategories = MediaCategory::active()->ordered()->get();
+        
+        // Converter para o formato esperado pela view (slug => nome)
+        $categories = $dbCategories->pluck('name', 'slug')->toArray();
+        
+        // Se não houver categorias no banco, usar as categorias padrão
+        if (empty($categories)) {
+            $categories = \App\Models\Media::getCategories();
+        }
+        
+        return view('admin.configuracao-geral.create', compact('categories'));
     }
 
     /**
@@ -155,7 +167,18 @@ class ConfiguracaoGeralController extends Controller
      */
     public function edit(ConfiguracaoGeral $configuracao)
     {
-        return view('admin.configuracao-geral.edit', compact('configuracao'));
+        // Obter categorias do banco de dados
+        $dbCategories = MediaCategory::active()->ordered()->get();
+        
+        // Converter para o formato esperado pela view (slug => nome)
+        $categories = $dbCategories->pluck('name', 'slug')->toArray();
+        
+        // Se não houver categorias no banco, usar as categorias padrão
+        if (empty($categories)) {
+            $categories = \App\Models\Media::getCategories();
+        }
+        
+        return view('admin.configuracao-geral.edit', compact('configuracao', 'categories'));
     }
 
     /**

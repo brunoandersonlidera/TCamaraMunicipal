@@ -55,12 +55,34 @@ class ConfiguracaoGeral extends Model
     public function getUrlImagemAttribute()
     {
         if ($this->tipo === 'imagem' && $this->valor) {
-            // Se o caminho começar com /images/, usar asset() para public/images
-            if (str_starts_with($this->valor, '/images/')) {
-                return asset($this->valor);
+            $valor = $this->valor;
+
+            // Se já for URL absoluta, retorna como está
+            if (preg_match('#^https?://#', $valor)) {
+                return $valor;
             }
-            // Caso contrário, usar Storage::url() para arquivos em storage
-            return Storage::url($this->valor);
+
+            // Se o caminho começar com /images/, usar asset() para public/images
+            if (str_starts_with($valor, '/images/')) {
+                return asset($valor);
+            }
+
+            // Caminhos via rota de mídia
+            // Padronizar para /media/{file_name}, pois o controlador serve busca por file_name apenas
+            if (str_starts_with($valor, '/media/')) {
+                return '/media/' . basename($valor);
+            }
+            if (str_starts_with($valor, 'media/')) {
+                return '/media/' . basename($valor);
+            }
+
+            // Caminhos armazenados em storage (ex.: public/configuracoes/...)
+            // Normaliza valores que vieram salvos com prefixo /storage ou storage
+            $path = ltrim($valor, '/');
+            $path = preg_replace('#^storage/#', '', $path);
+            // Remove barras duplas que podem ter sido salvas incorretamente
+            $path = preg_replace('#/+#', '/', $path);
+            return '/media/' . basename($path);
         }
         return null;
     }
@@ -90,6 +112,11 @@ class ConfiguracaoGeral extends Model
 
         $valor = $config->valor;
 
+        // Se já for URL absoluta, retorna
+        if (preg_match('#^https?://#', $valor)) {
+            return $valor;
+        }
+
         // Caminhos em public/images
         if (str_starts_with($valor, '/images/')) {
             return asset($valor);
@@ -108,7 +135,12 @@ class ConfiguracaoGeral extends Model
         }
 
         // Caminhos armazenados em storage (ex.: public/configuracoes/...)
-        return \Illuminate\Support\Facades\Storage::url($valor);
+        // Normaliza valores que vieram salvos com prefixo /storage ou storage
+        $path = ltrim($valor, '/');
+        $path = preg_replace('#^storage/#', '', $path);
+        // Remove barras duplas que podem ter sido salvas incorretamente
+        $path = preg_replace('#/+#', '/', $path);
+        return \Illuminate\Support\Facades\Storage::url($path);
     }
 
     public static function obterLogoFooter()
@@ -122,6 +154,11 @@ class ConfiguracaoGeral extends Model
         }
 
         $valor = $config->valor;
+
+        // Se já for URL absoluta, retorna
+        if (preg_match('#^https?://#', $valor)) {
+            return $valor;
+        }
 
         // Caminhos em public/images
         if (str_starts_with($valor, '/images/')) {
@@ -140,7 +177,12 @@ class ConfiguracaoGeral extends Model
         }
 
         // Caminhos armazenados em storage (ex.: public/configuracoes/...)
-        return \Illuminate\Support\Facades\Storage::url($valor);
+        // Normaliza valores que vieram salvos com prefixo /storage ou storage
+        $path = ltrim($valor, '/');
+        $path = preg_replace('#^storage/#', '', $path);
+        // Remove barras duplas que podem ter sido salvas incorretamente
+        $path = preg_replace('#/+#', '/', $path);
+        return \Illuminate\Support\Facades\Storage::url($path);
     }
 
     public static function obterEndereco()

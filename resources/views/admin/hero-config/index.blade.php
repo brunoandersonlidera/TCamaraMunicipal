@@ -39,8 +39,8 @@
                         <h6 class="text-muted mb-2">Título Principal</h6>
                         <p class="mb-3">{{ $heroConfig->titulo ?? 'Bem-vindo à Câmara Municipal' }}</p>
                         
-                        <h6 class="text-muted mb-2">Subtítulo</h6>
-                        <p class="mb-3">{{ $heroConfig->subtitulo ?? 'Trabalhando pela transparência, representatividade e desenvolvimento do nosso município. Acompanhe as atividades legislativas e participe da vida política da sua cidade.' }}</p>
+                        <h6 class="text-muted mb-2">Descrição</h6>
+                        <p class="mb-3">{{ $heroConfig->descricao ?? 'Trabalhando pela transparência, representatividade e desenvolvimento do nosso município. Acompanhe as atividades legislativas e participe da vida política da sua cidade.' }}</p>
                     </div>
                     <div class="col-md-6">
                         <h6 class="text-muted mb-2">Configurações do Slider</h6>
@@ -82,16 +82,61 @@
             </h5>
         </div>
         <div class="card-body">
-            <div class="hero-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3rem; border-radius: 0.5rem; text-align: center;">
-                <h1 class="display-4 mb-3">{{ $heroConfig->titulo ?? 'Bem-vindo à Câmara Municipal' }}</h1>
-                <p class="lead">{{ $heroConfig->subtitulo ?? 'Trabalhando pela transparência, representatividade e desenvolvimento do nosso município. Acompanhe as atividades legislativas e participe da vida política da sua cidade.' }}</p>
-                <div class="mt-4">
+            @if($heroConfig)
+            <div class="hero-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem 1.5rem; border-radius: 0.5rem; max-width: 1100px; margin: 0 auto;">
+                <!-- Imagem acima do título -->
+                @php
+                    $imgTopoUrl = optional($heroConfig->imagemTopo)->url;
+                    $imgTopoAltura = $heroConfig->imagem_topo_altura_px ?? 120;
+                    $imgTopoCenter = $heroConfig->centralizar_imagem_topo ?? true;
+                @endphp
+                @if($imgTopoUrl)
+                    <div class="mb-3 {{ $imgTopoCenter ? 'text-center' : '' }}">
+                        <img src="{{ $imgTopoUrl }}" alt="Imagem acima do título" class="{{ $imgTopoCenter ? 'mx-auto d-block' : '' }}" style="max-height: {{ $imgTopoAltura }}px; max-width: 100%; height: auto; width: auto;">
+                    </div>
+                @endif
+
+                <!-- Título (exibido apenas se houver conteúdo) -->
+                @if(!empty($heroConfig->titulo))
+                    <h1 class="display-6 mb-3 text-center">{{ $heroConfig->titulo }}</h1>
+                @endif
+
+                <!-- Descrição com possível imagem -->
+                @php
+                    $imgDescUrl = optional($heroConfig->imagemDescricao)->url;
+                    $imgDescAltura = $heroConfig->imagem_descricao_altura_px ?? 120;
+                    $imgDescLargura = $heroConfig->imagem_descricao_largura_px ?? null;
+                    $imgDescCenter = $heroConfig->centralizar_imagem_descricao ?? false;
+                @endphp
+                <div class="d-flex align-items-center gap-3 flex-wrap {{ $imgDescCenter ? 'justify-content-center' : '' }}">
+                    @if($imgDescUrl)
+                        <img src="{{ $imgDescUrl }}" alt="Imagem da descrição" class="{{ $imgDescCenter ? 'mx-auto d-block' : '' }}"
+                             style="
+                                {{ $imgDescLargura ? 'width: ' . $imgDescLargura . 'px;' : 'max-width: 100%;' }}
+                                height: {{ $imgDescAltura }}px;
+                                object-fit: contain;
+                            ">
+                    @endif
+                    <p class="lead mb-0" style="flex:1 1 300px;">
+                        {{ $heroConfig->descricao ?? 'Trabalhando pela transparência, representatividade e desenvolvimento do nosso município. Acompanhe as atividades legislativas e participe da vida política da sua cidade.' }}
+                    </p>
+                </div>
+
+                <!-- Resumo do slider -->
+                <div class="mt-4 text-center">
+                    <small class="text-light opacity-75 d-block mb-2">
+                        <i class="fas fa-sliders-h me-1"></i>
+                        Slider: intervalo {{ $heroConfig->intervalo ?? 5000 }}ms • transição {{ $heroConfig->transicao ?? 'slide' }} • autoplay {{ ($heroConfig->autoplay ?? true) ? 'on' : 'off' }} • hover {{ ($heroConfig->pausar_hover ?? true) ? 'pausa' : 'não pausa' }} • indicadores {{ ($heroConfig->mostrar_indicadores ?? true) ? 'visíveis' : 'ocultos' }} • controles {{ ($heroConfig->mostrar_controles ?? true) ? 'visíveis' : 'ocultos' }}
+                    </small>
                     <small class="text-light opacity-75">
                         <i class="fas fa-info-circle me-1"></i>
-                        Este é um preview simplificado. Veja o resultado completo no site.
+                        Este preview reflete as opções salvas, mas é uma aproximação visual da homepage.
                     </small>
                 </div>
             </div>
+            @else
+                <div class="alert alert-warning mb-0">Nenhuma configuração ativa encontrada. Clique em "Editar Configurações" para criar/ajustar.</div>
+            @endif
         </div>
     </div>
 

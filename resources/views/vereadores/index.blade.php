@@ -4,14 +4,14 @@
 
 @push('styles')
 <style>
-/* Vereadores Page Styles */
+/* Vereadores Page Styles (Tematizado) */
 .vereadores-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: linear-gradient(135deg, var(--theme-light, #f8f9fa) 0%, var(--theme-border, #e9ecef) 100%);
 }
 
 .vereadores-hero {
-    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    background: linear-gradient(135deg, var(--theme-primary-dark, #2c3e50) 0%, var(--theme-primary, #3498db) 100%);
     color: white;
     padding: 80px 0;
     text-align: center;
@@ -90,7 +90,7 @@
     position: relative;
     height: 350px;
     overflow: hidden;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--theme-primary, #667eea) 0%, var(--theme-primary-dark, #764ba2) 100%);
 }
 
 .vereador-photo-large img {
@@ -111,7 +111,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--theme-primary, #667eea) 0%, var(--theme-primary-dark, #764ba2) 100%);
     color: white;
     font-size: 4rem;
 }
@@ -120,7 +120,7 @@
     position: absolute;
     top: 15px;
     right: 15px;
-    background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+    background: linear-gradient(135deg, var(--theme-accent, #f39c12) 0%, var(--theme-accent-dark, #e74c3c) 100%);
     color: white;
     padding: 8px 15px;
     border-radius: 25px;
@@ -148,7 +148,7 @@
 .vereador-nome {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #2c3e50;
+    color: var(--theme-heading, #2c3e50);
     margin-bottom: 0.5rem;
     line-height: 1.2;
 }
@@ -157,7 +157,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #3498db;
+    color: var(--theme-primary, #3498db);
     font-weight: 600;
     margin-bottom: 1.5rem;
     font-size: 1.1rem;
@@ -176,14 +176,14 @@
     align-items: center;
     gap: 10px;
     margin-bottom: 0.8rem;
-    color: #666;
+    color: var(--theme-text-muted, #666);
     font-size: 0.95rem;
 }
 
 .contato-icon {
     width: 35px;
     height: 35px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--theme-primary, #667eea) 0%, var(--theme-primary-dark, #764ba2) 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -193,7 +193,7 @@
 }
 
 .vereador-biografia {
-    color: #666;
+    color: var(--theme-text-muted, #666);
     line-height: 1.6;
     margin-bottom: 2rem;
     flex: 1;
@@ -207,7 +207,7 @@
 }
 
 .btn-perfil {
-    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    background: linear-gradient(135deg, var(--theme-primary-dark, #2c3e50) 0%, var(--theme-primary, #3498db) 100%);
     color: white;
     padding: 12px 20px;
     border-radius: 10px;
@@ -222,7 +222,7 @@
 }
 
 .btn-perfil:hover {
-    background: linear-gradient(135deg, #34495e 0%, #2980b9 100%);
+    background: linear-gradient(135deg, var(--theme-primary-dark, #34495e) 0%, var(--theme-primary, #2980b9) 100%);
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
@@ -264,19 +264,19 @@
 .empty-state {
     text-align: center;
     padding: 80px 20px;
-    color: #666;
+    color: var(--theme-text-muted, #666);
 }
 
 .empty-state i {
     font-size: 5rem;
-    color: #ddd;
+    color: var(--theme-border, #ddd);
     margin-bottom: 2rem;
 }
 
 .empty-state h3 {
     font-size: 2rem;
     margin-bottom: 1rem;
-    color: #2c3e50;
+    color: var(--theme-heading, #2c3e50);
 }
 
 .empty-state p {

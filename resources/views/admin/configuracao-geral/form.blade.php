@@ -102,10 +102,194 @@
     <div class="form-text">Configurações inativas não serão exibidas no site</div>
 </div>
 
+<!-- Modal de Seleção de Mídia -->
+<div class="modal fade" id="mediaSelectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-images"></i> Selecionar mídia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <div id="mediaSelectContainer">
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-spinner fa-spin"></i> Carregando mídia...
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="targetInput">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="selectMediaBtn" disabled>Selecionar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
+<script src="{{ asset('js/media-library.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const tipoSelect = document.getElementById('tipo');
+    // Configuração do modal de seleção de mídia
+    const mediaSelectModal = document.getElementById('mediaSelectModal');
+    let mediaModalInstance = null;
+    
+    if (mediaSelectModal) {
+        // Inicializar modal Bootstrap
+        mediaModalInstance = new bootstrap.Modal(mediaSelectModal);
+        
+        // Carregar conteúdo quando o modal for mostrado
+        mediaSelectModal.addEventListener('shown.bs.modal', function() {
+            loadMediaSelector();
+        });
+    }
+    
+    function loadMediaSelector() {
+        const container = document.getElementById('mediaSelectContainer');
+        if (!container) return;
+        
+        container.innerHTML = '<div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin"></i> Carregando mídia...</div>';
+        
+        fetch('{{ route("admin.media.select") }}')
+            .then(response => response.text())
+            .then(html => {
+                container.innerHTML = html;
+                initializeMediaSelector();
+            })
+            .catch(error => {
+                console.error('Erro ao carregar mídia:', error);
+                container.innerHTML = '<div class="text-center py-5 text-danger"><i class="fas fa-exclamation-triangle"></i> Erro ao carregar mídia</div>';
+            });
+    }
+    
+    function initializeMediaSelector() {
+        // Configurar seleção de mídia
+        document.querySelectorAll('#mediaSelectModal .media-select-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Remover seleção anterior
+                document.querySelectorAll('#mediaSelectModal .media-select-item').forEach(i => i.classList.remove('selected'));
+                // Adicionar seleção atual
+                this.classList.add('selected');
+                // Habilitar botão de seleção
+                const selectBtn = document.getElementById('selectMediaBtn');
+                if (selectBtn) selectBtn.disabled = false;
+            });
+        });
+        
+        // Configurar filtros
+        const categoryFilter = document.getElementById('mediaCategoryFilter');
+        const typeFilter = document.getElementById('mediaTypeFilter');
+        const searchInput = document.getElementById('mediaSearchInput');
+        const searchBtn = document.getElementById('mediaSearchBtn');
+        const clearBtn = document.getElementById('mediaClearFiltersBtn');
+        
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', applyMediaFilters);
+        }
+        if (typeFilter) {
+            typeFilter.addEventListener('change', applyMediaFilters);
+        }
+        if (searchInput) {
+            searchInput.addEventListener('input', debounceMediaSearch);
+        }
+        if (searchBtn) {
+            searchBtn.addEventListener('click', applyMediaFilters);
+        }
+        if (clearBtn) {
+            clearBtn.addEventListener('click', clearMediaFilters);
+        }
+        
+        // Configurar paginação
+        document.querySelectorAll('#mediaSelectModal .media-selector-pagination .page-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = this.getAttribute('data-page');
+                if (page) {
+                    loadMediaPage(page);
+                }
+            });
+        });
+    }
+    
+    function applyMediaFilters() {
+        const category = document.getElementById('mediaCategoryFilter')?.value || '';
+        const type = document.getElementById('mediaTypeFilter')?.value || '';
+        const search = document.getElementById('mediaSearchInput')?.value || '';
+        
+        loadMediaPage(1, { category, type, search });
+    }
+    
+    function clearMediaFilters() {
+        const categoryFilter = document.getElementById('mediaCategoryFilter');
+        const typeFilter = document.getElementById('mediaTypeFilter');
+        const searchInput = document.getElementById('mediaSearchInput');
+        
+        if (categoryFilter) categoryFilter.value = '';
+        if (typeFilter) typeFilter.value = '';
+        if (searchInput) searchInput.value = '';
+        
+        loadMediaPage(1);
+    }
+    
+    function loadMediaPage(page, filters = {}) {
+        const params = new URLSearchParams({ page: page, ...filters });
+        const container = document.getElementById('mediaSelectContainer');
+        
+        if (!container) return;
+        
+        container.innerHTML = '<div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
+        
+        fetch(`{{ route("admin.media.select") }}?${params}`)
+            .then(response => response.text())
+            .then(html => {
+                container.innerHTML = html;
+                initializeMediaSelector();
+            })
+            .catch(error => {
+                console.error('Erro ao carregar mídia:', error);
+                container.innerHTML = '<div class="text-center py-5 text-danger"><i class="fas fa-exclamation-triangle"></i> Erro ao carregar mídia</div>';
+            });
+    }
+    
+    let mediaSearchTimeout;
+    function debounceMediaSearch() {
+        clearTimeout(mediaSearchTimeout);
+        mediaSearchTimeout = setTimeout(applyMediaFilters, 300);
+    }
+    
+    // Configurar botão de seleção
+    const selectMediaBtn = document.getElementById('selectMediaBtn');
+    if (selectMediaBtn) {
+        selectMediaBtn.addEventListener('click', function() {
+            const selected = document.querySelector('#mediaSelectModal .media-select-item.selected');
+            if (selected && window.mediaLibraryOptions && window.mediaLibraryOptions.onSelect) {
+                const mediaData = {
+                    id: selected.getAttribute('data-id'),
+                    url: selected.getAttribute('data-url'),
+                    path: selected.getAttribute('data-path'),
+                    title: selected.getAttribute('data-title')
+                };
+                window.mediaLibraryOptions.onSelect(mediaData);
+                mediaModalInstance.hide();
+            }
+        });
+    }
+    
+    // Sobrescrever a função openMediaLibrary para usar nosso modal
+    window.openMediaLibrary = function(options = {}) {
+        window.mediaLibraryOptions = {
+            multiple: options.multiple || false,
+            type: options.type || 'all',
+            onSelect: options.onSelect || function() {}
+        };
+        
+        if (mediaModalInstance) {
+            mediaModalInstance.show();
+        }
+    };
+     
+     // Configuração dos campos do formulário
+     const tipoSelect = document.getElementById('tipo');
     const campoValor = document.getElementById('campo-valor');
     const campoImagem = document.getElementById('campo-imagem');
     const valorInput = document.getElementById('valor');
@@ -140,73 +324,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Executar na inicialização
     toggleCampos();
 
-    // Modal de seleção de mídia
-    let modalInstance;
-    function ensureModal() {
-        const modalEl = document.getElementById('mediaSelectorModalImagem');
-        modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
-    }
-
-    function loadMediaSelector() {
-        const container = document.getElementById('mediaSelectorContainerImagem');
-        container.innerHTML = '<div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin"></i> Carregando mídia...</div>';
-        fetch(`{{ route('admin.media.select') }}`)
-            .then(r => r.text())
-            .then(html => { 
-                container.innerHTML = html; 
-                initializeMediaSelectorImagem();
-            })
-            .catch(err => { console.error('Erro ao carregar seletor de mídia', err); });
-    }
-
-    function initializeMediaSelectorImagem() {
-        document.querySelectorAll('#mediaSelectorModalImagem .media-select-item').forEach(item => {
-            item.addEventListener('click', function() {
-                document.querySelectorAll('#mediaSelectorModalImagem .media-select-item').forEach(i => i.classList.remove('selected'));
-                this.classList.add('selected');
-                const selectBtn = document.getElementById('selectMediaBtnImagem');
-                if (selectBtn) selectBtn.disabled = false;
-            });
-        });
-
-        // Paginação dentro do modal
-        document.querySelectorAll('#mediaSelectorModalImagem .media-selector-pagination .page-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const page = this.getAttribute('data-page');
-                if (page) {
-                    const params = new URLSearchParams({ page });
-                    fetch(`{{ route('admin.media.select') }}?${params}`)
-                        .then(response => response.text())
-                        .then(html => {
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(html, 'text/html');
-                            const newGrid = doc.querySelector('.media-selector');
-                            document.querySelector('#mediaSelectorModalImagem .media-selector').innerHTML = newGrid.innerHTML;
-                            initializeMediaSelectorImagem();
-                        });
-                }
-            });
-        });
-    }
-
-    function applySelectedMedia() {
-        const selected = document.querySelector('#mediaSelectorModalImagem .media-select-item.selected');
-        if (!selected) return;
-        const url = selected.getAttribute('data-url');
-        const path = selected.getAttribute('data-path');
-        if (hiddenInput) hiddenInput.value = path || '';
-        if (previewImg) previewImg.src = url || '';
-        if (preview) preview.style.display = url ? 'block' : 'none';
-        if (imagemInput) imagemInput.value = ''; // Limpa arquivo local se houver seleção
-        if (modalInstance) modalInstance.hide();
-    }
-
+    // Usar a nova função openMediaLibrary
     if (openBtn) {
         openBtn.addEventListener('click', function() {
-            ensureModal();
-            loadMediaSelector();
-            modalInstance.show();
+            if (typeof window.openMediaLibrary === 'function') {
+                window.openMediaLibrary({
+                    onSelect: function(media) {
+                        if (hiddenInput) hiddenInput.value = media.path || '';
+                        if (previewImg) previewImg.src = media.url || '';
+                        if (preview) preview.style.display = media.url ? 'block' : 'none';
+                        if (imagemInput) imagemInput.value = ''; // Limpa arquivo local se houver seleção
+                    }
+                });
+            } else {
+                alert('Biblioteca de mídia não disponível. Verifique se a página foi carregada corretamente.');
+            }
         });
     }
 
@@ -218,34 +350,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (imagemInput) imagemInput.value = '';
         });
     }
-
-    const selectBtn = document.getElementById('selectMediaBtnImagem');
-    if (selectBtn) {
-        selectBtn.addEventListener('click', applySelectedMedia);
-    }
 });
 </script>
 @endpush
-
-<!-- Modal: Seletor de Mídia para Imagem -->
-<div class="modal fade" id="mediaSelectorModalImagem" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-images"></i> Selecionar mídia</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body">
-                <div id="mediaSelectorContainerImagem">
-                    <div class="text-center py-5 text-muted">
-                        <i class="fas fa-spinner fa-spin"></i> Carregando mídia...
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="selectMediaBtnImagem" disabled>Selecionar</button>
-            </div>
-        </div>
-    </div>
-</div>

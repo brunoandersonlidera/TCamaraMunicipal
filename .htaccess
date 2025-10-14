@@ -1,8 +1,21 @@
-Options +SymLinksIfOwnerMatch
-RewriteEngine On
+<IfModule mod_rewrite.c>
+    # Se houver 403 relacionado a symlink no host, teste trocar por: +FollowSymLinks
+    Options +FollowSymLinks
+    RewriteEngine On
 
-# Allow Installatron requests
-RewriteCond %{REQUEST_FILENAME} deleteme\.\w+\.php
-RewriteRule (.*) - [L] 
+    # (Opcional) Exceção do Installatron
+    RewriteCond %{REQUEST_FILENAME} deleteme\.\w+\.php
+    RewriteRule (.*) - [L]
 
-RewriteRule ^ index.php [L]
+    # 1) Entregar /storage sem depender de symlink
+    #    Evita loop quando já estiver em storage/app/public
+    RewriteCond %{REQUEST_URI} !^/storage/app/public/
+    RewriteRule ^storage/(.*)$ storage/app/public/$1 [L,NC]
+
+    # 2) Encaminhar tudo (exceto /storage) para /public
+    RewriteCond %{REQUEST_URI} !^/storage/
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # 3) (fallback) Front controller do Laravel em /public
+    RewriteRule ^ public/index.php [L]
+</IfModule>

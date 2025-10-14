@@ -92,7 +92,10 @@
                                         <h6 class="card-title text-truncate mb-1" title="{{ $media->title ?: $media->original_name }}">
                                             {{ $media->title ?: $media->original_name }}
                                         </h6>
-                                        <small class="text-muted">{{ $media->formatted_size }}</small>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">{{ $media->formatted_size }}</small>
+                                            <small class="badge bg-primary text-white">{{ $media->mediaCategory ? $media->mediaCategory->name : 'Outros' }}</small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -134,10 +137,10 @@
                 <form id="uploadForm" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group">
-                        <label for="category">Categoria</label>
-                        <select name="category" id="category" class="form-control" required>
-                            @foreach(\App\Models\Media::getCategories() as $key => $label)
-                                <option value="{{ $key }}">{{ $label }}</option>
+                        <label for="category_id">Categoria</label>
+                        <select name="category_id" id="category_id" class="form-control" required>
+                            @foreach(\App\Models\MediaCategory::active()->ordered()->get() as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -231,79 +234,7 @@
     </div>
 </div>
 
-<!-- Modal de Edição -->
-<!-- Modal de Edição -->
-<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true" style="z-index: 1070;">
-    <div class="modal-dialog modal-lg" style="margin: 1.75rem auto;">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="editModalLabel">
-                    <i class="fas fa-edit me-2"></i>Editar Arquivo
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" style="padding: 1.5rem;">
-                <form id="editForm">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" id="editMediaId">
-                    
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="editTitle" class="form-label fw-semibold">
-                                    <i class="fas fa-heading me-1"></i>Título
-                                </label>
-                                <input type="text" class="form-control" id="editTitle" name="title" placeholder="Digite o título do arquivo">
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="editCategory" class="form-label fw-semibold">
-                                    <i class="fas fa-folder me-1"></i>Categoria
-                                </label>
-                                <select class="form-select" id="editCategory" name="category">
-                                    <option value="">Selecione uma categoria</option>
-                                    @foreach(\App\Models\Media::getCategories() as $key => $label)
-                                        <option value="{{ $key }}">{{ $label }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label for="editAltText" class="form-label fw-semibold">
-                                    <i class="fas fa-eye me-1"></i>Texto Alternativo
-                                </label>
-                                <input type="text" class="form-control" id="editAltText" name="alt_text" placeholder="Descrição para acessibilidade">
-                                <div class="form-text">Usado por leitores de tela para descrever a imagem</div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label for="editDescription" class="form-label fw-semibold">
-                                    <i class="fas fa-align-left me-1"></i>Descrição
-                                </label>
-                                <textarea class="form-control" id="editDescription" name="description" rows="4" placeholder="Descrição detalhada do arquivo"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>Cancelar
-                </button>
-                <button type="button" class="btn btn-primary" id="saveEditBtn">
-                    <i class="fas fa-save me-1"></i>Salvar Alterações
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+
 @endsection
 
 @push('styles')

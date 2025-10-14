@@ -366,3 +366,65 @@ body {
 .border-primary {
     border-color: var(--primary-color) !important;
 }
+
+/* Modais Arrastáveis */
+.draggable-header {
+    cursor: grab;
+    user-select: none;
+    position: relative;
+}
+
+.draggable-header:active {
+    cursor: grabbing;
+}
+
+.draggable-header::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 12px;
+    background-image: 
+        radial-gradient(circle, #6b7280 1px, transparent 1px),
+        radial-gradient(circle, #6b7280 1px, transparent 1px);
+    background-size: 4px 4px;
+    background-position: 0 0, 0 4px;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.draggable-modal {
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+.draggable-modal:hover .draggable-header::before {
+    opacity: 0.8;
+}
+
+/* Indicador visual adicional no título */
+.draggable-header .modal-title {
+    padding-left: 35px;
+}
+
+/* Animação suave para o modal */
+.modal.fade .draggable-modal {
+    transition: transform 0.15s linear, opacity 0.15s linear;
+}
+
+/* Estilo para dispositivos móveis */
+@media (max-width: 768px) {
+    .draggable-header {
+        cursor: default;
+    }
+    
+    .draggable-header::before {
+        display: none;
+    }
+    
+    .draggable-header .modal-title {
+        padding-left: 0;
+    }
+}

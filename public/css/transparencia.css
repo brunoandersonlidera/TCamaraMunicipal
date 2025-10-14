@@ -2,7 +2,7 @@
 
 /* Header do Portal */
 .portal-header {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: linear-gradient(135deg, var(--theme-primary, #007bff) 0%, var(--theme-secondary, #0056b3) 100%);
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
 }
@@ -62,7 +62,7 @@
 }
 
 .licitacoes-recentes .list-group-item:hover {
-    border-left-color: #007bff;
+    border-left-color: var(--theme-primary, #007bff);
     background-color: #f8f9fa;
     transform: translateX(5px);
 }
@@ -147,31 +147,31 @@
 
 /* Cores personalizadas */
 .text-receita {
-    color: #28a745 !important;
+    color: var(--theme-success, #28a745) !important;
 }
 
 .text-despesa {
-    color: #dc3545 !important;
+    color: var(--theme-danger, #dc3545) !important;
 }
 
 .text-licitacao {
-    color: #17a2b8 !important;
+    color: var(--theme-info, #17a2b8) !important;
 }
 
 .text-servidor {
-    color: #ffc107 !important;
+    color: var(--theme-warning, #ffc107) !important;
 }
 
 /* Botões personalizados */
 .btn-transparencia {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: linear-gradient(135deg, var(--theme-primary, #007bff) 0%, var(--theme-secondary, #0056b3) 100%);
     border: none;
     color: white;
     transition: all 0.3s ease;
 }
 
 .btn-transparencia:hover {
-    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    background: linear-gradient(135deg, var(--theme-secondary, #0056b3) 0%, var(--theme-primary-dark, #004085) 100%);
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);

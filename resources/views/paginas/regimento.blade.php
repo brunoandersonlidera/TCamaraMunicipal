@@ -247,19 +247,28 @@
 </div>
 
 <style>
+/* Tematização escopada para a página de Regimento Interno */
 .page-header {
-    border-bottom: 3px solid #007bff;
+    border-bottom: 3px solid var(--theme-primary, #007bff);
     padding-bottom: 2rem;
 }
 
+.page-header h1 {
+    color: var(--theme-heading, #2c3e50);
+}
+
+.page-header .lead {
+    color: var(--theme-text-muted, #6c757d);
+}
+
 .regimento-section {
-    border-left: 4px solid #007bff;
+    border-left: 4px solid var(--theme-primary, #007bff);
     padding-left: 1.5rem;
     margin-left: 1rem;
 }
 
 .subsection {
-    background: #f8f9fa;
+    background: var(--theme-light, #f8f9fa);
     padding: 1.5rem;
     border-radius: 0.5rem;
     margin-bottom: 1rem;
@@ -272,14 +281,14 @@
 
 .list-styled li {
     padding: 0.5rem 0;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--theme-border, #e9ecef);
     position: relative;
     padding-left: 1.5rem;
 }
 
 .list-styled li:before {
     content: "▶";
-    color: #007bff;
+    color: var(--theme-primary, #007bff);
     position: absolute;
     left: 0;
     top: 0.5rem;

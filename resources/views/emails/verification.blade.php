@@ -24,12 +24,12 @@
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 2px solid #0d6efd;
+            border-bottom: 2px solid var(--theme-primary, #0d6efd);
         }
         .logo {
             font-size: 24px;
             font-weight: bold;
-            color: #0d6efd;
+            color: var(--theme-primary, #0d6efd);
             margin-bottom: 10px;
         }
         .content {
@@ -38,7 +38,7 @@
         .button {
             display: inline-block;
             padding: 15px 30px;
-            background-color: #0d6efd;
+            background-color: var(--theme-primary, #0d6efd);
             color: #ffffff;
             text-decoration: none;
             border-radius: 5px;
@@ -47,15 +47,18 @@
             margin: 20px 0;
         }
         .button:hover {
-            background-color: #0b5ed7;
+            background-color: var(--theme-secondary, #0b5ed7);
         }
         .footer {
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #eee;
             font-size: 12px;
-            color: #666;
             text-align: center;
+            /* Torna o rodapé compatível com tema quando renderizado em contexto web, mantendo fallback seguro */
+            background-color: #1f2937; /* fallback sólido para clientes sem suporte a var() */
+            background: var(--footer-bg, linear-gradient(135deg, #1f2937 0%, #374151 100%));
+            color: white;
         }
         .warning {
             background-color: #fff3cd;

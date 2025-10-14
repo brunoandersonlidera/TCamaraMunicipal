@@ -30,7 +30,7 @@ main {
 
 /* Header Styles */
 .navbar-custom {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    background: var(--menu-bg, linear-gradient(135deg, var(--theme-primary, #1e3a8a) 0%, var(--theme-secondary, #1e40af) 100%));
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     padding: 1rem 0;
     z-index: 1060 !important;
@@ -375,9 +375,9 @@ nav.navbar-custom .navbar-nav .dropdown:hover .dropdown-menu {
 
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    background: linear-gradient(135deg, var(--theme-primary, #1e3a8a) 0%, var(--theme-secondary, #1e40af) 100%);
     color: white;
-    padding: 5rem 0;
+    padding: 2rem 0; /* reduzido de 5rem para 2rem para diminuir a altura vertical da seção sem afetar os slides */
     position: relative;
     overflow: hidden;
 }
@@ -400,7 +400,7 @@ nav.navbar-custom .navbar-nav .dropdown:hover .dropdown-menu {
 
 /* Buttons */
 .btn-primary-custom {
-    background: linear-gradient(135deg, var(--accent-color) 0%, #ef4444 100%);
+    background: linear-gradient(135deg, var(--theme-accent, var(--accent-color)) 0%, #ef4444 100%);
     border: none;
     padding: 0.75rem 2rem;
     font-weight: 600;
@@ -462,13 +462,13 @@ nav.navbar-custom .navbar-nav .dropdown:hover .dropdown-menu {
     transform: translateX(-50%);
     width: 60px;
     height: 3px;
-    background: linear-gradient(135deg, var(--accent-color) 0%, #ef4444 100%);
+    background: linear-gradient(135deg, var(--theme-accent, var(--accent-color)) 0%, #ef4444 100%);
     border-radius: 2px;
 }
 
 /* Footer */
 .footer-custom {
-    background: linear-gradient(135deg, var(--text-dark) 0%, #374151 100%);
+    background: var(--footer-bg, linear-gradient(135deg, var(--text-dark) 0%, #374151 100%));
     color: white;
     padding: 3rem 0 1rem;
     margin-top: 4rem;
@@ -1796,8 +1796,9 @@ main {
 }
 
 .logo-footer {
-    max-height: 96px;
-    max-width: 140px;
+    /* Dobrado proporcionalmente */
+    max-height: 192px;
+    max-width: 280px;
     height: auto;
     width: auto;
     object-fit: contain;
@@ -1847,8 +1848,9 @@ main {
     }
     
     .logo-footer {
-        max-height: 72px;
-        max-width: 120px;
+        /* Dobrado proporcionalmente no mobile */
+        max-height: 144px;
+        max-width: 240px;
     }
     
     .logo-placeholder {

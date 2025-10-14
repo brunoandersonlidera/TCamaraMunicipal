@@ -102,8 +102,18 @@ class VereadorController extends Controller
             $fotoPath = $uploadedFile->store('vereadores', 'public');
             $validated['foto'] = $fotoPath;
         } elseif (!empty($validated['foto_existing'])) {
-            // Seleção da biblioteca: usar caminho local existente
-            $validated['foto'] = $validated['foto_existing'];
+            // Verificar se é uma referência a um ID de mídia (formato: media:ID)
+            if (preg_match('/^media:(\d+)$/', $validated['foto_existing'], $matches)) {
+                $mediaId = $matches[1];
+                // Armazenar apenas o ID da mídia
+                $validated['foto'] = $mediaId;
+                $validated['foto_tipo'] = 'media_id'; // Indicar que é um ID de mídia
+            } else {
+                // Caso ainda receba URL ou caminho (compatibilidade)
+                $fotoPath = $validated['foto_existing'];
+                $validated['foto'] = $fotoPath;
+                $validated['foto_tipo'] = 'path'; // Indicar que é um caminho
+            }
         }
         
         // Filtrar redes sociais vazias
@@ -262,13 +272,33 @@ class VereadorController extends Controller
             $novoFotoPath = $novoUploadedFile->store('vereadores', 'public');
             $validated['foto'] = $novoFotoPath;
         } elseif (!empty($validated['foto_existing'])) {
-            // Seleção da biblioteca: atualiza para caminho existente
-            $novoFotoPath = $validated['foto_existing'];
-            // Se a foto anterior era arquivo local diferente da nova seleção, remove com segurança
-            if (!empty($vereador->foto) && $vereador->foto !== $novoFotoPath && Storage::disk('public')->exists($vereador->foto)) {
-                Storage::disk('public')->delete($vereador->foto);
+            // Verificar se é uma referência a um ID de mídia (formato: media:ID)
+            if (preg_match('/^media:(\d+)$/', $validated['foto_existing'], $matches)) {
+                $mediaId = $matches[1];
+                
+                // Se a foto anterior era um arquivo local e não um ID de mídia, remover
+                if (!empty($vereador->foto) && $vereador->foto_tipo !== 'media_id' && Storage::disk('public')->exists($vereador->foto)) {
+                    Storage::disk('public')->delete($vereador->foto);
+                }
+                
+                // Armazenar apenas o ID da mídia
+                $validated['foto'] = $mediaId;
+                $validated['foto_tipo'] = 'media_id'; // Indicar que é um ID de mídia
+            } else {
+                // Caso ainda receba URL ou caminho (compatibilidade)
+                $novoFotoPath = $validated['foto_existing'];
+                
+                // Verificar se é uma URL absoluta
+                $isAbsoluteUrl = preg_match('#^https?://#', $novoFotoPath);
+                
+                // Se não for URL absoluta e a foto anterior era arquivo local diferente da nova seleção, remove com segurança
+                if (!$isAbsoluteUrl && !empty($vereador->foto) && $vereador->foto !== $novoFotoPath && Storage::disk('public')->exists($vereador->foto)) {
+                    Storage::disk('public')->delete($vereador->foto);
+                }
+                
+                $validated['foto'] = $novoFotoPath;
+                $validated['foto_tipo'] = 'path'; // Indicar que é um caminho
             }
-            $validated['foto'] = $novoFotoPath;
         }
         
         // Filtrar redes sociais vazias
