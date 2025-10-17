@@ -65,16 +65,16 @@
                                 <div class="col-md-6">
                                     <div class="info-item">
                                         <label>Data de Nascimento:</label>
-                                        <span>{{ $user->birth_date ? $user->birth_date->format('d/m/Y') : 'Não informado' }}</span>
+                                        <span>{{ $user->data_nascimento ? (is_string($user->data_nascimento) ? date('d/m/Y', strtotime($user->data_nascimento)) : $user->data_nascimento->format('d/m/Y')) : 'Não informado' }}</span>
                                     </div>
                                 </div>
                             </div>
-                            @if($user->address)
+                            @if($user->endereco)
                             <div class="row">
                                 <div class="col-12">
                                     <div class="info-item">
                                         <label>Endereço:</label>
-                                        <span>{{ $user->address }}</span>
+                                        <span>{{ $user->endereco }}</span>
                                     </div>
                                 </div>
                             </div>

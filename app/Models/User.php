@@ -71,6 +71,25 @@ class User extends Authenticatable
         'verificado_por',
         'pode_assinar',
         'pode_criar_comite',
+        // Campos de ouvidor migrados
+        'especialidade',
+        'bio',
+        'foto',
+        'pode_gerenciar_esic',
+        'pode_gerenciar_ouvidoria',
+        'pode_visualizar_relatorios',
+        'pode_responder_manifestacoes',
+        'recebe_notificacao_email',
+        'recebe_notificacao_sistema',
+        'data_inicio_ouvidor',
+        'data_fim_ouvidor',
+        'ramal',
+        'tipo_ouvidor',
+        // Campos específicos de ouvidor para views
+        'cargo_ouvidor',
+        'setor_ouvidor',
+        'especialidade_ouvidor',
+        'ativo_ouvidor',
     ];
 
     /**
@@ -100,6 +119,16 @@ class User extends Authenticatable
             'birth_date' => 'date',
             'last_login_at' => 'datetime',
             'verificado_em' => 'datetime',
+            // Casts para campos de ouvidor
+            'pode_gerenciar_esic' => 'boolean',
+            'pode_gerenciar_ouvidoria' => 'boolean',
+            'pode_visualizar_relatorios' => 'boolean',
+            'pode_responder_manifestacoes' => 'boolean',
+            'recebe_notificacao_email' => 'boolean',
+            'recebe_notificacao_sistema' => 'boolean',
+            'data_inicio_ouvidor' => 'date',
+            'data_fim_ouvidor' => 'date',
+            'ativo_ouvidor' => 'boolean',
         ];
     }
 
@@ -180,6 +209,30 @@ class User extends Authenticatable
     public function comites(): HasMany
     {
         return $this->hasMany(ComiteIniciativaPopular::class, 'cpf', 'cpf');
+    }
+
+    /**
+     * Manifestações de ouvidoria atribuídas ao ouvidor como responsável
+     */
+    public function manifestacoesResponsavel(): HasMany
+    {
+        return $this->hasMany(OuvidoriaManifestacao::class, 'ouvidor_responsavel_id');
+    }
+
+    /**
+     * Manifestações de ouvidoria respondidas pelo ouvidor
+     */
+    public function manifestacoesRespondidas(): HasMany
+    {
+        return $this->hasMany(OuvidoriaManifestacao::class, 'respondida_por');
+    }
+
+    /**
+     * Manifestações de ouvidoria atribuídas ao ouvidor (alias para manifestacoesResponsavel)
+     */
+    public function manifestacoesAtribuidas(): HasMany
+    {
+        return $this->manifestacoesResponsavel();
     }
 
     /**
@@ -286,6 +339,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Verifica se o usuário é ouvidor
+     */
+    public function isOuvidor(): bool
+    {
+        return $this->role === 'ouvidor' && $this->active;
+    }
+
+    /**
      * Verifica se o usuário é um usuário comum (mantido para compatibilidade)
      * @deprecated Use isCidadao() instead
      */
@@ -307,7 +368,8 @@ class User extends Authenticatable
      */
     public function canAccessAdmin(): bool
     {
-        return $this->isAdmin() || $this->isSecretario() || $this->isPresidente();
+        return $this->isAdmin() || $this->isSecretario() || $this->isPresidente() || 
+               ($this->isOuvidor() && ($this->pode_gerenciar_ouvidoria || $this->pode_gerenciar_esic));
     }
 
     /**
@@ -347,7 +409,32 @@ class User extends Authenticatable
      */
     public function canResponderEsic(): bool
     {
-        return $this->isAdmin() || $this->isSecretario() || $this->isFuncionario();
+        return $this->isAdmin() || $this->isSecretario() || $this->isFuncionario() || 
+               ($this->isOuvidor() && $this->pode_gerenciar_esic);
+    }
+
+    /**
+     * Verifica se o usuário pode gerenciar ouvidoria
+     */
+    public function canGerenciarOuvidoria(): bool
+    {
+        return $this->isAdmin() || ($this->isOuvidor() && $this->pode_gerenciar_ouvidoria);
+    }
+
+    /**
+     * Verifica se o usuário pode responder manifestações de ouvidoria
+     */
+    public function canResponderManifestacoes(): bool
+    {
+        return $this->isAdmin() || ($this->isOuvidor() && $this->pode_responder_manifestacoes);
+    }
+
+    /**
+     * Verifica se o usuário pode visualizar relatórios de ouvidoria
+     */
+    public function canVisualizarRelatorios(): bool
+    {
+        return $this->isAdmin() || ($this->isOuvidor() && $this->pode_visualizar_relatorios);
     }
 
     // Scopes
@@ -398,6 +485,14 @@ class User extends Authenticatable
     public function scopeFuncionarios($query)
     {
         return $query->where('role', 'funcionario');
+    }
+
+    /**
+     * Scope para filtrar apenas ouvidores
+     */
+    public function scopeOuvidores($query)
+    {
+        return $query->where('role', 'ouvidor');
     }
 
     /**

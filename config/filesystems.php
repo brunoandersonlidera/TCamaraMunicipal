@@ -41,8 +41,8 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            // Ajustado para usar a rota interna /files que já serve corretamente os arquivos públicos
-            'url' => env('APP_URL').'/files',
+            // URL que será resolvida dinamicamente pelo helper
+            'url' => env('APP_URL', 'auto').'/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

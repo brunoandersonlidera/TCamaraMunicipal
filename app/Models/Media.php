@@ -173,12 +173,12 @@ class Media extends BaseMedia
         $url = null;
 
         if (!empty($this->path)) {
-            $url = Storage::disk($this->disk ?? 'public')->url($this->path);
+            $url = $this->getAutoUrl($this->path);
         }
         // Fallback: tentar montar a partir de collection_name e file_name
         elseif (!empty($this->file_name) && !empty($this->collection_name)) {
             $path = "media/{$this->collection_name}/{$this->file_name}";
-            $url = Storage::disk($this->disk ?? 'public')->url($path);
+            $url = $this->getAutoUrl($path);
         }
         // Fallback final para registros do Spatie: usar URL completa padrão
         elseif (method_exists($this, 'getFullUrl')) {
@@ -192,6 +192,26 @@ class Media extends BaseMedia
         // Cache do resultado
         $this->attributes['_cached_public_url'] = $url;
         return $url;
+    }
+
+    /**
+     * Gera URL automática detectando o host atual
+     */
+    private function getAutoUrl($path)
+    {
+        $appUrl = env('APP_URL');
+        
+        // Se APP_URL for 'auto' ou vazio, detecta automaticamente
+        if ($appUrl === 'auto' || empty($appUrl)) {
+            // Detecta automaticamente o protocolo e host
+            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $baseUrl = $protocol . '://' . $host;
+        } else {
+            $baseUrl = $appUrl;
+        }
+        
+        return $baseUrl . '/storage/' . $path;
     }
 
     /**

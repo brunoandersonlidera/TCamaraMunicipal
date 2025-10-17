@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\OuvidoriaManifestacao;
-use App\Models\EsicUsuario;
-use App\Models\Ouvidor;
+use App\Models\OuvidoriaMovimentacao;
 use App\Models\ManifestacaoAnexo;
-use App\Models\Notificacao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -20,7 +18,7 @@ class OuvidoriaManifestacaoController extends Controller
      */
     public function index(Request $request)
     {
-        $query = OuvidoriaManifestacao::with(['usuario', 'ouvidorResponsavel', 'anexos']);
+        $query = OuvidoriaManifestacao::with(['ouvidorResponsavel', 'anexos']);
 
         // Filtros
         if ($request->filled('status')) {
@@ -53,10 +51,8 @@ class OuvidoriaManifestacaoController extends Controller
                 $q->where('assunto', 'like', "%{$busca}%")
                   ->orWhere('descricao', 'like', "%{$busca}%")
                   ->orWhere('protocolo', 'like', "%{$busca}%")
-                  ->orWhereHas('usuario', function ($userQuery) use ($busca) {
-                      $userQuery->where('nome', 'like', "%{$busca}%")
-                               ->orWhere('email', 'like', "%{$busca}%");
-                  });
+                  ->orWhere('nome_manifestante', 'like', "%{$busca}%")
+                  ->orWhere('email_manifestante', 'like', "%{$busca}%");
             });
         }
 
@@ -70,16 +66,16 @@ class OuvidoriaManifestacaoController extends Controller
         // Estatísticas para dashboard
         $estatisticas = [
             'total' => OuvidoriaManifestacao::count(),
-            'abertas' => OuvidoriaManifestacao::where('status', 'aberta')->count(),
+            'novas' => OuvidoriaManifestacao::where('status', 'nova')->count(),
             'em_andamento' => OuvidoriaManifestacao::where('status', 'em_andamento')->count(),
             'respondidas' => OuvidoriaManifestacao::where('status', 'respondida')->count(),
-            'fechadas' => OuvidoriaManifestacao::where('status', 'fechada')->count(),
+            'concluidas' => OuvidoriaManifestacao::where('status', 'concluida')->count(),
             'prazo_vencido' => OuvidoriaManifestacao::where('prazo_resposta', '<', now())
-                                                   ->whereNotIn('status', ['respondida', 'fechada'])
+                                                   ->whereNotIn('status', ['respondida', 'concluida', 'cancelada'])
                                                    ->count(),
         ];
 
-        $ouvidores = Ouvidor::with('user')->get();
+        $ouvidores = \App\Models\User::ouvidores()->active()->get();
 
         return view('admin.ouvidoria-manifestacoes.index', compact(
             'manifestacoes', 'estatisticas', 'ouvidores'
@@ -91,7 +87,7 @@ class OuvidoriaManifestacaoController extends Controller
      */
     public function create()
     {
-        $ouvidores = Ouvidor::with('user')->where('ativo', true)->get();
+        $ouvidores = \App\Models\User::ouvidores()->active()->get();
         return view('admin.ouvidoria-manifestacoes.create', compact('ouvidores'));
     }
 
@@ -101,20 +97,19 @@ class OuvidoriaManifestacaoController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'usuario_nome' => 'required|string|max:255',
-            'usuario_email' => 'required|email|max:255',
-            'usuario_telefone' => 'nullable|string|max:20',
-            'usuario_endereco' => 'nullable|string|max:500',
-            'tipo' => 'required|in:reclamacao,sugestao,elogio,denuncia,solicitacao',
+            'nome_manifestante' => 'required_unless:manifestacao_anonima,1|string|max:255',
+            'email_manifestante' => 'required_unless:manifestacao_anonima,1|email|max:255',
+            'telefone_manifestante' => 'nullable|string|max:20',
+            'tipo' => 'required|in:reclamacao,sugestao,elogio,denuncia,ouvidoria_geral',
             'assunto' => 'required|string|max:255',
             'descricao' => 'required|string',
-            'prioridade' => 'required|in:baixa,normal,alta,urgente',
-            'anonima' => 'boolean',
+            'prioridade' => 'required|in:baixa,media,alta,urgente',
+            'manifestacao_anonima' => 'boolean',
             'anexos.*' => 'file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png,gif',
         ], [
-            'usuario_nome.required' => 'O nome é obrigatório.',
-            'usuario_email.required' => 'O e-mail é obrigatório.',
-            'usuario_email.email' => 'O e-mail deve ter um formato válido.',
+            'nome_manifestante.required_unless' => 'O nome é obrigatório para manifestações não anônimas.',
+            'email_manifestante.required_unless' => 'O e-mail é obrigatório para manifestações não anônimas.',
+            'email_manifestante.email' => 'O e-mail deve ter um formato válido.',
             'tipo.required' => 'O tipo da manifestação é obrigatório.',
             'assunto.required' => 'O assunto é obrigatório.',
             'descricao.required' => 'A descrição é obrigatória.',
@@ -123,35 +118,34 @@ class OuvidoriaManifestacaoController extends Controller
         ]);
 
         if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dados inválidos',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
             return back()->withErrors($validator)->withInput();
         }
 
         DB::beginTransaction();
         try {
-            // Buscar ou criar usuário
-            $usuario = EsicUsuario::where('email', $request->usuario_email)->first();
-            
-            if (!$usuario) {
-                $usuario = EsicUsuario::create([
-                    'nome' => $request->usuario_nome,
-                    'email' => $request->usuario_email,
-                    'telefone' => $request->usuario_telefone,
-                    'endereco' => $request->usuario_endereco,
-                    'email_verified_at' => now(), // Auto-verificado para manifestações administrativas
-                ]);
-            }
+            $isAnonima = $request->boolean('manifestacao_anonima');
 
             // Criar manifestação
             $manifestacao = OuvidoriaManifestacao::create([
-                'usuario_id' => $usuario->id,
-                'protocolo' => OuvidoriaManifestacao::gerarProtocolo(),
+                'nome_manifestante' => $isAnonima ? null : $request->nome_manifestante,
+                'email_manifestante' => $isAnonima ? null : $request->email_manifestante,
+                'telefone_manifestante' => $isAnonima ? null : $request->telefone_manifestante,
                 'tipo' => $request->tipo,
                 'assunto' => $request->assunto,
                 'descricao' => $request->descricao,
                 'prioridade' => $request->prioridade,
-                'anonima' => $request->boolean('anonima'),
-                'status' => 'aberta',
+                'manifestacao_anonima' => $isAnonima,
+                'status' => 'nova',
                 'prazo_resposta' => now()->addDays(20), // 20 dias úteis conforme lei
+                'ip_origem' => $request->ip(),
+                'user_agent' => $request->userAgent(),
             ]);
 
             // Processar anexos
@@ -159,26 +153,29 @@ class OuvidoriaManifestacaoController extends Controller
                 foreach ($request->file('anexos') as $arquivo) {
                     $nomeOriginal = $arquivo->getClientOriginalName();
                     $nomeArquivo = Str::uuid() . '.' . $arquivo->getClientOriginalExtension();
-                    $caminho = $arquivo->storeAs('manifestacoes/' . $manifestacao->id, $nomeArquivo, 'private');
+                    $caminho = $arquivo->storeAs('ouvidoria/manifestacoes/' . $manifestacao->id, $nomeArquivo, 'private');
 
                     ManifestacaoAnexo::create([
                         'manifestacao_id' => $manifestacao->id,
-                        'usuario_id' => $usuario->id,
                         'nome_original' => $nomeOriginal,
                         'nome_arquivo' => $nomeArquivo,
-                        'caminho' => $caminho,
-                        'tamanho' => $arquivo->getSize(),
+                        'caminho_arquivo' => $caminho,
                         'tipo_mime' => $arquivo->getMimeType(),
+                        'extensao' => $arquivo->getClientOriginalExtension(),
+                        'tamanho_bytes' => $arquivo->getSize(),
+                        'tipo_anexo' => 'manifestacao',
                         'hash_arquivo' => hash_file('sha256', $arquivo->getRealPath()),
-                        'publico' => false,
+                        'ip_upload' => $request->ip(),
                     ]);
                 }
             }
 
             // Atribuir automaticamente a um ouvidor (round-robin)
-            $ouvidor = Ouvidor::where('ativo', true)
-                             ->orderBy('ultima_atribuicao')
-                             ->first();
+            $ouvidor = \App\Models\User::ouvidores()
+                                      ->active()
+                                      ->where('pode_responder_manifestacoes', true)
+                                      ->orderBy('updated_at')
+                                      ->first();
 
             if ($ouvidor) {
                 $manifestacao->update([
@@ -186,37 +183,29 @@ class OuvidoriaManifestacaoController extends Controller
                     'data_atribuicao' => now(),
                 ]);
 
-                $ouvidor->update(['ultima_atribuicao' => now()]);
+                $ouvidor->touch(); // Atualiza o updated_at para controle round-robin
 
-                // Criar notificação para o ouvidor
-                Notificacao::criarNotificacao(
-                    $ouvidor->user,
-                    'nova_manifestacao',
-                    [
-                        'titulo' => 'Nova Manifestação Atribuída',
-                        'mensagem' => "Uma nova manifestação ({$manifestacao->protocolo}) foi atribuída a você.",
-                        'manifestacao_id' => $manifestacao->id,
-                        'canal' => 'email',
-                        'prioridade' => $manifestacao->prioridade,
-                    ]
-                );
+                // Criar movimentação de atribuição
+                OuvidoriaMovimentacao::create([
+                    'ouvidoria_manifestacao_id' => $manifestacao->id,
+                    'usuario_id' => auth()->id(),
+                    'status' => 'em_andamento',
+                    'descricao' => "Manifestação atribuída automaticamente ao ouvidor {$ouvidor->nome}",
+                    'data_movimentacao' => now(),
+                ]);
+
+                $manifestacao->update(['status' => 'em_andamento']);
             }
 
-            // Criar notificação para o usuário
-            Notificacao::criarNotificacao(
-                $usuario,
-                'nova_manifestacao',
-                [
-                    'titulo' => 'Manifestação Registrada',
-                    'mensagem' => "Sua manifestação foi registrada com o protocolo {$manifestacao->protocolo}.",
-                    'manifestacao_id' => $manifestacao->id,
-                    'canal' => 'email',
-                ]
-            );
+            // Enviar email de confirmação para manifestante (se não for anônima)
+            if (!$isAnonima && $manifestacao->email_manifestante) {
+                // TODO: Implementar envio de email de confirmação
+                // Mail::to($manifestacao->email_manifestante)->send(new ManifestacaoRegistrada($manifestacao));
+            }
 
             DB::commit();
 
-            return redirect()->route('admin.ouvidoria.manifestacoes.show', $manifestacao)
+            return redirect()->route('admin.ouvidoria-manifestacoes.show', $manifestacao)
                            ->with('success', 'Manifestação criada com sucesso! Protocolo: ' . $manifestacao->protocolo);
 
         } catch (\Exception $e) {
@@ -230,9 +219,9 @@ class OuvidoriaManifestacaoController extends Controller
      */
     public function show(OuvidoriaManifestacao $manifestacao)
     {
-        $manifestacao->load(['usuario', 'ouvidorResponsavel.user', 'anexos', 'respostas']);
+        $manifestacao->load(['ouvidorResponsavel', 'anexos', 'movimentacoes.usuario']);
         
-        $ouvidores = Ouvidor::with('user')->where('ativo', true)->get();
+        $ouvidores = \App\Models\User::ouvidores()->active()->get();
         
         return view('admin.ouvidoria-manifestacoes.show', compact('manifestacao', 'ouvidores'));
     }
@@ -242,7 +231,7 @@ class OuvidoriaManifestacaoController extends Controller
      */
     public function edit(OuvidoriaManifestacao $manifestacao)
     {
-        $ouvidores = Ouvidor::with('user')->where('ativo', true)->get();
+        $ouvidores = \App\Models\User::ouvidores()->active()->get();
         return view('admin.ouvidoria-manifestacoes.edit', compact('manifestacao', 'ouvidores'));
     }
 
@@ -252,17 +241,25 @@ class OuvidoriaManifestacaoController extends Controller
     public function update(Request $request, OuvidoriaManifestacao $manifestacao)
     {
         $validator = Validator::make($request->all(), [
-            'status' => 'required|in:aberta,em_andamento,respondida,fechada,cancelada',
-            'prioridade' => 'required|in:baixa,normal,alta,urgente',
+            'status' => 'required|in:nova,em_andamento,respondida,concluida,cancelada',
+            'prioridade' => 'required|in:baixa,media,alta,urgente',
             'ouvidor_responsavel_id' => 'nullable|exists:ouvidores,id',
             'observacoes_internas' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dados inválidos.',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
             return back()->withErrors($validator)->withInput();
         }
 
         $dadosAntigos = $manifestacao->toArray();
+        $statusAnterior = $manifestacao->status;
 
         $manifestacao->update($request->only([
             'status', 'prioridade', 'ouvidor_responsavel_id', 'observacoes_internas'
@@ -273,41 +270,37 @@ class OuvidoriaManifestacaoController extends Controller
             $manifestacao->update(['data_atribuicao' => now()]);
             
             if ($request->ouvidor_responsavel_id) {
-                $ouvidor = Ouvidor::find($request->ouvidor_responsavel_id);
-                $ouvidor->update(['ultima_atribuicao' => now()]);
+                $ouvidor = \App\Models\User::find($request->ouvidor_responsavel_id);
+                $ouvidor->touch(); // Atualiza o updated_at para controle round-robin
 
-                // Notificar novo ouvidor
-                Notificacao::criarNotificacao(
-                    $ouvidor->user,
-                    'manifestacao_encaminhada',
-                    [
-                        'titulo' => 'Manifestação Encaminhada',
-                        'mensagem' => "A manifestação {$manifestacao->protocolo} foi encaminhada para você.",
-                        'manifestacao_id' => $manifestacao->id,
-                        'canal' => 'email',
-                        'prioridade' => $manifestacao->prioridade,
-                    ]
-                );
+                // Criar movimentação de reatribuição
+                OuvidoriaMovimentacao::create([
+                    'ouvidoria_manifestacao_id' => $manifestacao->id,
+                    'usuario_id' => auth()->id(),
+                    'status' => $request->status,
+                    'descricao' => "Manifestação reatribuída para o ouvidor {$ouvidor->name}",
+                    'data_movimentacao' => now(),
+                ]);
             }
         }
 
-        // Se mudou o status para respondida ou fechada
-        if (in_array($request->status, ['respondida', 'fechada']) && 
-            !in_array($dadosAntigos['status'], ['respondida', 'fechada'])) {
-            
-            $manifestacao->update(['data_resposta' => now()]);
+        // Se mudou o status
+        if ($request->status != $statusAnterior) {
+            // Criar movimentação de mudança de status
+            OuvidoriaMovimentacao::create([
+                'ouvidoria_manifestacao_id' => $manifestacao->id,
+                'usuario_id' => auth()->id(),
+                'status' => $request->status,
+                'descricao' => "Status alterado de {$statusAnterior} para {$request->status}",
+                'data_movimentacao' => now(),
+            ]);
 
-            // Notificar usuário
-            Notificacao::criarNotificacao(
-                $manifestacao->usuario,
-                'resposta_manifestacao',
-                [
-                    'titulo' => 'Manifestação Respondida',
-                    'mensagem' => "Sua manifestação {$manifestacao->protocolo} foi respondida.",
-                    'manifestacao_id' => $manifestacao->id,
-                    'canal' => 'email',
-                ]
-            );
+            // Se mudou o status para respondida ou concluída
+            if (in_array($request->status, ['respondida', 'concluida']) && 
+                !in_array($statusAnterior, ['respondida', 'concluida'])) {
+                
+                $manifestacao->update(['data_resposta' => now()]);
+            }
         }
 
         return back()->with('success', 'Manifestação atualizada com sucesso!');
@@ -328,7 +321,7 @@ class OuvidoriaManifestacaoController extends Controller
 
             $manifestacao->delete();
 
-            return redirect()->route('admin.ouvidoria.manifestacoes.index')
+            return redirect()->route('admin.ouvidoria-manifestacoes.index')
                            ->with('success', 'Manifestação excluída com sucesso!');
 
         } catch (\Exception $e) {
@@ -354,12 +347,29 @@ class OuvidoriaManifestacaoController extends Controller
 
         DB::beginTransaction();
         try {
+            $statusAnterior = $manifestacao->status;
+
+            // Verificar se o usuário logado é um ouvidor com permissão para responder
+            $user = auth()->user();
+            if (!$user->canResponderManifestacoes()) {
+                throw new \Exception('Usuário não tem permissão para responder manifestações.');
+            }
+
             // Atualizar manifestação
             $manifestacao->update([
                 'resposta' => $request->resposta,
-                'data_resposta' => now(),
+                'respondida_em' => now(),
                 'status' => 'respondida',
-                'respondida_por' => auth()->id(),
+                'respondida_por' => $user->id,
+            ]);
+
+            // Criar movimentação de resposta
+            OuvidoriaMovimentacao::create([
+                'ouvidoria_manifestacao_id' => $manifestacao->id,
+                'usuario_id' => auth()->id(),
+                'status' => 'respondida',
+                'descricao' => 'Manifestação respondida pelo ouvidor',
+                'data_movimentacao' => now(),
             ]);
 
             // Processar anexos da resposta
@@ -367,41 +377,51 @@ class OuvidoriaManifestacaoController extends Controller
                 foreach ($request->file('anexos') as $arquivo) {
                     $nomeOriginal = $arquivo->getClientOriginalName();
                     $nomeArquivo = Str::uuid() . '.' . $arquivo->getClientOriginalExtension();
-                    $caminho = $arquivo->storeAs('manifestacoes/' . $manifestacao->id . '/respostas', $nomeArquivo, 'private');
+                    $caminho = $arquivo->storeAs('ouvidoria/manifestacoes/' . $manifestacao->id . '/respostas', $nomeArquivo, 'private');
 
                     ManifestacaoAnexo::create([
                         'manifestacao_id' => $manifestacao->id,
                         'usuario_id' => auth()->id(),
                         'nome_original' => $nomeOriginal,
                         'nome_arquivo' => $nomeArquivo,
-                        'caminho' => $caminho,
-                        'tamanho' => $arquivo->getSize(),
+                        'caminho_arquivo' => $caminho,
                         'tipo_mime' => $arquivo->getMimeType(),
+                        'extensao' => $arquivo->getClientOriginalExtension(),
+                        'tamanho_bytes' => $arquivo->getSize(),
+                        'tipo_anexo' => 'resposta',
                         'hash_arquivo' => hash_file('sha256', $arquivo->getRealPath()),
-                        'publico' => true, // Anexos de resposta são públicos para o usuário
-                        'descricao' => 'Anexo da resposta',
+                        'ip_upload' => $request->ip(),
                     ]);
                 }
             }
 
-            // Notificar usuário
-            Notificacao::criarNotificacao(
-                $manifestacao->usuario,
-                'resposta_manifestacao',
-                [
-                    'titulo' => 'Manifestação Respondida',
-                    'mensagem' => "Sua manifestação {$manifestacao->protocolo} foi respondida.",
-                    'manifestacao_id' => $manifestacao->id,
-                    'canal' => 'email',
-                ]
-            );
+            // Enviar email de notificação (se não for anônima)
+            if (!$manifestacao->manifestacao_anonima && $manifestacao->email_manifestante) {
+                // TODO: Implementar envio de email de resposta
+                // Mail::to($manifestacao->email_manifestante)->send(new ManifestacaoRespondida($manifestacao));
+            }
 
             DB::commit();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Resposta enviada com sucesso!'
+                ]);
+            }
 
             return back()->with('success', 'Resposta enviada com sucesso!');
 
         } catch (\Exception $e) {
             DB::rollback();
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao enviar resposta: ' . $e->getMessage()
+                ], 500);
+            }
+            
             return back()->with('error', 'Erro ao enviar resposta: ' . $e->getMessage());
         }
     }
@@ -411,11 +431,9 @@ class OuvidoriaManifestacaoController extends Controller
      */
     public function downloadAnexo(ManifestacaoAnexo $anexo)
     {
-        // Verificar permissões
-        $user = auth()->user();
-        
-        if (!$anexo->podeSerVisualizadoPor($user)) {
-            abort(403, 'Você não tem permissão para acessar este arquivo.');
+        // Verificar se o usuário tem permissão (apenas usuários autenticados podem baixar anexos)
+        if (!auth()->check()) {
+            abort(403, 'Você precisa estar logado para acessar este arquivo.');
         }
 
         if (!Storage::disk('private')->exists($anexo->caminho)) {
@@ -453,5 +471,131 @@ class OuvidoriaManifestacaoController extends Controller
         ];
 
         return view('admin.ouvidoria.relatorios', compact('estatisticas', 'periodo'));
+    }
+
+    /**
+     * Tramitação interna da manifestação
+     */
+    public function tramitacao(Request $request, OuvidoriaManifestacao $manifestacao)
+    {
+        $validator = Validator::make($request->all(), [
+            'observacoes' => 'required|string|max:1000',
+            'setor_destino' => 'nullable|string|max:255',
+            'prioridade' => 'nullable|in:normal,alta,urgente',
+        ], [
+            'observacoes.required' => 'As observações da tramitação são obrigatórias.',
+            'observacoes.max' => 'As observações não podem exceder 1000 caracteres.',
+        ]);
+
+        if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dados inválidos',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            return back()->withErrors($validator)->withInput();
+        }
+
+        DB::beginTransaction();
+        try {
+            // Atualizar observações internas da manifestação
+            $observacoesAtuais = $manifestacao->observacoes_internas ?? '';
+            $novaObservacao = '[' . now()->format('d/m/Y H:i') . '] ' . auth()->user()->name . ': ' . $request->observacoes;
+            
+            if ($request->setor_destino) {
+                $novaObservacao .= ' (Encaminhado para: ' . $request->setor_destino . ')';
+            }
+            
+            if ($request->prioridade && $request->prioridade !== 'normal') {
+                $novaObservacao .= ' [Prioridade: ' . strtoupper($request->prioridade) . ']';
+            }
+            
+            $observacoesAtualizadas = $observacoesAtuais ? $observacoesAtuais . "\n\n" . $novaObservacao : $novaObservacao;
+            
+            $manifestacao->update([
+                'observacoes_internas' => $observacoesAtualizadas,
+            ]);
+
+            // Criar movimentação de tramitação
+            $descricaoMovimentacao = 'Tramitação interna: ' . $request->observacoes;
+            if ($request->setor_destino) {
+                $descricaoMovimentacao .= ' (Encaminhado para: ' . $request->setor_destino . ')';
+            }
+
+            OuvidoriaMovimentacao::create([
+                'ouvidoria_manifestacao_id' => $manifestacao->id,
+                'usuario_id' => auth()->id(),
+                'status' => $manifestacao->status,
+                'descricao' => $descricaoMovimentacao,
+                'data_movimentacao' => now(),
+            ]);
+
+            DB::commit();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Tramitação registrada com sucesso!'
+                ]);
+            }
+
+            return back()->with('success', 'Tramitação registrada com sucesso!');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao registrar tramitação: ' . $e->getMessage()
+                ], 500);
+            }
+            
+            return back()->with('error', 'Erro ao registrar tramitação: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Arquivar/desarquivar manifestação
+     */
+    public function archive(Request $request, OuvidoriaManifestacao $manifestacao)
+    {
+        try {
+            $isArchived = $manifestacao->status === 'arquivada';
+            
+            if ($isArchived) {
+                // Desarquivar - voltar para status anterior ou 'em_andamento'
+                $novoStatus = 'em_andamento';
+                $descricao = 'Manifestação desarquivada';
+                $manifestacao->update(['status' => $novoStatus]);
+            } else {
+                // Arquivar
+                $manifestacao->arquivar(auth()->id());
+                $descricao = 'Manifestação arquivada';
+            }
+
+            // Criar movimentação
+            OuvidoriaMovimentacao::create([
+                'ouvidoria_manifestacao_id' => $manifestacao->id,
+                'usuario_id' => auth()->id(),
+                'status' => $manifestacao->status,
+                'descricao' => $descricao,
+                'data_movimentacao' => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => $descricao . ' com sucesso!',
+                'status' => $manifestacao->status
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao processar solicitação: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

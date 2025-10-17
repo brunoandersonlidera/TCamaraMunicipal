@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\EsicUsuario;
 use App\Models\OuvidoriaManifestacao;
-use App\Models\Ouvidor;
 use App\Models\CartaServico;
 use App\Models\Notificacao;
 use App\Models\Vereador;
@@ -106,7 +105,7 @@ class RelatorioController extends Controller
             'estatisticas' => [
                 'total_usuarios' => EsicUsuario::count(),
                 'total_manifestacoes' => OuvidoriaManifestacao::count(),
-                'total_ouvidores' => Ouvidor::count(),
+                'total_ouvidores' => \App\Models\User::ouvidores()->count(),
                 'total_vereadores' => Vereador::count(),
                 'total_sessoes' => Sessao::count(),
                 'total_projetos' => ProjetoLei::count(),
@@ -191,13 +190,13 @@ class RelatorioController extends Controller
         $periodo = $request->get('periodo', '30');
         $dataInicio = now()->subDays($periodo);
 
-        $ouvidores = Ouvidor::with('user')
+        $ouvidores = \App\Models\User::ouvidores()
                            ->withCount([
-                               'manifestacoes',
-                               'manifestacoes as manifestacoes_periodo' => function($q) use ($dataInicio) {
+                               'manifestacoesResponsavel as manifestacoes_count',
+                               'manifestacoesResponsavel as manifestacoes_periodo' => function($q) use ($dataInicio) {
                                    $q->where('created_at', '>=', $dataInicio);
                                },
-                               'manifestacoes as manifestacoes_respondidas' => function($q) {
+                               'manifestacoesResponsavel as manifestacoes_respondidas' => function($q) {
                                    $q->where('status', 'respondida');
                                }
                            ])

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Ouvidor;
 use App\Models\User;
 use App\Models\OuvidoriaManifestacao;
 use Illuminate\Http\Request;
@@ -18,19 +17,23 @@ class OuvidorController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Ouvidor::with(['user', 'manifestacoes'])
-                        ->withCount(['manifestacoes', 'manifestacoes as manifestacoes_respondidas' => function($q) {
+        $query = \App\Models\User::ouvidores()
+                        ->withCount(['manifestacoesResponsavel as manifestacoes_count', 'manifestacoesResponsavel as manifestacoes_respondidas' => function($q) {
                             $q->where('status', 'respondida');
                         }]);
 
         // Filtros
         if ($request->filled('status')) {
-            $query->where('ativo', $request->status === 'ativo');
+            if ($request->status === 'ativo') {
+                $query->active();
+            } else {
+                $query->where('ativo', false);
+            }
         }
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->whereHas('user', function($q) use ($search) {
+            $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
             });
@@ -44,10 +47,10 @@ class OuvidorController extends Controller
 
         // Estatísticas
         $estatisticas = [
-            'total' => Ouvidor::count(),
-            'ativos' => Ouvidor::where('ativo', true)->count(),
-            'inativos' => Ouvidor::where('ativo', false)->count(),
-            'com_manifestacoes' => Ouvidor::has('manifestacoes')->count(),
+            'total' => \App\Models\User::ouvidores()->count(),
+            'ativos' => \App\Models\User::ouvidores()->active()->count(),
+            'inativos' => \App\Models\User::ouvidores()->where('ativo', false)->count(),
+            'com_manifestacoes' => \App\Models\User::ouvidores()->has('manifestacoesResponsavel')->count(),
         ];
 
         return view('admin.ouvidores.index', compact('ouvidores', 'estatisticas'));
@@ -83,7 +86,7 @@ class OuvidorController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'cpf' => 'required|string|size:14|unique:ouvidores',
+            'cpf' => 'required|string|size:14|unique:users,cpf',
             'telefone' => 'required|string|max:20',
             'especialidade' => 'required|string',
             'bio' => 'nullable|string|max:1000',
@@ -94,29 +97,25 @@ class OuvidorController extends Controller
         try {
             DB::beginTransaction();
 
-            // Criar usuário
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => $request->password, // O mutator do modelo já faz o hash
-                'email_verified_at' => now(),
-            ]);
-
             // Processar foto se enviada
             $fotoPath = null;
             if ($request->hasFile('foto')) {
                 $fotoPath = $request->file('foto')->store('ouvidores/fotos', 'public');
             }
 
-            // Criar ouvidor
-            $ouvidor = Ouvidor::create([
-                'user_id' => $user->id,
+            // Criar usuário ouvidor
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => $request->password, // O mutator do modelo já faz o hash
+                'email_verified_at' => now(),
                 'cpf' => $request->cpf,
                 'telefone' => $request->telefone,
                 'especialidade' => $request->especialidade,
                 'bio' => $request->bio,
                 'foto' => $fotoPath,
                 'ativo' => $request->boolean('ativo', true),
+                'pode_responder_manifestacoes' => true,
             ]);
 
             // Atribuir role de ouvidor
@@ -335,10 +334,10 @@ class OuvidorController extends Controller
     /**
      * Transferir manifestações
      */
-    public function transferirManifestacoes(Request $request, Ouvidor $ouvidorOrigem)
+    public function transferirManifestacoes(Request $request, User $ouvidorOrigem)
     {
         $request->validate([
-            'ouvidor_destino_id' => 'required|exists:ouvidores,id',
+            'ouvidor_destino_id' => 'required|exists:users,id',
             'manifestacoes' => 'required|array',
             'manifestacoes.*' => 'exists:ouvidoria_manifestacoes,id',
         ]);
@@ -346,7 +345,7 @@ class OuvidorController extends Controller
         try {
             DB::beginTransaction();
 
-            $ouvidorDestino = Ouvidor::findOrFail($request->ouvidor_destino_id);
+            $ouvidorDestino = User::ouvidores()->findOrFail($request->ouvidor_destino_id);
 
             // Verificar se ouvidor destino está ativo
             if (!$ouvidorDestino->ativo) {
@@ -366,7 +365,7 @@ class OuvidorController extends Controller
             $quantidade = count($request->manifestacoes);
             
             return back()->with('success', 
-                "{$quantidade} manifestação(ões) transferida(s) com sucesso para {$ouvidorDestino->user->name}!"
+                "{$quantidade} manifestação(ões) transferida(s) com sucesso para {$ouvidorDestino->name}!"
             );
 
         } catch (\Exception $e) {
@@ -384,16 +383,16 @@ class OuvidorController extends Controller
         $periodo = $request->get('periodo', '30');
         $dataInicio = now()->subDays($periodo);
 
-        $ouvidores = Ouvidor::with('user')
+        $ouvidores = User::ouvidores()
                            ->withCount([
-                               'manifestacoes',
-                               'manifestacoes as manifestacoes_periodo' => function($q) use ($dataInicio) {
+                               'manifestacoesResponsavel as manifestacoes_count',
+                               'manifestacoesResponsavel as manifestacoes_periodo' => function($q) use ($dataInicio) {
                                    $q->where('created_at', '>=', $dataInicio);
                                },
-                               'manifestacoes as manifestacoes_respondidas' => function($q) {
+                               'manifestacoesResponsavel as manifestacoes_respondidas' => function($q) {
                                    $q->where('status', 'respondida');
                                },
-                               'manifestacoes as manifestacoes_prazo' => function($q) {
+                               'manifestacoesResponsavel as manifestacoes_prazo' => function($q) {
                                    $q->whereNotNull('data_resposta')
                                      ->whereRaw('data_resposta <= prazo_resposta');
                                }
@@ -401,7 +400,7 @@ class OuvidorController extends Controller
                            ->where('ativo', true)
                            ->get()
                            ->map(function($ouvidor) {
-                               $tempoMedioResposta = $ouvidor->manifestacoes()
+                               $tempoMedioResposta = $ouvidor->manifestacoesResponsavel()
                                                            ->whereNotNull('data_resposta')
                                                            ->selectRaw('AVG(DATEDIFF(data_resposta, created_at)) as media')
                                                            ->value('media');
@@ -434,7 +433,8 @@ class OuvidorController extends Controller
         $periodo = $request->get('periodo', '30');
         $dataInicio = now()->subDays($periodo);
 
-        $ouvidores = Ouvidor::with(['user', 'manifestacoes' => function($q) use ($dataInicio) {
+        $ouvidores = User::ouvidores()
+                           ->with(['manifestacoesResponsavel' => function($q) use ($dataInicio) {
                                 $q->where('created_at', '>=', $dataInicio);
                             }])
                            ->get();

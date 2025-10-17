@@ -143,21 +143,24 @@
                         
                         <div class="mb-4">
                             <label class="form-label">
-                                <i class="fas fa-images me-1"></i>
-                                Anexar Imagens (opcional)
+                                <i class="fas fa-paperclip me-1"></i>
+                                Anexar Arquivos (opcional)
                             </label>
                             <p class="text-muted small mb-3">
-                                Adicione fotos que possam ajudar a ilustrar sua solicitação
+                                Adicione arquivos que possam ajudar a ilustrar sua solicitação
                             </p>
                             
                             <x-image-upload 
                                 name="anexos"
                                 :multiple="true"
                                 :max-files="5"
-                                label="Selecionar Imagens"
-                                help-text="Máximo 5 imagens. Formatos: JPG, PNG, GIF. Tamanho máximo: 5MB por imagem"
+                                max-size="10240"
+                                accept=".jpg,.jpeg,.png,.gif,.webp,.pdf"
+                                label="Selecionar Arquivos"
+                                help-text="Máximo 5 arquivos. Formatos: JPG, PNG, GIF, WebP, PDF. Tamanho máximo: 10MB por arquivo"
                                 :preview="true"
                                 :required="false"
+                                :allow-pdf="true"
                             />
                         </div>
                         

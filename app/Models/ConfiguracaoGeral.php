@@ -185,6 +185,48 @@ class ConfiguracaoGeral extends Model
         return \Illuminate\Support\Facades\Storage::url($path);
     }
 
+    public static function obterLogoLogin()
+    {
+        $config = self::where('chave', 'logo_login')
+                     ->where('ativo', true)
+                     ->first();
+
+        if (!$config || empty($config->valor)) {
+            return null;
+        }
+
+        $valor = $config->valor;
+
+        // Se já for URL absoluta, retorna
+        if (preg_match('#^https?://#', $valor)) {
+            return $valor;
+        }
+
+        // Caminhos em public/images
+        if (str_starts_with($valor, '/images/')) {
+            return asset($valor);
+        }
+        if (str_starts_with($valor, 'images/')) {
+            return asset('/' . $valor);
+        }
+
+        // Caminhos via rota de mídia (padronizar para /media/{file_name})
+        if (str_starts_with($valor, '/media/')) {
+            return '/media/' . basename($valor);
+        }
+        if (str_starts_with($valor, 'media/')) {
+            return '/media/' . basename($valor);
+        }
+
+        // Caminhos armazenados em storage (ex.: public/configuracoes/...)
+        // Normaliza valores que vieram salvos com prefixo /storage ou storage
+        $path = ltrim($valor, '/');
+        $path = preg_replace('#^storage/#', '', $path);
+        // Remove barras duplas que podem ter sido salvas incorretamente
+        $path = preg_replace('#/+#', '/', $path);
+        return \Illuminate\Support\Facades\Storage::url($path);
+    }
+
     public static function obterEndereco()
     {
         return self::obterValor('endereco_camara', 'Endereço não informado');

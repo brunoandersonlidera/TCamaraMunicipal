@@ -243,7 +243,9 @@ Route::get('/ouvidoria', [OuvidoriaController::class, 'index'])->name('ouvidoria
 Route::get('/ouvidoria/nova-manifestacao', [OuvidoriaController::class, 'create'])->name('ouvidoria.create');
 Route::post('/ouvidoria/manifestacao', [OuvidoriaController::class, 'store'])->name('ouvidoria.store');
 Route::get('/ouvidoria/consultar', [OuvidoriaController::class, 'consultar'])->name('ouvidoria.consultar');
+
 Route::post('/ouvidoria/avaliar/{protocolo}', [OuvidoriaController::class, 'avaliar'])->name('ouvidoria.avaliar');
+Route::get('/ouvidoria/{protocolo}/anexo/{arquivo}', [OuvidoriaController::class, 'downloadAnexo'])->name('ouvidoria.download-anexo');
 
 // Rotas ESIC (Sistema Eletrônico de Informações ao Cidadão)
 // Área pública - sem autenticação
@@ -566,6 +568,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::patch('ouvidoria-manifestacoes/{manifestacao}/toggle-status', [App\Http\Controllers\OuvidoriaManifestacaoController::class, 'toggleStatus'])->name('admin.ouvidoria-manifestacoes.toggle-status');
     Route::patch('ouvidoria-manifestacoes/{manifestacao}/atribuir', [App\Http\Controllers\OuvidoriaManifestacaoController::class, 'atribuir'])->name('admin.ouvidoria-manifestacoes.atribuir');
     Route::post('ouvidoria-manifestacoes/{manifestacao}/responder', [App\Http\Controllers\OuvidoriaManifestacaoController::class, 'responder'])->name('admin.ouvidoria-manifestacoes.responder');
+    Route::post('ouvidoria-manifestacoes/{manifestacao}/tramitacao', [App\Http\Controllers\OuvidoriaManifestacaoController::class, 'tramitacao'])->name('admin.ouvidoria-manifestacoes.tramitacao');
+    Route::post('ouvidoria-manifestacoes/{manifestacao}/archive', [App\Http\Controllers\OuvidoriaManifestacaoController::class, 'archive'])->name('admin.ouvidoria-manifestacoes.archive');
 
     // Rotas administrativas para cartas de serviço
     Route::resource('cartas-servico', App\Http\Controllers\CartaServicoController::class, [
@@ -837,6 +841,62 @@ Route::get('/test-user-status', function () {
         'current_url' => request()->url()
     ]);
 })->name('test.user.status');
+
+// Rotas específicas do Ouvidor (protegidas por middleware de ouvidor)
+Route::middleware(['auth', 'ouvidor'])->prefix('ouvidor')->group(function () {
+    // Dashboard do Ouvidor
+    Route::get('/dashboard', [App\Http\Controllers\Ouvidor\DashboardController::class, 'index'])->name('ouvidor.dashboard');
+    
+    // Manifestações da Ouvidoria
+    Route::get('/manifestacoes', [App\Http\Controllers\Ouvidor\ManifestacaoController::class, 'index'])->name('ouvidor.manifestacoes.index');
+    Route::get('/manifestacoes/{manifestacao}', [App\Http\Controllers\Ouvidor\ManifestacaoController::class, 'show'])->name('ouvidor.manifestacoes.show');
+    Route::patch('/manifestacoes/{manifestacao}/responder', [App\Http\Controllers\Ouvidor\ManifestacaoController::class, 'responder'])->name('ouvidor.manifestacoes.responder');
+    Route::patch('/manifestacoes/{manifestacao}/status', [App\Http\Controllers\Ouvidor\ManifestacaoController::class, 'alterarStatus'])->name('ouvidor.manifestacoes.alterar-status');
+    Route::patch('/manifestacoes/{manifestacao}/atribuir', [App\Http\Controllers\Ouvidor\ManifestacaoController::class, 'atribuir'])->name('ouvidor.manifestacoes.atribuir');
+    Route::post('/manifestacoes/{manifestacao}/tramitacao', [App\Http\Controllers\Ouvidor\ManifestacaoController::class, 'adicionarTramitacao'])->name('ouvidor.manifestacoes.tramitacao');
+    Route::post('/manifestacoes/{manifestacao}/arquivar', [App\Http\Controllers\Ouvidor\ManifestacaoController::class, 'arquivar'])->name('ouvidor.manifestacoes.arquivar');
+    
+    // Solicitações E-SIC (apenas para ouvidores com permissão)
+    Route::middleware('can:responder-esic')->group(function () {
+        Route::get('/esic', [App\Http\Controllers\Ouvidor\EsicController::class, 'index'])->name('ouvidor.esic.index');
+        Route::get('/esic/{solicitacao}', [App\Http\Controllers\Ouvidor\EsicController::class, 'show'])->name('ouvidor.esic.show');
+        Route::patch('/esic/{solicitacao}/responder', [App\Http\Controllers\Ouvidor\EsicController::class, 'responder'])->name('ouvidor.esic.responder');
+        Route::patch('/esic/{solicitacao}/status', [App\Http\Controllers\Ouvidor\EsicController::class, 'alterarStatus'])->name('ouvidor.esic.alterar-status');
+        Route::post('/esic/{solicitacao}/tramitacao', [App\Http\Controllers\Ouvidor\EsicController::class, 'adicionarTramitacao'])->name('ouvidor.esic.tramitacao');
+        Route::post('/esic/{solicitacao}/arquivar', [App\Http\Controllers\Ouvidor\EsicController::class, 'arquivar'])->name('ouvidor.esic.arquivar');
+    });
+    
+    // Relatórios (apenas para ouvidores com permissão)
+    Route::middleware('can:visualizar-relatorios')->group(function () {
+        Route::get('/relatorios', [App\Http\Controllers\Ouvidor\RelatorioController::class, 'index'])->name('ouvidor.relatorios.index');
+        Route::get('/relatorios/manifestacoes', [App\Http\Controllers\Ouvidor\RelatorioController::class, 'manifestacoes'])->name('ouvidor.relatorios.manifestacoes');
+        Route::get('/relatorios/esic', [App\Http\Controllers\Ouvidor\RelatorioController::class, 'esic'])->name('ouvidor.relatorios.esic');
+        Route::get('/relatorios/performance', [App\Http\Controllers\Ouvidor\RelatorioController::class, 'performance'])->name('ouvidor.relatorios.performance');
+        Route::get('/relatorios/exportar', [App\Http\Controllers\Ouvidor\RelatorioController::class, 'exportar'])->name('ouvidor.relatorios.exportar');
+    });
+    
+    // Perfil e Configurações do Ouvidor
+    Route::get('/perfil', [App\Http\Controllers\Ouvidor\PerfilController::class, 'edit'])->name('ouvidor.perfil.edit');
+    Route::patch('/perfil', [App\Http\Controllers\Ouvidor\PerfilController::class, 'update'])->name('ouvidor.perfil.update');
+    Route::get('/configuracoes', [App\Http\Controllers\Ouvidor\ConfiguracaoController::class, 'index'])->name('ouvidor.configuracoes');
+    Route::patch('/configuracoes', [App\Http\Controllers\Ouvidor\ConfiguracaoController::class, 'update'])->name('ouvidor.configuracoes.update');
+    
+    // Notificações
+    Route::get('/notificacoes', [App\Http\Controllers\Ouvidor\NotificacaoController::class, 'index'])->name('ouvidor.notificacoes.index');
+    Route::patch('/notificacoes/{notificacao}/marcar-lida', [App\Http\Controllers\Ouvidor\NotificacaoController::class, 'marcarLida'])->name('ouvidor.notificacoes.marcar-lida');
+    Route::patch('/notificacoes/marcar-todas-lidas', [App\Http\Controllers\Ouvidor\NotificacaoController::class, 'marcarTodasLidas'])->name('ouvidor.notificacoes.marcar-todas-lidas');
+    
+    // API Routes para dados dinâmicos do dashboard
+    Route::prefix('api')->group(function () {
+        Route::get('/stats', [App\Http\Controllers\Ouvidor\DashboardController::class, 'getStats'])->name('ouvidor.api.stats');
+        Route::get('/performance-data', [App\Http\Controllers\Ouvidor\DashboardController::class, 'getPerformanceData'])->name('ouvidor.api.performance-data');
+        Route::get('/status-data', [App\Http\Controllers\Ouvidor\DashboardController::class, 'getStatusData'])->name('ouvidor.api.status-data');
+        Route::get('/tipo-data', [App\Http\Controllers\Ouvidor\DashboardController::class, 'getTipoData'])->name('ouvidor.api.tipo-data');
+        Route::get('/notifications', [App\Http\Controllers\Ouvidor\DashboardController::class, 'getNotifications'])->name('ouvidor.api.notifications');
+        Route::post('/notifications/{id}/read', [App\Http\Controllers\Ouvidor\DashboardController::class, 'markNotificationAsRead'])->name('ouvidor.api.notifications.read');
+        Route::get('/manifestacoes/search', [App\Http\Controllers\Ouvidor\DashboardController::class, 'searchManifestacoes'])->name('ouvidor.api.manifestacoes.search');
+    });
+});
 
 // Debug - Rota para receber logs do JavaScript
 Route::post('/debug/log', function (Illuminate\Http\Request $request) {

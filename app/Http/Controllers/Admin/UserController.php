@@ -75,9 +75,8 @@ class UserController extends Controller
         $validated['active'] = $request->has('active');
         $validated['email_verified_at'] = now();
 
-        // Criar usuário sem o role
+        // Criar usuário com todos os dados incluindo role
         $userData = $validated;
-        unset($userData['role']);
         $user = User::create($userData);
 
         // Atribuir role usando Spatie Permission
@@ -120,9 +119,8 @@ class UserController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
             'role' => 'required|in:' . implode(',', $validRoles),
             'active' => 'boolean',
-            'phone' => 'nullable|string|max:20',
-            'birth_date' => 'nullable|date|before:today',
-            'address' => 'nullable|string|max:500',
+            'data_nascimento' => 'nullable|date|before:today',
+            'endereco' => 'nullable|string|max:500',
             'cpf' => 'nullable|string|max:14',
             'telefone' => 'nullable|string|max:15',
             'cargo' => 'nullable|string|max:100',
@@ -159,12 +157,13 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'active' => $validated['active'],
-            'phone' => $validated['phone'],
-            'birth_date' => $validated['birth_date'],
-            'address' => $validated['address'],
-            'cargo' => $validated['cargo'],
-            'setor' => $validated['setor'],
-            'observacoes' => $validated['observacoes'],
+            'role' => $validated['role'],
+            'telefone' => $validated['telefone'] ?? null,
+            'data_nascimento' => $validated['data_nascimento'] ?? null,
+            'endereco' => $validated['endereco'] ?? null,
+            'cargo' => $validated['cargo'] ?? null,
+            'setor' => $validated['setor'] ?? null,
+            'observacoes' => $validated['observacoes'] ?? null,
         ];
         
         // Adicionar senha se foi fornecida
@@ -179,7 +178,7 @@ class UserController extends Controller
             $cidadaoData = [
                 'cpf' => $validated['cpf'] ?? null,
                 'rg' => $validated['rg'] ?? null,
-                'data_nascimento' => $validated['birth_date'] ?? null,
+                'data_nascimento' => $validated['data_nascimento'] ?? null,
                 'sexo' => $validated['sexo'] ?? null,
                 'estado_civil' => $validated['estado_civil'] ?? null,
                 'profissao' => $validated['profissao'] ?? null,

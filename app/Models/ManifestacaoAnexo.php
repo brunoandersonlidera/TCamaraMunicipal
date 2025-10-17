@@ -18,16 +18,19 @@ class ManifestacaoAnexo extends Model
         'usuario_id',
         'nome_original',
         'nome_arquivo',
-        'caminho',
-        'tamanho',
+        'caminho_arquivo',
+        'tamanho_bytes',
         'tipo_mime',
+        'extensao',
+        'tipo_anexo',
         'hash_arquivo',
         'publico',
-        'descricao'
+        'descricao',
+        'ip_upload'
     ];
 
     protected $casts = [
-        'tamanho' => 'integer',
+        'tamanho_bytes' => 'integer',
         'publico' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -42,21 +45,21 @@ class ManifestacaoAnexo extends Model
 
     public function usuario()
     {
-        return $this->belongsTo(EsicUsuario::class, 'usuario_id');
+        return $this->belongsTo(User::class, 'usuario_id');
     }
 
     // Accessors
     public function getUrlAttribute()
     {
         if ($this->publico) {
-            return Storage::url($this->caminho);
+            return Storage::url($this->caminho_arquivo);
         }
         return route('anexo.download', $this->id);
     }
 
     public function getTamanhoFormatadoAttribute()
     {
-        $bytes = $this->tamanho;
+        $bytes = $this->tamanho_bytes;
         $units = ['B', 'KB', 'MB', 'GB'];
         
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
@@ -132,8 +135,8 @@ class ManifestacaoAnexo extends Model
     public function excluir()
     {
         // Remove o arquivo físico
-        if (Storage::exists($this->caminho)) {
-            Storage::delete($this->caminho);
+        if (Storage::exists($this->caminho_arquivo)) {
+            Storage::delete($this->caminho_arquivo);
         }
 
         // Soft delete do registro
@@ -147,8 +150,8 @@ class ManifestacaoAnexo extends Model
 
         static::deleting(function ($anexo) {
             // Remove arquivo físico quando deletado permanentemente
-            if ($anexo->isForceDeleting() && Storage::exists($anexo->caminho)) {
-                Storage::delete($anexo->caminho);
+            if ($anexo->isForceDeleting() && Storage::exists($anexo->caminho_arquivo)) {
+                Storage::delete($anexo->caminho_arquivo);
             }
         });
     }

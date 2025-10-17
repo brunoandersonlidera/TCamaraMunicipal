@@ -369,7 +369,7 @@
                 </div>
                 <h2 class="mb-2">{{ $manifestacao->assunto ?? 'Problema com atendimento na recepção' }}</h2>
                 <p class="mb-0">
-                    <i class="fas fa-user me-2"></i>{{ $manifestacao->nome ?? 'João Silva' }} • 
+                    <i class="fas fa-user me-2"></i>{{ $manifestacao->nome_manifestante ?? 'Manifestante' }} • 
                     <i class="fas fa-calendar me-2"></i>{{ ($manifestacao->created_at ?? now())->format('d/m/Y H:i') }}
                 </p>
             </div>
@@ -421,38 +421,25 @@
                 
                 <div class="info-row">
                     <span class="info-label">Nome:</span>
-                    <span class="info-value">{{ $manifestacao->nome ?? 'João Silva' }}</span>
+                    <span class="info-value">{{ $manifestacao->nome_manifestante ?? 'Não informado' }}</span>
                 </div>
                 
                 <div class="info-row">
                     <span class="info-label">Email:</span>
-                    <span class="info-value">{{ $manifestacao->email ?? 'joao@email.com' }}</span>
+                    <span class="info-value">{{ $manifestacao->email_manifestante ?? 'Não informado' }}</span>
                 </div>
                 
                 <div class="info-row">
                     <span class="info-label">Telefone:</span>
-                    <span class="info-value">{{ $manifestacao->telefone ?? '(11) 99999-9999' }}</span>
+                    <span class="info-value">{{ $manifestacao->telefone_manifestante ?? 'Não informado' }}</span>
                 </div>
                 
-                <div class="info-row">
-                    <span class="info-label">CPF:</span>
-                    <span class="info-value">{{ $manifestacao->cpf ?? '***.***.***-**' }}</span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Endereço:</span>
-                    <span class="info-value">{{ $manifestacao->endereco ?? 'Rua das Flores, 123' }}</span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Cidade/UF:</span>
-                    <span class="info-value">{{ ($manifestacao->cidade ?? 'São Paulo') . '/' . ($manifestacao->estado ?? 'SP') }}</span>
-                </div>
+
                 
                 <div class="info-row">
                     <span class="info-label">Deseja Identificação:</span>
                     <span class="info-value">
-                        @if($manifestacao->anonimo ?? false)
+                        @if($manifestacao->manifestacao_anonima ?? false)
                             <i class="fas fa-times-circle text-danger"></i> Anônimo
                         @else
                             <i class="fas fa-check-circle text-success"></i> Identificado
@@ -559,25 +546,25 @@
                 </div>
                 
                 <!-- Anexos -->
-                @if(isset($manifestacao->anexos) && count($manifestacao->anexos) > 0)
+                @if($manifestacao->anexos && $manifestacao->anexos->count() > 0)
                 <h6 class="mt-4">Anexos:</h6>
                 <div class="attachments-grid">
                     @foreach($manifestacao->anexos as $anexo)
                     <div class="attachment-item">
                         <div class="attachment-icon">
-                            @if(str_contains($anexo['tipo'], 'image'))
+                            @if(str_contains($anexo->tipo_mime, 'image'))
                                 <i class="fas fa-image"></i>
-                            @elseif(str_contains($anexo['tipo'], 'pdf'))
+                            @elseif(str_contains($anexo->tipo_mime, 'pdf'))
                                 <i class="fas fa-file-pdf"></i>
                             @else
                                 <i class="fas fa-file"></i>
                             @endif
                         </div>
                         <div>
-                            <strong>{{ $anexo['nome'] }}</strong><br>
-                            <small class="text-muted">{{ $anexo['tamanho'] }}</small>
+                            <strong>{{ $anexo->nome_original }}</strong><br>
+                            <small class="text-muted">{{ $anexo->tamanho_formatado }}</small>
                         </div>
-                        <a href="{{ $anexo['url'] }}" class="btn btn-sm btn-outline-primary mt-2" target="_blank">
+                        <a href="{{ route('ouvidoria.download-anexo', ['protocolo' => $manifestacao->protocolo, 'arquivo' => $anexo->nome_arquivo]) }}" class="btn btn-sm btn-outline-primary mt-2" target="_blank">
                             <i class="fas fa-download me-1"></i>Baixar
                         </a>
                     </div>
@@ -648,6 +635,70 @@
         </div>
     </div>
 
+    <!-- Tramitação Interna -->
+    <div class="row">
+        <div class="col-12">
+            <div class="info-card">
+                <h5 class="mb-3"><i class="fas fa-cogs me-2"></i>Tramitação Interna</h5>
+                
+                <!-- Observações Internas Atuais -->
+                @if($manifestacao->observacoes_internas)
+                <div class="content-section mb-3">
+                    <h6>Observações Internas:</h6>
+                    <p>{{ $manifestacao->observacoes_internas }}</p>
+                </div>
+                @endif
+                
+                <!-- Formulário para Nova Tramitação -->
+                <form id="tramitacaoForm" action="{{ route('admin.ouvidoria-manifestacoes.tramitacao', $manifestacao->id ?? 1) }}" method="POST">
+                    @csrf
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="setor_destino" class="form-label">Encaminhar para Setor</label>
+                                <select class="form-select" id="setor_destino" name="setor_destino">
+                                    <option value="">Selecione um setor...</option>
+                                    <option value="Secretaria de Administração">Secretaria de Administração</option>
+                                    <option value="Secretaria de Obras">Secretaria de Obras</option>
+                                    <option value="Secretaria de Saúde">Secretaria de Saúde</option>
+                                    <option value="Secretaria de Educação">Secretaria de Educação</option>
+                                    <option value="Gabinete do Prefeito">Gabinete do Prefeito</option>
+                                    <option value="Procuradoria Jurídica">Procuradoria Jurídica</option>
+                                    <option value="Controladoria">Controladoria</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="prioridade_tramitacao" class="form-label">Prioridade</label>
+                                <select class="form-select" id="prioridade_tramitacao" name="prioridade">
+                                    <option value="normal">Normal</option>
+                                    <option value="alta">Alta</option>
+                                    <option value="urgente">Urgente</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="observacoes_tramitacao" class="form-label">Observações da Tramitação</label>
+                        <textarea class="form-control" id="observacoes_tramitacao" name="observacoes" rows="4" 
+                                  placeholder="Digite observações internas sobre esta tramitação (não visível ao cidadão)..."></textarea>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>Tramitar
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('tramitacaoForm').reset()">
+                            <i class="fas fa-undo me-1"></i>Limpar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Ações -->
     <div class="row">
         <div class="col-12">
@@ -656,13 +707,9 @@
                 
                 <div class="action-buttons">
                     @if(($manifestacao->status ?? 'pendente') != 'arquivada')
-                    <button type="button" class="btn-action btn-respond" onclick="openResponseModal()">
+                    <button type="button" class="btn-action btn-respond" onclick="openResponseModal({{ $manifestacao->id ?? 1 }})">
                         <i class="fas fa-reply me-2"></i>Responder Manifestação
                     </button>
-                    
-                    <a href="{{ route('admin.ouvidoria-manifestacoes.edit', $manifestacao->id ?? 1) }}" class="btn-action btn-edit">
-                        <i class="fas fa-edit me-2"></i>Editar Manifestação
-                    </a>
                     @endif
                     
                     <button type="button" class="btn-action btn-archive" onclick="archiveManifestacao()">
@@ -691,7 +738,8 @@
                 <h5 class="modal-title">Responder Manifestação #{{ $manifestacao->protocolo ?? 'OUV000001' }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="responseForm">
+            <form id="responseForm" action="{{ route('admin.ouvidoria-manifestacoes.responder', $manifestacao->id ?? 1) }}" method="POST">
+                @csrf
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="response_status" class="form-label">Novo Status</label>

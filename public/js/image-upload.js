@@ -1,14 +1,14 @@
 // Image Upload Component JavaScript
 
 document.addEventListener('DOMContentLoaded', function() {
-    const uploadComponents = document.querySelectorAll('.image-upload-component');
+    const uploadComponents = document.querySelectorAll('.file-upload-component');
     
     uploadComponents.forEach(function(component) {
-        initImageUpload(component);
+        initFileUpload(component);
     });
 });
 
-function initImageUpload(component) {
+function initFileUpload(component) {
     const fileInput = component.querySelector('.file-input');
     const uploadZone = component.querySelector('.upload-zone');
     const previewArea = component.querySelector('.preview-area');
@@ -22,6 +22,7 @@ function initImageUpload(component) {
     const multiple = component.dataset.multiple === 'true';
     const maxFiles = parseInt(component.dataset.maxFiles);
     const maxSize = parseInt(component.dataset.maxSize) * 1024; // Convert to bytes
+    const allowPdf = component.dataset.allowPdf === 'true';
     
     let selectedFiles = [];
     let uploadedFiles = [];
@@ -101,16 +102,23 @@ function initImageUpload(component) {
 
     function validateFile(file) {
         // Check file type
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        let allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        let typeMessage = 'Use apenas imagens (JPEG, PNG, GIF, WebP)';
+        
+        if (allowPdf) {
+            allowedTypes.push('application/pdf');
+            typeMessage = 'Use apenas imagens (JPEG, PNG, GIF, WebP) ou arquivos PDF';
+        }
+        
         if (!allowedTypes.includes(file.type)) {
-            showError(`Tipo de arquivo não permitido: ${file.name}. Use apenas imagens (JPEG, PNG, GIF, WebP).`);
+            showError(`Tipo de arquivo não permitido: ${file.name}. ${typeMessage}.`);
             return false;
         }
         
         // Check file size
         if (file.size > maxSize) {
-            const maxSizeMB = maxSize / 1024;
-            showError(`Arquivo muito grande: ${file.name}. Tamanho máximo: ${maxSizeMB}KB.`);
+            const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(1);
+            showError(`Arquivo muito grande: ${file.name}. Tamanho máximo: ${maxSizeMB}MB.`);
             return false;
         }
         
@@ -130,34 +138,61 @@ function initImageUpload(component) {
 
     function createPreviewItem(file, index) {
         const div = document.createElement('div');
-        div.className = 'preview-item';
-        
-        const img = document.createElement('img');
-        img.className = 'preview-image';
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+        div.className = 'preview-item col-md-4 col-sm-6';
         
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
-        removeBtn.className = 'btn-remove';
-        removeBtn.innerHTML = '×';
+        removeBtn.className = 'remove-btn';
+        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
         removeBtn.onclick = function() {
             removeFile(index);
         };
         
+        const fileInfo = document.createElement('div');
+        fileInfo.className = 'file-info';
+        
         const fileName = document.createElement('div');
         fileName.className = 'file-name';
-        fileName.textContent = file.name;
+        fileName.textContent = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
+        fileName.title = file.name;
         
-        div.appendChild(img);
+        const fileSize = document.createElement('div');
+        fileSize.className = 'file-size';
+        fileSize.textContent = formatFileSize(file.size);
+        
+        if (file.type.startsWith('image/')) {
+            const img = document.createElement('img');
+            img.className = 'preview-image';
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            
+            div.appendChild(img);
+        } else if (file.type === 'application/pdf') {
+            const pdfIcon = document.createElement('div');
+            pdfIcon.className = 'pdf-preview';
+            pdfIcon.innerHTML = '<i class="fas fa-file-pdf fa-4x text-danger"></i>';
+            div.appendChild(pdfIcon);
+        }
+        
+        fileInfo.appendChild(fileName);
+        fileInfo.appendChild(fileSize);
+        
         div.appendChild(removeBtn);
-        div.appendChild(fileName);
+        div.appendChild(fileInfo);
         
         return div;
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
     function removeFile(index) {
@@ -193,4 +228,5 @@ function initImageUpload(component) {
 }
 
 // Export functions globally
-window.initImageUpload = initImageUpload;
+window.initFileUpload = initFileUpload;
+window.initImageUpload = initFileUpload; // Backward compatibility

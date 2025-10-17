@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'permission' => \App\Http\Middleware\PermissionMiddleware::class,
             'cidadao.auth' => \App\Http\Middleware\CidadaoAuth::class,
+            'ouvidor' => \App\Http\Middleware\OuvidorMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -14,6 +14,7 @@ class OuvidoriaManifestacao extends Model
     protected $table = 'ouvidoria_manifestacoes';
 
     // Constantes de status
+    const STATUS_RECEBIDA = 'recebida';
     const STATUS_NOVA = 'nova';
     const STATUS_EM_ANALISE = 'em_analise';
     const STATUS_EM_TRAMITACAO = 'em_tramitacao';
@@ -67,19 +68,14 @@ class OuvidoriaManifestacao extends Model
     ];
 
     // Relacionamentos
-    public function esicUsuario()
-    {
-        return $this->belongsTo(EsicUsuario::class, 'esic_usuario_id');
-    }
-
     public function ouvidorResponsavel()
     {
-        return $this->belongsTo(Ouvidor::class, 'ouvidor_responsavel_id');
+        return $this->belongsTo(User::class, 'ouvidor_responsavel_id');
     }
 
     public function respondidaPor()
     {
-        return $this->belongsTo(Ouvidor::class, 'respondida_por');
+        return $this->belongsTo(User::class, 'respondida_por');
     }
 
     public function anexos()
@@ -87,9 +83,9 @@ class OuvidoriaManifestacao extends Model
         return $this->hasMany(ManifestacaoAnexo::class, 'manifestacao_id');
     }
 
-    public function notificacoes()
+    public function movimentacoes()
     {
-        return $this->hasMany(Notificacao::class, 'manifestacao_id');
+        return $this->hasMany(OuvidoriaMovimentacao::class, 'ouvidoria_manifestacao_id');
     }
 
     // Scopes
@@ -115,7 +111,7 @@ class OuvidoriaManifestacao extends Model
 
     public function scopePendentes($query)
     {
-        return $query->whereIn('status', ['nova', 'em_analise', 'em_tramitacao', 'aguardando_informacoes']);
+        return $query->whereIn('status', ['recebida', 'nova', 'em_analise', 'em_tramitacao', 'aguardando_informacoes']);
     }
 
     public function scopeConcluidas($query)
@@ -168,6 +164,7 @@ class OuvidoriaManifestacao extends Model
     public function getStatusDescricaoAttribute()
     {
         $status = [
+            'recebida' => 'Recebida',
             'nova' => 'Nova',
             'em_analise' => 'Em Análise',
             'em_tramitacao' => 'Em Tramitação',
@@ -219,7 +216,7 @@ class OuvidoriaManifestacao extends Model
             return 'Manifestação Anônima';
         }
         
-        return $this->nome_manifestante ?? $this->esicUsuario?->nome ?? 'Não informado';
+        return $this->nome_manifestante ?? 'Não informado';
     }
 
     public function getManifestanteEmailAttribute()
@@ -228,7 +225,7 @@ class OuvidoriaManifestacao extends Model
             return null;
         }
         
-        return $this->email_manifestante ?? $this->esicUsuario?->email;
+        return $this->email_manifestante;
     }
 
     // Métodos auxiliares
@@ -285,7 +282,6 @@ class OuvidoriaManifestacao extends Model
         $tipo = $this->isEsic() ? 'ESIC' : 'OUV';
         
         $this->protocolo = sprintf('%s%04d%06d', $tipo, $ano, $sequencial);
-        $this->save();
         
         return $this->protocolo;
     }
