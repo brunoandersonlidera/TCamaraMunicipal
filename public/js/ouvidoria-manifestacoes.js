@@ -34,13 +34,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Se não tem manifestacaoId no atributo, pega da URL ou elemento da página
             let url;
             if (manifestacaoId) {
-                url = `/admin/ouvidoria-manifestacoes/${manifestacaoId}/respond`;
+                url = `/admin/ouvidoria-manifestacoes/${manifestacaoId}/responder`;
             } else {
                 // Para show.blade.php, pega o ID da URL atual ou de um elemento hidden
                 const currentUrl = window.location.pathname;
                 const match = currentUrl.match(/\/admin\/ouvidoria-manifestacoes\/(\d+)/);
                 if (match) {
-                    url = `/admin/ouvidoria-manifestacoes/${match[1]}/respond`;
+                    url = `/admin/ouvidoria-manifestacoes/${match[1]}/responder`;
                 } else {
                     alert('Erro: ID da manifestação não encontrado');
                     return;
@@ -51,21 +51,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Resposta não é JSON válido');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     bootstrap.Modal.getInstance(document.getElementById('responseModal')).hide();
                     location.reload();
                 } else {
-                    alert('Erro ao enviar resposta');
+                    alert(data.message || 'Erro ao enviar resposta');
                 }
             })
             .catch(error => {
                 console.error('Erro:', error);
-                alert('Erro ao enviar resposta');
+                alert('Erro ao enviar resposta: ' + error.message);
             });
         });
     }

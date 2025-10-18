@@ -46,7 +46,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function init() {
         setupEventListeners();
         setupDragAndDrop();
-        loadMedia();
+        // Não carregar automaticamente via AJAX - preservar conteúdo renderizado pelo servidor
+        // loadMedia() será chamado apenas quando filtros forem aplicados
     }
 
     /**
@@ -263,13 +264,23 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function getFileIcon(mimeType) {
         const icons = {
-            'application/pdf': '<i class="fas fa-file-pdf text-danger"></i>',
-            'text/plain': '<i class="fas fa-file-alt text-secondary"></i>',
-            'application/msword': '<i class="fas fa-file-word text-primary"></i>',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '<i class="fas fa-file-word text-primary"></i>'
+            'application/pdf': '<i class="fas fa-file-pdf text-danger fa-3x"></i>',
+            'text/plain': '<i class="fas fa-file-alt text-secondary fa-3x"></i>',
+            'application/msword': '<i class="fas fa-file-word text-primary fa-3x"></i>',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '<i class="fas fa-file-word text-primary fa-3x"></i>',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '<i class="fas fa-file-excel text-success fa-3x"></i>',
+            'application/vnd.ms-excel': '<i class="fas fa-file-excel text-success fa-3x"></i>',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation': '<i class="fas fa-file-powerpoint text-warning fa-3x"></i>',
+            'application/vnd.ms-powerpoint': '<i class="fas fa-file-powerpoint text-warning fa-3x"></i>',
+            'application/zip': '<i class="fas fa-file-archive text-info fa-3x"></i>',
+            'application/x-rar-compressed': '<i class="fas fa-file-archive text-info fa-3x"></i>',
+            'video/mp4': '<i class="fas fa-file-video text-purple fa-3x"></i>',
+            'video/avi': '<i class="fas fa-file-video text-purple fa-3x"></i>',
+            'audio/mp3': '<i class="fas fa-file-audio text-success fa-3x"></i>',
+            'audio/wav': '<i class="fas fa-file-audio text-success fa-3x"></i>'
         };
 
-        return icons[mimeType] || '<i class="fas fa-file text-secondary"></i>';
+        return icons[mimeType] || '<i class="fas fa-file text-secondary fa-3x"></i>';
     }
 
     /**
@@ -622,38 +633,42 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function createMediaCard(media) {
         const isImage = media.mime_type && media.mime_type.startsWith('image/');
-        // Prefer backend-provided URL (appended accessor), fallback to public_url or route by file_name
-        const thumbnail = isImage ? (media.url || media.public_url || `/media/${media.file_name}`) : getFileIcon(media.mime_type);
+        const thumbnail = media.url || media.public_url || `/media/${media.file_name}`;
+        const title = media.title || media.original_name || media.name || media.file_name || '';
+        const categoryName = media.mediaCategory ? media.mediaCategory.name : 'Outros';
 
         return `
-            <div class="col-md-3 col-sm-4 col-6 mb-4">
-                <div class="media-card" data-id="${media.id}">
-                    <div class="media-checkbox">
-                        <input type="checkbox" class="form-check-input" value="${media.id}">
-                    </div>
-                    <div class="media-thumbnail">
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-3">
+                <div class="media-item card h-100" data-id="${media.id}">
+                    <div class="media-preview">
                         ${isImage ? 
-                            `<img src="${thumbnail}" alt="${media.alt_text || media.original_name}" class="img-fluid media-thumbnail" loading="lazy">` :
-                            `<div class="file-icon-large">${thumbnail}</div>`
+                            `<img src="${thumbnail}" alt="${media.alt_text || title}" class="card-img-top media-thumbnail">` :
+                            `<div class="card-img-top media-icon d-flex align-items-center justify-content-center" style="height: 150px;">
+                                ${getFileIcon(media.mime_type)}
+                            </div>`
                         }
-                    </div>
-                    <div class="media-info">
-                        <div class="media-title" title="${media.original_name || media.name || media.file_name || ''}">${media.original_name || media.name || media.file_name || ''}</div>
-                        <div class="media-meta">
-                            <small class="text-muted">${media.formatted_size || formatFileSize(media.size) || '-'}</small>
-                            <small class="text-muted">${media.category || media.collection_name || '-'}</small>
+                        <div class="media-overlay">
+                            <div class="media-actions">
+                                <button class="btn btn-sm btn-primary view-media" data-id="${media.id}" title="Visualizar">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-info edit-media" data-id="${media.id}" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-media" data-id="${media.id}" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="media-actions">
-                        <button class="btn btn-sm btn-outline-primary view-media" data-id="${media.id}" onclick="viewMedia(${media.id})">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary edit-media" data-id="${media.id}" onclick="editMedia(${media.id})">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger delete-media" data-id="${media.id}" onclick="deleteMedia(${media.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                    <div class="card-body p-2">
+                        <h6 class="card-title text-truncate mb-1" title="${title}">
+                            ${title}
+                        </h6>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">${media.formatted_size || '-'}</small>
+                            <small class="badge bg-primary text-white">${categoryName}</small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -775,40 +790,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.editMedia = function(id) {
         console.log('editMedia called with ID:', id);
-        fetch(`/test-media-api/${id}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(async response => {
-                if (!response.ok) {
-                    const text = await response.text();
-                    throw new Error(`HTTP ${response.status}: ${text.slice(0, 200)}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    const media = data.data;
-                    console.debug('Media (edit):', media);
-                    const modal = document.getElementById('editModal');
-                    
-                    // Preencher formulário
-                    document.getElementById('editMediaId').value = media.id;
-                    document.getElementById('editTitle').value = media.title || media.original_name || media.name || '';
-                    document.getElementById('editAltText').value = media.alt_text || '';
-                    document.getElementById('editDescription').value = media.description || '';
-                    document.getElementById('editCategory').value = media.category || media.collection_name || '';
-                    
-                    showBootstrapModal(modal);
-                }
-            })
-            .catch(error => {
-                console.error('Erro ao carregar mídia:', error);
-                showAlert('Erro ao carregar informações da mídia', 'danger');
-            });
+        // Redirecionar para a página de edição
+        window.location.href = `/admin/media/${id}/edit`;
     };
 
     window.deleteMedia = function(id) {
@@ -847,13 +830,65 @@ document.addEventListener('DOMContentLoaded', function() {
     // Salvar edição
     const saveEditBtn = document.getElementById('saveEditBtn');
     if (saveEditBtn) {
+        console.log('BOTÃO SALVAR ENCONTRADO E LISTENER ADICIONADO');
         saveEditBtn.addEventListener('click', function() {
+            console.log('BOTÃO SALVAR CLICADO!');
+            alert('Botão salvar foi clicado! Vamos verificar os dados...');
+            
             const form = document.getElementById('editForm');
             const formData = new FormData(form);
             const id = document.getElementById('editMediaId').value;
             
+            alert('ID encontrado: ' + id);
+            
             // Adicionar _method para Laravel reconhecer como PUT
             formData.append('_method', 'PUT');
+            
+            // Adicionar o campo de descrição que está fora do formulário
+            const description = document.getElementById('editDescription').value;
+            formData.append('description', description);
+            
+            // Verificar se a categoria foi selecionada
+            const categoryId = document.getElementById('editCategory').value;
+            if (!categoryId) {
+                showAlert('Por favor, selecione uma categoria', 'warning');
+                return;
+            }
+            
+            // Adicionar informações de debug
+            formData.append('debug_info', JSON.stringify({
+                'browser': navigator.userAgent,
+                'timestamp': new Date().toISOString(),
+                'form_fields': {
+                    'title': document.getElementById('editTitle')?.value,
+                    'category_id': categoryId,
+                    'alt_text': document.getElementById('editAltText')?.value,
+                    'has_description': !!description
+                }
+            }));
+            
+            // Mostrar informações no console para debug
+            console.log('=== DEBUG MEDIA UPDATE ===');
+            console.log('ID do campo editMediaId:', id);
+            console.log('Tipo do ID:', typeof id);
+            console.log('ID é válido?', id && id !== '');
+            console.log('URL da requisição:', `/admin/media/${id}`);
+            console.log('Campos do formulário:', {
+                'title': document.getElementById('editTitle')?.value,
+                'category_id': categoryId,
+                'alt_text': document.getElementById('editAltText')?.value,
+                'description': description?.substring(0, 50) + (description?.length > 50 ? '...' : '')
+            });
+            
+            // Verificar se o ID é válido antes de enviar
+            if (!id || id === '') {
+                showAlert('Erro: ID da mídia não encontrado', 'danger');
+                return;
+            }
+            
+            // Desabilitar botão durante o envio
+            saveEditBtn.disabled = true;
+            saveEditBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Salvando...';
             
             fetch(`/admin/media/${id}`, {
                 method: 'POST',
@@ -865,24 +900,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: formData
             })
             .then(async response => {
+                console.log('Resposta recebida:', response.status, response.statusText);
+                
                 if (!response.ok) {
                     const text = await response.text();
+                    console.error('Erro na resposta:', text);
                     throw new Error(`HTTP ${response.status}: ${text.slice(0, 200)}`);
                 }
-                return response.json();
+                
+                try {
+                    return response.json();
+                } catch (e) {
+                    console.error('Erro ao processar JSON:', e);
+                    const text = await response.text();
+                    console.log('Resposta não-JSON:', text.substring(0, 500));
+                    throw new Error('Resposta inválida do servidor');
+                }
             })
             .then(data => {
+                console.log('Dados recebidos:', data);
+                
                 if (data.success) {
                     showAlert(data.message, 'success');
                     hideBootstrapModal(document.getElementById('editModal'));
                     loadMedia(); // Recarregar lista
                 } else {
+                    console.error('Erro reportado pelo servidor:', data);
                     showAlert(data.message || 'Erro ao salvar alterações', 'danger');
                 }
             })
             .catch(error => {
                 console.error('Erro ao salvar mídia:', error);
-                showAlert('Erro ao salvar alterações', 'danger');
+                showAlert('Erro ao salvar alterações: ' + error.message, 'danger');
+            })
+            .finally(() => {
+                // Reabilitar botão após o envio
+                saveEditBtn.disabled = false;
+                saveEditBtn.innerHTML = '<i class="fas fa-save me-1"></i>Salvar Alterações';
             });
         });
     }
@@ -907,6 +961,182 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
+    /**
+     * Funcionalidade de arrastar modais
+     */
+    function makeDraggable(modal) {
+        if (!modal) return;
+        
+        const modalDialog = modal.querySelector('.modal-dialog');
+        const modalHeader = modal.querySelector('.modal-header');
+        
+        if (!modalDialog || !modalHeader) return;
+        
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let currentX = 0;
+        let currentY = 0;
+        
+        // Adicionar classe CSS para indicar que é arrastável
+        modalHeader.classList.add('draggable-header');
+        modalDialog.classList.add('draggable-modal');
+        
+        function getEventPos(e) {
+            return {
+                x: e.type.includes('touch') ? e.touches[0].clientX : e.clientX,
+                y: e.type.includes('touch') ? e.touches[0].clientY : e.clientY
+            };
+        }
+        
+        function dragStart(e) {
+            // Verificar se o clique foi no cabeçalho e não em botões
+            if (e.target.closest('.btn-close') || e.target.closest('button') || e.target.closest('.btn')) {
+                return;
+            }
+            
+            // Verificar se o clique foi realmente no cabeçalho
+            if (!modalHeader.contains(e.target)) {
+                return;
+            }
+            
+            const pos = getEventPos(e);
+            startX = pos.x - currentX;
+            startY = pos.y - currentY;
+            
+            isDragging = true;
+            modalDialog.style.transition = 'none';
+            modalHeader.style.cursor = 'grabbing';
+            document.body.style.userSelect = 'none';
+            
+            e.preventDefault();
+        }
+        
+        function dragEnd(e) {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            modalDialog.style.transition = '';
+            modalHeader.style.cursor = 'grab';
+            document.body.style.userSelect = '';
+        }
+        
+        function drag(e) {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            
+            const pos = getEventPos(e);
+            let newX = pos.x - startX;
+            let newY = pos.y - startY;
+            
+            // Obter dimensões da janela e do modal
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            const modalRect = modalDialog.getBoundingClientRect();
+            
+            // Limitar movimento para manter o modal visível
+            const minX = -(modalRect.width - 100); // Deixar pelo menos 100px visível
+            const maxX = windowWidth - 100;
+            const minY = 0; // Não deixar subir acima do topo
+            const maxY = windowHeight - 100; // Deixar pelo menos 100px visível
+            
+            newX = Math.max(minX, Math.min(maxX, newX));
+            newY = Math.max(minY, Math.min(maxY, newY));
+            
+            currentX = newX;
+            currentY = newY;
+            
+            modalDialog.style.transform = `translate(${currentX}px, ${currentY}px)`;
+        }
+        
+        // Event listeners para mouse
+        modalHeader.addEventListener('mousedown', dragStart, { passive: false });
+        document.addEventListener('mouseup', dragEnd);
+        document.addEventListener('mousemove', drag, { passive: false });
+        
+        // Event listeners para touch (dispositivos móveis)
+        modalHeader.addEventListener('touchstart', dragStart, { passive: false });
+        document.addEventListener('touchend', dragEnd);
+        document.addEventListener('touchmove', drag, { passive: false });
+        
+        // Reset position quando o modal é fechado
+        modal.addEventListener('hidden.bs.modal', function() {
+            currentX = 0;
+            currentY = 0;
+            modalDialog.style.transform = '';
+            modalDialog.style.transition = '';
+            modalHeader.style.cursor = 'grab';
+            document.body.style.userSelect = '';
+        });
+        
+        // Reset position quando o modal é aberto
+        modal.addEventListener('shown.bs.modal', function() {
+            currentX = 0;
+            currentY = 0;
+            modalDialog.style.transform = '';
+            modalHeader.style.cursor = 'grab';
+        });
+    }
+    
+    /**
+     * Inicializar funcionalidade de arrastar para todos os modais
+     */
+    function initDraggableModals() {
+        // Modais da biblioteca de mídia
+        const modals = [
+            document.getElementById('uploadModal'),
+            document.getElementById('viewModal'),
+            document.getElementById('editModal'),
+            document.getElementById('mediaSelectModal'),
+            document.getElementById('mediaSelectorModal')
+        ];
+        
+        modals.forEach(modal => {
+            if (modal) {
+                makeDraggable(modal);
+            }
+        });
+        
+        // Observer para novos modais que possam ser criados dinamicamente
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1 && node.classList && node.classList.contains('modal')) {
+                        makeDraggable(node);
+                    }
+                });
+            });
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
     // Inicializar quando o DOM estiver pronto
     init();
+    initDraggableModals();
+
+    /**
+     * Função para abrir a biblioteca de mídia (exportada globalmente)
+     */
+    window.openMediaLibrary = function(options = {}) {
+        const modal = document.getElementById('mediaSelectModal');
+        if (!modal) {
+            console.error('Modal mediaSelectModal não encontrado');
+            return;
+        }
+
+        // Configurar opções
+        window.mediaLibraryOptions = {
+            multiple: options.multiple || false,
+            type: options.type || 'all',
+            onSelect: options.onSelect || function() {}
+        };
+
+        // Abrir modal
+        showBootstrapModal(modal);
+    };
 });

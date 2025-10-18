@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\EsicUsuario;
 use App\Models\OuvidoriaManifestacao;
-use App\Models\Ouvidor;
 use App\Models\CartaServico;
 use App\Models\Notificacao;
 use Illuminate\Http\Request;
@@ -49,9 +48,9 @@ class DashboardController extends Controller
                                                               ->value('media'),
             ],
             'ouvidores' => [
-                'total' => Ouvidor::count(),
-                'ativos' => Ouvidor::where('ativo', true)->count(),
-                'com_manifestacoes' => Ouvidor::has('manifestacoes')->count(),
+                'total' => \App\Models\User::ouvidores()->count(),
+                'ativos' => \App\Models\User::ouvidores()->active()->count(),
+                'com_manifestacoes' => \App\Models\User::ouvidores()->has('manifestacoesResponsavel')->count(),
             ],
             'cartas_servico' => [
                 'total' => CartaServico::count(),
@@ -205,7 +204,7 @@ class DashboardController extends Controller
                 'tipo' => 'danger',
                 'titulo' => 'Manifestações com Prazo Vencido',
                 'mensagem' => "{$prazoVencido} manifestação(ões) estão com prazo de resposta vencido.",
-                'link' => route('admin.ouvidoria.manifestacoes.index', ['prazo_vencido' => 1]),
+                'link' => route('admin.ouvidoria-manifestacoes.index', ['prazo_vencido' => 1]),
             ];
         }
 
@@ -220,7 +219,7 @@ class DashboardController extends Controller
                 'tipo' => 'warning',
                 'titulo' => 'Manifestações Próximas do Vencimento',
                 'mensagem' => "{$proximoVencimento} manifestação(ões) vencem em até 3 dias.",
-                'link' => route('admin.ouvidoria.manifestacoes.index', ['proximo_vencimento' => 1]),
+                'link' => route('admin.ouvidoria-manifestacoes.index', ['proximo_vencimento' => 1]),
             ];
         }
 
@@ -244,20 +243,20 @@ class DashboardController extends Controller
      */
     private function getPerformanceOuvidores($dataInicio)
     {
-        return Ouvidor::with('user')
+        return \App\Models\User::ouvidores()
+                     ->active()
                      ->withCount([
-                         'manifestacoes',
-                         'manifestacoes as manifestacoes_periodo' => function ($query) use ($dataInicio) {
+                         'manifestacoesResponsavel as manifestacoes_count',
+                         'manifestacoesResponsavel as manifestacoes_periodo' => function ($query) use ($dataInicio) {
                              $query->where('created_at', '>=', $dataInicio);
                          },
-                         'manifestacoes as manifestacoes_respondidas' => function ($query) {
+                         'manifestacoesResponsavel as manifestacoes_respondidas' => function ($query) {
                              $query->where('status', 'respondida');
                          }
                      ])
-                     ->where('ativo', true)
                      ->get()
                      ->map(function ($ouvidor) {
-                         $tempoMedioResposta = $ouvidor->manifestacoes()
+                         $tempoMedioResposta = $ouvidor->manifestacoesResponsavel()
                                                      ->whereNotNull('data_resposta')
                                                      ->selectRaw('AVG(DATEDIFF(data_resposta, created_at)) as media')
                                                      ->value('media');

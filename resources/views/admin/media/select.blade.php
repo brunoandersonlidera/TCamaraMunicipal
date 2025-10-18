@@ -88,15 +88,15 @@
 
     <div class="media-selector-grid" style="max-height: 400px; overflow-y: auto;">
         <div class="row" id="mediaSelectGrid">
-            @forelse($medias as $media)
+            @forelse($media as $mediaItem)
                 <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-2">
-                    <div class="media-select-item" data-id="{{ $media->id }}" data-url="{{ $media->url }}" data-path="{{ $media->path }}" data-title="{{ $media->title ?: $media->original_name }}">
+                    <div class="media-select-item" data-id="{{ $mediaItem->id }}" data-url="{{ $mediaItem->url }}" data-path="{{ $mediaItem->path }}" data-title="{{ $mediaItem->title ?: $mediaItem->original_name }}">
                         <div class="media-select-preview">
-                            @if($media->is_image)
-                                <img src="{{ $media->url }}" alt="{{ $media->alt_text }}" class="img-fluid">
+                            @if($mediaItem->is_image)
+                                <img src="{{ $mediaItem->url }}" alt="{{ $mediaItem->alt_text }}" class="img-fluid">
                             @else
                                 <div class="media-select-icon d-flex align-items-center justify-content-center">
-                                    <i class="fas {{ $media->icon }} fa-2x text-muted"></i>
+                                    <i class="fas {{ $mediaItem->icon }} fa-2x text-muted"></i>
                                 </div>
                             @endif
                             <div class="media-select-overlay">
@@ -104,8 +104,8 @@
                             </div>
                         </div>
                         <div class="media-select-info p-1">
-                            <small class="text-truncate d-block" title="{{ $media->title ?: $media->original_name }}">
-                                {{ $media->title ?: $media->original_name }}
+                            <small class="text-truncate d-block" title="{{ $mediaItem->title ?: $mediaItem->original_name }}">
+                                {{ $mediaItem->title ?: $mediaItem->original_name }}
                             </small>
                         </div>
                     </div>
@@ -121,20 +121,20 @@
         </div>
     </div>
 
-    @if($medias->hasPages())
+    @if($media->hasPages())
         <div class="media-selector-pagination mt-3">
             <nav>
                 <ul class="pagination pagination-sm justify-content-center">
                     {{-- Previous Page Link --}}
-                    @if ($medias->onFirstPage())
+                    @if ($media->onFirstPage())
                         <li class="page-item disabled"><span class="page-link">‹</span></li>
                     @else
-                        <li class="page-item"><a class="page-link" href="#" data-page="{{ $medias->currentPage() - 1 }}">‹</a></li>
+                        <li class="page-item"><a class="page-link" href="#" data-page="{{ $media->currentPage() - 1 }}">‹</a></li>
                     @endif
 
                     {{-- Pagination Elements --}}
-                    @foreach ($medias->getUrlRange(1, $medias->lastPage()) as $page => $url)
-                        @if ($page == $medias->currentPage())
+                    @foreach ($media->getUrlRange(1, $media->lastPage()) as $page => $url)
+                        @if ($page == $media->currentPage())
                             <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
                         @else
                             <li class="page-item"><a class="page-link" href="#" data-page="{{ $page }}">{{ $page }}</a></li>
@@ -142,8 +142,8 @@
                     @endforeach
 
                     {{-- Next Page Link --}}
-                    @if ($medias->hasMorePages())
-                        <li class="page-item"><a class="page-link" href="#" data-page="{{ $medias->currentPage() + 1 }}">›</a></li>
+                    @if ($media->hasMorePages())
+                        <li class="page-item"><a class="page-link" href="#" data-page="{{ $media->currentPage() + 1 }}">›</a></li>
                     @else
                         <li class="page-item disabled"><span class="page-link">›</span></li>
                     @endif

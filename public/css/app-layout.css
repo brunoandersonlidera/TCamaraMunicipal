@@ -1539,9 +1539,9 @@ nav.navbar-custom .navbar-nav .dropdown:hover .dropdown-menu {
     display: none !important;
 }
 
-.btn-search {
+/* .btn-search {
     display: none !important;
-}
+} */
 
 /* Botão e-SIC Fixo na Toolbar */
 .esic-container-fixed {

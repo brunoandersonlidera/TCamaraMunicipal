@@ -167,6 +167,12 @@
                                 </a></li>
                                 <li><hr class="dropdown-divider"></li>
                             @endif
+                            @if(auth()->user()->isOuvidor())
+                                <li><a class="dropdown-item" href="{{ route('ouvidor.dashboard') }}">
+                                    <i class="fas fa-headset me-2"></i>Painel do Ouvidor
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                            @endif
                             <li><a class="dropdown-item" href="{{ route('cidadao.dashboard') }}">
                                 <i class="fas fa-tachometer-alt me-2"></i>Dashboard do Cidadão
                             </a></li>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\OuvidoriaManifestacao;
 use App\Models\OuvidoriaMovimentacao;
+use App\Models\ManifestacaoAnexo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
@@ -18,9 +19,61 @@ class OuvidoriaController extends Controller
     public function index()
     {
         try {
+            // Estatísticas gerais
+            $totalManifestacoes = OuvidoriaManifestacao::count();
+            $manifestacoesMes = OuvidoriaManifestacao::whereMonth('created_at', now()->month)->count();
+            $manifestacoesAno = OuvidoriaManifestacao::whereYear('created_at', now()->year)->count();
+            
+            // Estatísticas por status
+            $porStatus = [
+                'nova' => OuvidoriaManifestacao::where('status', 'nova')->count(),
+                'em_analise' => OuvidoriaManifestacao::where('status', 'em_analise')->count(),
+                'em_tramitacao' => OuvidoriaManifestacao::where('status', 'em_tramitacao')->count(),
+                'aguardando_informacoes' => OuvidoriaManifestacao::where('status', 'aguardando_informacoes')->count(),
+                'respondida' => OuvidoriaManifestacao::where('status', 'respondida')->count(),
+                'finalizada' => OuvidoriaManifestacao::where('status', 'finalizada')->count(),
+                'arquivada' => OuvidoriaManifestacao::where('status', 'arquivada')->count()
+            ];
+
+            // Estatísticas por tipo
+            $porTipo = [
+                'reclamacao' => OuvidoriaManifestacao::where('tipo', 'reclamacao')->count(),
+                'sugestao' => OuvidoriaManifestacao::where('tipo', 'sugestao')->count(),
+                'elogio' => OuvidoriaManifestacao::where('tipo', 'elogio')->count(),
+                'denuncia' => OuvidoriaManifestacao::where('tipo', 'denuncia')->count(),
+                'informacao' => OuvidoriaManifestacao::where('tipo', 'informacao')->count()
+            ];
+
+            // Manifestações dos últimos 6 meses
+            $manifestacoesPorMes = [];
+            for ($i = 5; $i >= 0; $i--) {
+                $mes = now()->subMonths($i);
+                $manifestacoesPorMes[] = [
+                    'mes' => $mes->format('M/Y'),
+                    'total' => OuvidoriaManifestacao::whereMonth('created_at', $mes->month)
+                                                  ->whereYear('created_at', $mes->year)
+                                                  ->count()
+                ];
+            }
+
+            // Manifestações pendentes (prazo)
+            $prazoVencido = OuvidoriaManifestacao::where('prazo_resposta', '<', now()->toDateString())
+                                                ->whereNotIn('status', ['respondida', 'finalizada', 'arquivada'])
+                                                ->count();
+            
+            $prazoVencendoHoje = OuvidoriaManifestacao::where('prazo_resposta', now()->toDateString())
+                                                     ->whereNotIn('status', ['respondida', 'finalizada', 'arquivada'])
+                                                     ->count();
+
             $estatisticas = [
-                'total_manifestacoes' => OuvidoriaManifestacao::count(),
-                'manifestacoes_mes' => OuvidoriaManifestacao::whereMonth('created_at', now()->month)->count(),
+                'total_manifestacoes' => $totalManifestacoes,
+                'manifestacoes_mes' => $manifestacoesMes,
+                'manifestacoes_ano' => $manifestacoesAno,
+                'por_status' => $porStatus,
+                'por_tipo' => $porTipo,
+                'por_mes' => $manifestacoesPorMes,
+                'prazo_vencido' => $prazoVencido,
+                'prazo_vencendo_hoje' => $prazoVencendoHoje,
                 'tempo_medio_resposta' => 0,
                 'taxa_atendimento' => 0,
                 'por_categoria' => []
@@ -66,29 +119,28 @@ class OuvidoriaController extends Controller
     {
         $rules = [
             'tipo' => 'required|in:reclamacao,sugestao,elogio,denuncia,informacao',
-            'categoria' => 'required|in:saude,educacao,infraestrutura,transporte,meio_ambiente,seguranca,assistencia_social,administracao,outros',
             'assunto' => 'required|string|max:200',
             'descricao' => 'required|string|max:2000',
-            'localizacao' => 'nullable|string|max:255',
             'nome' => 'required_unless:anonimo,1|string|max:255',
             'email' => 'required_unless:anonimo,1|email|max:255',
             'telefone' => 'nullable|string|max:20',
             'anonimo' => 'nullable|boolean',
             'aceito_termos' => 'required|accepted',
-            'uploaded_images' => 'nullable|array|max:5',
-            'uploaded_images.*' => 'string'
+            'anexos' => 'nullable|array|max:5',
+            'anexos.*' => 'file|max:10240|mimes:jpeg,jpg,png,gif,webp,pdf'
         ];
 
         $validator = Validator::make($request->all(), $rules, [
             'tipo.required' => 'O tipo de manifestação é obrigatório.',
-            'categoria.required' => 'A categoria é obrigatória.',
             'assunto.required' => 'O assunto é obrigatório.',
             'descricao.required' => 'A descrição é obrigatória.',
             'nome.required_unless' => 'O nome é obrigatório para manifestações não anônimas.',
             'email.required_unless' => 'O e-mail é obrigatório para manifestações não anônimas.',
             'email.email' => 'O e-mail deve ser válido.',
             'aceito_termos.accepted' => 'Você deve aceitar os termos de uso.',
-            'uploaded_images.max' => 'Máximo de 5 imagens permitidas.'
+            'anexos.max' => 'Máximo de 5 arquivos permitidos.',
+            'anexos.*.max' => 'Cada arquivo deve ter no máximo 10MB.',
+            'anexos.*.mimes' => 'Apenas arquivos JPG, PNG, GIF, WebP e PDF são permitidos.'
         ]);
 
         if ($validator->fails()) {
@@ -101,47 +153,56 @@ class OuvidoriaController extends Controller
             // Criar manifestação
             $manifestacao = OuvidoriaManifestacao::create([
                 'tipo' => $request->tipo,
-                'categoria' => $request->categoria,
                 'assunto' => $request->assunto,
                 'descricao' => $request->descricao,
-                'localizacao' => $request->localizacao,
                 'nome_manifestante' => $isAnonimo ? null : $request->nome,
                 'email_manifestante' => $isAnonimo ? null : $request->email,
                 'telefone_manifestante' => $isAnonimo ? null : $request->telefone,
-                'anonima' => $isAnonimo,
-                'status' => 'aberta',
-                'data_manifestacao' => now(),
-                'ip_manifestante' => $request->ip()
+                'manifestacao_anonima' => $isAnonimo,
+                'status' => 'nova',
+                'prazo_resposta' => now()->addDays(20), // Prazo padrão de 20 dias
+                'ip_origem' => $request->ip(),
+                'user_agent' => $request->userAgent()
             ]);
 
-            // Processar imagens enviadas
-            if ($request->has('uploaded_images') && is_array($request->uploaded_images)) {
-                $imagens = [];
-                foreach ($request->uploaded_images as $imagemPath) {
-                    if (Storage::disk('public')->exists($imagemPath)) {
-                        $imagens[] = [
-                            'caminho' => $imagemPath,
-                            'nome_original' => basename($imagemPath),
-                            'tipo' => 'imagem'
-                        ];
+            // Processar anexos enviados
+            if ($request->hasFile('anexos')) {
+                foreach ($request->file('anexos') as $arquivo) {
+                    $nomeArquivo = time() . '_' . Str::random(10) . '.' . $arquivo->getClientOriginalExtension();
+                    $caminho = $arquivo->storeAs('ouvidoria/anexos/' . $manifestacao->protocolo, $nomeArquivo, 'public');
+                    
+                    // Determinar tipo de anexo baseado no MIME type
+                    $tipoAnexo = 'documento';
+                    if (str_starts_with($arquivo->getMimeType(), 'image/')) {
+                        $tipoAnexo = 'imagem';
                     }
-                }
-                if (!empty($imagens)) {
-                    $manifestacao->update(['anexos' => $imagens]);
+                    
+                    ManifestacaoAnexo::create([
+                        'manifestacao_id' => $manifestacao->id,
+                        'nome_original' => $arquivo->getClientOriginalName(),
+                        'nome_arquivo' => $nomeArquivo,
+                        'caminho_arquivo' => $caminho,
+                        'tipo_mime' => $arquivo->getMimeType(),
+                        'extensao' => $arquivo->getClientOriginalExtension(),
+                        'tamanho_bytes' => $arquivo->getSize(),
+                        'tipo_anexo' => $tipoAnexo,
+                        'hash_arquivo' => hash_file('sha256', $arquivo->getRealPath()),
+                        'ip_upload' => $request->ip()
+                    ]);
                 }
             }
 
             // Registrar movimentação inicial
             OuvidoriaMovimentacao::create([
                 'ouvidoria_manifestacao_id' => $manifestacao->id,
-                'status' => OuvidoriaManifestacao::STATUS_ABERTA,
+                'status' => 'aberta',
                 'descricao' => 'Manifestação registrada no sistema',
                 'usuario_id' => null,
                 'data_movimentacao' => now()
             ]);
 
             // Enviar e-mail de confirmação (apenas para não anônimas)
-            if (!$isAnonima) {
+            if (!$isAnonimo) {
                 $this->enviarEmailConfirmacao($manifestacao);
             }
 
@@ -162,17 +223,21 @@ class OuvidoriaController extends Controller
         $manifestacao = null;
 
         if ($request->has('protocolo') && !empty($request->protocolo)) {
-            $protocolo = preg_replace('/\D/', '', $request->protocolo);
+            // Limpar espaços e converter para maiúsculo
+            $protocolo = strtoupper(trim($request->protocolo));
             $manifestacao = OuvidoriaManifestacao::where('protocolo', $protocolo)->first();
 
             if (!$manifestacao) {
                 return back()->with('error', 'Protocolo não encontrado.');
             }
 
-            // Carregar movimentações
-            $manifestacao->load(['movimentacoes' => function($query) {
-                $query->orderBy('data_movimentacao', 'desc');
-            }]);
+            // Carregar movimentações e anexos
+            $manifestacao->load([
+                'movimentacoes' => function($query) {
+                    $query->orderBy('data_movimentacao', 'desc');
+                },
+                'anexos'
+            ]);
         }
 
         return view('ouvidoria.consultar', compact('manifestacao'));
@@ -233,7 +298,7 @@ class OuvidoriaController extends Controller
      */
     public function show($id)
     {
-        $manifestacao = OuvidoriaManifestacao::with(['responsavel', 'movimentacoes.usuario'])
+        $manifestacao = OuvidoriaManifestacao::with(['responsavel', 'movimentacoes.usuario', 'anexos'])
             ->findOrFail($id);
 
         return view('admin.ouvidoria.show', compact('manifestacao'));
@@ -311,17 +376,19 @@ class OuvidoriaController extends Controller
     /**
      * Download de anexo
      */
-    public function downloadAnexo($protocolo, $arquivo)
+    public function downloadAnexo($protocolo, $nomeArquivo)
     {
         $manifestacao = OuvidoriaManifestacao::where('protocolo', $protocolo)->firstOrFail();
         
-        $caminhoArquivo = 'ouvidoria/anexos/' . $protocolo . '/' . $arquivo;
+        $anexo = ManifestacaoAnexo::where('manifestacao_id', $manifestacao->id)
+                                 ->where('nome_arquivo', $nomeArquivo)
+                                 ->firstOrFail();
         
-        if (!Storage::disk('public')->exists($caminhoArquivo)) {
+        if (!Storage::disk('public')->exists($anexo->caminho_arquivo)) {
             abort(404, 'Arquivo não encontrado.');
         }
 
-        return Storage::disk('public')->download($caminhoArquivo);
+        return Storage::disk('public')->download($anexo->caminho_arquivo, $anexo->nome_original);
     }
 
     /**

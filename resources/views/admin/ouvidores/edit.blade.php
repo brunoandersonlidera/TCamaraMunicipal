@@ -20,27 +20,30 @@
                 </div>
 
                 <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        <strong>Funcionalidade em desenvolvimento.</strong>
-                        <p class="mb-0">Esta página está sendo desenvolvida. Em breve você poderá editar os dados do ouvidor.</p>
-                    </div>
-
-                    <form action="{{ route('admin.ouvidores.update', $ouvidor) }}" method="POST">
+                    <form action="{{ route('admin.ouvidores.update', $ouvidor) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         
+                        <h5 class="mb-3">Informações do Usuário</h5>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="nome">Nome Completo *</label>
-                                    <input type="text" class="form-control" id="nome" name="nome" value="{{ old('nome', $ouvidor->nome) }}" required>
+                                    <label for="name">Nome Completo *</label>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                                           id="name" name="name" value="{{ old('name', $ouvidor->name) }}" required>
+                                    @error('name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="email">Email *</label>
-                                    <input type="email" class="form-control" id="email" name="email" value="{{ old('email', $ouvidor->email) }}" required>
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror" 
+                                           id="email" name="email" value="{{ old('email', $ouvidor->email) }}" required>
+                                    @error('email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -48,14 +51,24 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="cargo">Cargo</label>
-                                    <input type="text" class="form-control" id="cargo" name="cargo" value="{{ old('cargo', $ouvidor->cargo) }}">
+                                    <label for="cpf">CPF</label>
+                                    <input type="text" class="form-control @error('cpf') is-invalid @enderror" 
+                                           id="cpf" name="cpf" value="{{ old('cpf', $ouvidor->cpf) }}" 
+                                           placeholder="000.000.000-00" maxlength="14">
+                                    @error('cpf')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="setor">Setor</label>
-                                    <input type="text" class="form-control" id="setor" name="setor" value="{{ old('setor', $ouvidor->setor) }}">
+                                    <label for="telefone">Telefone</label>
+                                    <input type="text" class="form-control @error('telefone') is-invalid @enderror" 
+                                           id="telefone" name="telefone" value="{{ old('telefone', $ouvidor->telefone) }}" 
+                                           placeholder="(00) 00000-0000">
+                                    @error('telefone')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -63,28 +76,116 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="tipo">Tipo *</label>
-                                    <select class="form-control" id="tipo" name="tipo" required>
+                                    <label for="password">Nova Senha (deixe em branco para manter a atual)</label>
+                                    <input type="password" class="form-control @error('password') is-invalid @enderror" 
+                                           id="password" name="password" minlength="8">
+                                    @error('password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="password_confirmation">Confirmar Nova Senha</label>
+                                    <input type="password" class="form-control" 
+                                           id="password_confirmation" name="password_confirmation" minlength="8">
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <h5 class="mb-3">Informações do Ouvidor</h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="cargo_ouvidor">Cargo</label>
+                                    <input type="text" class="form-control @error('cargo_ouvidor') is-invalid @enderror" 
+                                           id="cargo_ouvidor" name="cargo_ouvidor" value="{{ old('cargo_ouvidor', $ouvidor->cargo_ouvidor) }}">
+                                    @error('cargo_ouvidor')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="setor_ouvidor">Setor</label>
+                                    <input type="text" class="form-control @error('setor_ouvidor') is-invalid @enderror" 
+                                           id="setor_ouvidor" name="setor_ouvidor" value="{{ old('setor_ouvidor', $ouvidor->setor_ouvidor) }}">
+                                    @error('setor_ouvidor')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="especialidade_ouvidor">Especialidade *</label>
+                                    <select class="form-control @error('especialidade_ouvidor') is-invalid @enderror" 
+                                            id="especialidade_ouvidor" name="especialidade_ouvidor" required>
                                         <option value="">Selecione...</option>
-                                        <option value="ouvidoria" {{ old('tipo', $ouvidor->tipo) == 'ouvidoria' ? 'selected' : '' }}>Ouvidoria</option>
-                                        <option value="esic" {{ old('tipo', $ouvidor->tipo) == 'esic' ? 'selected' : '' }}>e-SIC</option>
+                                        <option value="ouvidoria" {{ old('especialidade_ouvidor', $ouvidor->especialidade_ouvidor) == 'ouvidoria' ? 'selected' : '' }}>Ouvidoria</option>
+                                        <option value="esic" {{ old('especialidade_ouvidor', $ouvidor->especialidade_ouvidor) == 'esic' ? 'selected' : '' }}>e-SIC</option>
+                                        <option value="ambas" {{ old('especialidade_ouvidor', $ouvidor->especialidade_ouvidor) == 'ambas' ? 'selected' : '' }}>Ambas</option>
                                     </select>
+                                    @error('especialidade_ouvidor')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="ativo">Status</label>
-                                    <select class="form-control" id="ativo" name="ativo">
-                                        <option value="1" {{ old('ativo', $ouvidor->ativo) == '1' ? 'selected' : '' }}>Ativo</option>
-                                        <option value="0" {{ old('ativo', $ouvidor->ativo) == '0' ? 'selected' : '' }}>Inativo</option>
+                                    <label for="ativo_ouvidor">Status</label>
+                                    <select class="form-control @error('ativo_ouvidor') is-invalid @enderror" 
+                                            id="ativo_ouvidor" name="ativo_ouvidor">
+                                        <option value="1" {{ old('ativo_ouvidor', $ouvidor->ativo_ouvidor) == '1' ? 'selected' : '' }}>Ativo</option>
+                                        <option value="0" {{ old('ativo_ouvidor', $ouvidor->ativo_ouvidor) == '0' ? 'selected' : '' }}>Inativo</option>
                                     </select>
+                                    @error('ativo_ouvidor')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="pode_responder_manifestacoes">Pode Responder Manifestações</label>
+                                    <select class="form-control @error('pode_responder_manifestacoes') is-invalid @enderror" 
+                                            id="pode_responder_manifestacoes" name="pode_responder_manifestacoes">
+                                        <option value="1" {{ old('pode_responder_manifestacoes', $ouvidor->pode_responder_manifestacoes) == '1' ? 'selected' : '' }}>Sim</option>
+                                        <option value="0" {{ old('pode_responder_manifestacoes', $ouvidor->pode_responder_manifestacoes) == '0' ? 'selected' : '' }}>Não</option>
+                                    </select>
+                                    @error('pode_responder_manifestacoes')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="foto">Foto do Perfil</label>
+                                    @if($ouvidor->foto)
+                                        <div class="mb-2">
+                                            <img src="{{ asset('storage/' . $ouvidor->foto) }}" alt="Foto atual" class="img-thumbnail" style="max-width: 150px;">
+                                            <p class="text-muted small">Foto atual</p>
+                                        </div>
+                                    @endif
+                                    <input type="file" class="form-control-file @error('foto') is-invalid @enderror" 
+                                           id="foto" name="foto" accept="image/*">
+                                    <small class="form-text text-muted">Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 2MB. Deixe em branco para manter a foto atual.</small>
+                                    @error('foto')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-4">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Atualizar
+                                <i class="fas fa-save"></i> Atualizar Ouvidor
                             </button>
                             <a href="{{ route('admin.ouvidores.show', $ouvidor) }}" class="btn btn-secondary">
                                 <i class="fas fa-times"></i> Cancelar

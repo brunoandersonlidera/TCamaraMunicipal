@@ -73,6 +73,7 @@
                                     <option value="">Todas as Especialidades</option>
                                     <option value="ouvidoria" {{ request('especialidade') == 'ouvidoria' ? 'selected' : '' }}>Ouvidoria</option>
                                     <option value="esic" {{ request('especialidade') == 'esic' ? 'selected' : '' }}>e-SIC</option>
+                                    <option value="ambas" {{ request('especialidade') == 'ambas' ? 'selected' : '' }}>Ambas</option>
                                 </select>
                             </div>
                             <div class="col-md-2">
@@ -102,27 +103,28 @@
                                 @forelse($ouvidores as $ouvidor)
                                 <tr>
                                     <td>
-                                        <strong>{{ $ouvidor->nome }}</strong>
-                                        @if($ouvidor->user)
-                                            <br><small class="text-muted">{{ $ouvidor->user->name }}</small>
+                                        <strong>{{ $ouvidor->name }}</strong>
+                                        <br><small class="text-muted">{{ $ouvidor->email }}</small>
+                                        @if($ouvidor->cpf)
+                                            <br><small class="text-muted">CPF: {{ $ouvidor->cpf_formatado }}</small>
                                         @endif
                                     </td>
                                     <td>{{ $ouvidor->email }}</td>
-                                    <td>{{ $ouvidor->cargo }}</td>
-                                    <td>{{ $ouvidor->setor }}</td>
+                                    <td>{{ $ouvidor->cargo_ouvidor ?? 'Não informado' }}</td>
+                                    <td>{{ $ouvidor->setor_ouvidor ?? 'Não informado' }}</td>
                                     <td>
-                                        <span class="badge badge-{{ $ouvidor->tipo == 'ouvidoria' ? 'primary' : 'info' }}">
-                                            {{ ucfirst($ouvidor->tipo) }}
+                                        <span class="badge badge-{{ $ouvidor->especialidade_ouvidor == 'ouvidoria' ? 'primary' : 'info' }}">
+                                            {{ ucfirst($ouvidor->especialidade_ouvidor ?? 'ouvidoria') }}
                                         </span>
                                     </td>
                                     <td>
                                         <span class="badge badge-secondary">
-                                            {{ $ouvidor->manifestacoes_count ?? 0 }}
+                                            {{ $ouvidor->manifestacoes_responsavel_count ?? 0 }}
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="badge badge-{{ $ouvidor->ativo ? 'success' : 'danger' }}">
-                                            {{ $ouvidor->ativo ? 'Ativo' : 'Inativo' }}
+                                        <span class="badge badge-{{ $ouvidor->ativo_ouvidor ? 'success' : 'danger' }}">
+                                            {{ $ouvidor->ativo_ouvidor ? 'Ativo' : 'Inativo' }}
                                         </span>
                                     </td>
                                     <td>

@@ -130,14 +130,7 @@
                                 <i class="fas fa-times"></i> Limpar seleção
                             </button>
                         </div>
-                        <div class="mb-2">
-                            <input type="file" class="form-control @error('foto') is-invalid @enderror" 
-                                   id="foto" name="foto" accept="image/*">
-                            @error('foto')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <div class="form-text">Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 2MB</div>
-                        </div>
+
                         <input type="hidden" name="foto_existing" id="foto_existing_input" value="{{ old('foto_existing') }}">
                         <div id="fotoSelectedPreview" class="mt-2" style="display: none;">
                             <label class="form-label d-block">Pré-visualização da seleção</label>
@@ -482,10 +475,12 @@
         document.getElementById('selectMediaBtn')?.addEventListener('click', function() {
             const selected = document.querySelector('#mediaSelectorModal .media-select-item.selected');
             if (!selected) return;
-            const path = selected.getAttribute('data-path');
+            const mediaId = selected.getAttribute('data-id');
             const url = selected.getAttribute('data-url');
-            if (path) {
-                hiddenInput.value = path;
+            if (mediaId) {
+                // Armazenar apenas o ID da mídia (mais profissional)
+                hiddenInput.value = 'media:' + mediaId;
+                // Usar a URL apenas para a pré-visualização
                 previewImg.src = url;
                 preview.style.display = 'block';
                 fileInput.value = '';
@@ -596,5 +591,6 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/media-library.js') }}"></script>
 <script src="{{ asset('js/vereadores.js') }}"></script>
 @endpush

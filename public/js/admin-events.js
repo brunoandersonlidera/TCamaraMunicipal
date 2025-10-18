@@ -293,18 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Manifestação functions
-    window.openResponseModal = function(id = null) {
-        // Implementation for opening response modal
-        console.log('Open response modal for:', id);
-    };
-
-    window.archiveManifestacao = function(id = null) {
-        if (confirm('Tem certeza que deseja arquivar esta manifestação?')) {
-            // Implementation for archiving manifestação
-            console.log('Archive manifestação:', id);
-        }
-    };
+    // Manifestação functions removed - implemented in ouvidoria-manifestacoes.js
 
     // File management
     window.removeFile = function(fileName) {

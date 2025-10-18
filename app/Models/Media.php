@@ -20,12 +20,11 @@ class Media extends BaseMedia
         'alt_text',
         'title',
         'description',
-        'category',
+        'category_id',
         'uploaded_by',
         'model_type',
         'model_id',
         'uuid',
-        'collection_name',
         'name',
         'disk',
         'conversions_disk',
@@ -71,11 +70,10 @@ class Media extends BaseMedia
         'alt_text',
         'title',
         'description',
-        'category',
+        'category_id',
         'uploaded_by',
         'created_at',
         'updated_at',
-        'collection_name',
         'name',
         'custom_properties',
         'url',
@@ -85,6 +83,7 @@ class Media extends BaseMedia
         'is_document',
         'formatted_size',
         'icon',
+        'category',
     ];
 
     /**
@@ -93,6 +92,38 @@ class Media extends BaseMedia
     public function uploader()
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+    
+    /**
+     * Relacionamento com a categoria
+     */
+    public function mediaCategory()
+    {
+        return $this->belongsTo(MediaCategory::class, 'category_id');
+    }
+    
+    /**
+     * Acessor para obter a categoria (compatibilidade)
+     */
+    public function getCategoryAttribute()
+    {
+        // Primeiro tenta obter da relação com MediaCategory
+        if ($this->mediaCategory) {
+            return $this->mediaCategory->slug;
+        }
+        
+        // Depois tenta obter do atributo category (para compatibilidade com registros antigos)
+        if (!empty($this->attributes['category'])) {
+            return $this->attributes['category'];
+        }
+        
+        // Tenta obter do collection_name (para compatibilidade com registros antigos)
+        if (!empty($this->attributes['collection_name'])) {
+            return $this->attributes['collection_name'];
+        }
+        
+        // Valor padrão
+        return 'outros';
     }
 
     /**
@@ -142,12 +173,12 @@ class Media extends BaseMedia
         $url = null;
 
         if (!empty($this->path)) {
-            $url = Storage::disk($this->disk ?? 'public')->url($this->path);
+            $url = $this->getAutoUrl($this->path);
         }
         // Fallback: tentar montar a partir de collection_name e file_name
         elseif (!empty($this->file_name) && !empty($this->collection_name)) {
             $path = "media/{$this->collection_name}/{$this->file_name}";
-            $url = Storage::disk($this->disk ?? 'public')->url($path);
+            $url = $this->getAutoUrl($path);
         }
         // Fallback final para registros do Spatie: usar URL completa padrão
         elseif (method_exists($this, 'getFullUrl')) {
@@ -161,6 +192,26 @@ class Media extends BaseMedia
         // Cache do resultado
         $this->attributes['_cached_public_url'] = $url;
         return $url;
+    }
+
+    /**
+     * Gera URL automática detectando o host atual
+     */
+    private function getAutoUrl($path)
+    {
+        $appUrl = env('APP_URL');
+        
+        // Se APP_URL for 'auto' ou vazio, detecta automaticamente
+        if ($appUrl === 'auto' || empty($appUrl)) {
+            // Detecta automaticamente o protocolo e host
+            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $baseUrl = $protocol . '://' . $host;
+        } else {
+            $baseUrl = $appUrl;
+        }
+        
+        return $baseUrl . '/storage/' . $path;
     }
 
     /**
@@ -212,18 +263,7 @@ class Media extends BaseMedia
         return $this->custom_properties['description'] ?? null;
     }
 
-    /**
-     * Categoria amigável da mídia, com fallback para collection_name do Spatie
-     */
-    public function getCategoryAttribute()
-    {
-        if (!empty($this->attributes['category'])) {
-            return $this->attributes['category'];
-        }
-
-        // Muitos registros legados usam collection_name
-        return $this->attributes['collection_name'] ?? null;
-    }
+    // Método getCategoryAttribute já definido anteriormente
 
     /**
      * Nome original do arquivo, com fallbacks
@@ -323,7 +363,18 @@ class Media extends BaseMedia
      */
     public function scopeByCategory($query, $category)
     {
-        return $query->where('category', $category);
+        // Se for um slug (string), converter para ID
+        if (!is_numeric($category)) {
+            $categoryId = self::getCategoryIdBySlug($category);
+            if ($categoryId) {
+                return $query->where('category_id', $categoryId);
+            }
+            // Se não encontrar a categoria pelo slug, retorna query vazia
+            return $query->whereRaw('1 = 0');
+        }
+        
+        // Se for numérico, usar diretamente como ID
+        return $query->where('category_id', $category);
     }
 
     /**
@@ -363,18 +414,27 @@ class Media extends BaseMedia
      */
     public static function getCategories()
     {
-        return [
-            'brasao' => 'Brasões',
-            'logo' => 'Logos',
-            'icone' => 'Ícones',
-            'foto' => 'Fotos',
-            'documento' => 'Documentos',
-            'banner' => 'Banners',
-            'galeria' => 'Galeria',
-            'noticias' => 'Notícias',
-            'outros' => 'Outros'
-        ];
+        // Sempre usar as categorias do banco
+        $dbCategories = \App\Models\MediaCategory::active()->ordered()->get();
+        
+        if ($dbCategories->isNotEmpty()) {
+            return $dbCategories->pluck('name', 'slug')->toArray();
+        }
+        
+        // Fallback apenas se não houver categorias no banco
+        return ['outros' => 'Outros'];
     }
+    
+    /**
+     * Obter o ID da categoria a partir do slug
+     */
+    public static function getCategoryIdBySlug($slug)
+    {
+        $category = \App\Models\MediaCategory::where('slug', $slug)->first();
+        return $category ? $category->id : null;
+    }
+    
+    // Método mediaCategory já definido anteriormente
 
     /**
      * Define as conversões de mídia para imagens

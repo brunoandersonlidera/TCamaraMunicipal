@@ -96,7 +96,7 @@
                                     <label for="data_nascimento" class="form-label">Data de Nascimento</label>
                                     <input type="date" class="form-control @error('data_nascimento') is-invalid @enderror" 
                                            id="data_nascimento" name="data_nascimento" 
-                                           value="{{ old('data_nascimento', $user->data_nascimento ? $user->data_nascimento->format('Y-m-d') : '') }}">
+                                           value="{{ old('data_nascimento', $user->data_nascimento ? (is_string($user->data_nascimento) ? $user->data_nascimento : $user->data_nascimento->format('Y-m-d')) : '') }}">
                                     @error('data_nascimento')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

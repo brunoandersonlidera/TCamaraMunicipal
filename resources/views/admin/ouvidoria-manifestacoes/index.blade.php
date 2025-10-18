@@ -440,8 +440,8 @@
                         </td>
                         <td>
                             <div>
-                                <strong>{{ $manifestacao->nome ?? 'João Silva' }}</strong><br>
-                                <small class="text-muted">{{ $manifestacao->email ?? 'joao@email.com' }}</small>
+                                <strong>{{ $manifestacao->nome_manifestante ?? 'Não informado' }}</strong><br>
+                                <small class="text-muted">{{ $manifestacao->email_manifestante ?? 'Não informado' }}</small>
                             </div>
                         </td>
                         <td>

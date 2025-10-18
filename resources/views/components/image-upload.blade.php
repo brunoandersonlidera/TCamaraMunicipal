@@ -1,16 +1,17 @@
 @props([
-    'name' => 'images',
+    'name' => 'anexos',
     'multiple' => false,
     'maxFiles' => 10,
-    'maxSize' => 5120, // KB
-    'accept' => 'image/*',
+    'maxSize' => 10240, // KB (10MB)
+    'accept' => 'image/*,.pdf',
     'preview' => true,
     'required' => false,
-    'label' => 'Selecionar Imagens',
-    'helpText' => 'Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 5MB por imagem.'
+    'label' => 'Selecionar Arquivos',
+    'helpText' => 'Formatos aceitos: JPG, PNG, GIF, PDF. Tamanho máximo: 10MB por arquivo.',
+    'allowPdf' => true
 ])
 
-<div class="image-upload-component" data-name="{{ $name }}" data-multiple="{{ $multiple ? 'true' : 'false' }}" data-max-files="{{ $maxFiles }}" data-max-size="{{ $maxSize }}">
+<div class="file-upload-component" data-name="{{ $name }}" data-multiple="{{ $multiple ? 'true' : 'false' }}" data-max-files="{{ $maxFiles }}" data-max-size="{{ $maxSize }}" data-allow-pdf="{{ $allowPdf ? 'true' : 'false' }}">
     <div class="upload-area">
         <input 
             type="file" 
@@ -24,13 +25,14 @@
         
         <div class="upload-zone" onclick="document.getElementById('file-input-{{ $name }}').click()">
             <div class="upload-icon">
-                <i class="fas fa-cloud-upload-alt fa-3x text-muted"></i>
+                <i class="fas fa-cloud-upload-alt fa-3x text-primary"></i>
             </div>
             <div class="upload-text">
-                <h5 class="mb-2">{{ $label }}</h5>
-                <p class="text-muted mb-0">{{ $helpText }}</p>
+                <h5 class="mb-2 text-dark">{{ $label }}</h5>
+                <p class="text-muted mb-2">{{ $helpText }}</p>
                 <small class="text-muted">
-                    Clique aqui ou arraste {{ $multiple ? 'as imagens' : 'a imagem' }} para esta área
+                    <i class="fas fa-hand-pointer me-1"></i>
+                    Clique aqui ou arraste {{ $multiple ? 'os arquivos' : 'o arquivo' }} para esta área
                 </small>
             </div>
         </div>
@@ -61,7 +63,10 @@
 <script src="{{ asset('js/image-upload.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    initImageUpload('{{ $name }}');
+    const component = document.querySelector('[data-name="{{ $name }}"]');
+    if (component) {
+        initFileUpload(component);
+    }
 });
 </script>
 @endpush
