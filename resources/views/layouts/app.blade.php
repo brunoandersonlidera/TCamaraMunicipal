@@ -32,6 +32,18 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="@yield('canonical', request()->url())">
     
+    <!-- Favicon -->
+    @php
+        $faviconSite = \App\Models\ConfiguracaoGeral::obterValor('favicon_site', '/images/favicon.ico');
+        $faviconApple = \App\Models\ConfiguracaoGeral::obterValor('favicon_apple_touch', '/images/apple-touch-icon.png');
+        $favicon32 = \App\Models\ConfiguracaoGeral::obterValor('favicon_32x32', '/images/favicon-32x32.png');
+        $favicon16 = \App\Models\ConfiguracaoGeral::obterValor('favicon_16x16', '/images/favicon-16x16.png');
+    @endphp
+    <link rel="icon" type="image/x-icon" href="{{ asset($faviconSite) }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset($faviconApple) }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset($favicon32) }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset($favicon16) }}">
+    
     <!-- Additional SEO -->
     <meta name="theme-color" content="#0d6efd">
     <meta name="msapplication-TileColor" content="#0d6efd">

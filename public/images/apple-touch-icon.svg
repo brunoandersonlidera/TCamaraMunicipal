@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <defs>
+    <linearGradient id="buildingGradientApple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d6efd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0a58ca;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
+    </filter>
+  </defs>
+  
+  <!-- Fundo -->
+  <rect width="180" height="180" rx="20" fill="url(#buildingGradientApple)"/>
+  
+  <!-- Prédio da Câmara -->
+  <rect x="30" y="70" width="120" height="90" fill="white" opacity="0.95" filter="url(#shadow)"/>
+  
+  <!-- Colunas -->
+  <rect x="40" y="60" width="8" height="100" fill="white"/>
+  <rect x="55" y="60" width="8" height="100" fill="white"/>
+  <rect x="70" y="60" width="8" height="100" fill="white"/>
+  <rect x="85" y="60" width="8" height="100" fill="white"/>
+  <rect x="100" y="60" width="8" height="100" fill="white"/>
+  <rect x="115" y="60" width="8" height="100" fill="white"/>
+  <rect x="130" y="60" width="8" height="100" fill="white"/>
+  
+  <!-- Telhado/Frontão -->
+  <polygon points="30,70 90,20 150,70" fill="white" filter="url(#shadow)"/>
+  
+  <!-- Porta principal -->
+  <rect x="80" y="120" width="20" height="40" fill="url(#buildingGradientApple)"/>
+  
+  <!-- Janelas -->
+  <rect x="45" y="85" width="6" height="8" fill="url(#buildingGradientApple)" opacity="0.7"/>
+  <rect x="60" y="85" width="6" height="8" fill="url(#buildingGradientApple)" opacity="0.7"/>
+  <rect x="105" y="85" width="6" height="8" fill="url(#buildingGradientApple)" opacity="0.7"/>
+  <rect x="120" y="85" width="6" height="8" fill="url(#buildingGradientApple)" opacity="0.7"/>
+  
+  <!-- Degraus -->
+  <rect x="35" y="160" width="110" height="4" fill="white" opacity="0.8"/>
+  <rect x="40" y="164" width="100" height="4" fill="white" opacity="0.6"/>
+  <rect x="45" y="168" width="90" height="4" fill="white" opacity="0.4"/>
+  
+  <!-- Texto "CM" (Câmara Municipal) -->
+  <text x="90" y="45" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">CM</text>
+</svg>

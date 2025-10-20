@@ -646,6 +646,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         'as' => 'admin',
         'parameters' => ['configuracao-geral' => 'configuracao']
     ]);
+    
+    // Rotas específicas para configuração de favicon
+    Route::get('configuracao-geral/favicon/config', [App\Http\Controllers\Admin\ConfiguracaoGeralController::class, 'favicon'])->name('admin.configuracao-geral.favicon');
+    Route::post('configuracao-geral/favicon/update', [App\Http\Controllers\Admin\ConfiguracaoGeralController::class, 'updateFavicon'])->name('admin.configuracao-geral.favicon.update');
 
     // Rotas administrativas para menus
     Route::resource('menus', App\Http\Controllers\Admin\MenuController::class, [

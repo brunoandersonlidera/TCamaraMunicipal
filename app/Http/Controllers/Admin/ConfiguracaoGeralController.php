@@ -284,14 +284,104 @@ class ConfiguracaoGeralController extends Controller
      */
     public function destroy(ConfiguracaoGeral $configuracao)
     {
-        // Deletar arquivo de imagem se existir
-        if ($configuracao->tipo === 'imagem' && $configuracao->valor && Storage::disk('public')->exists($configuracao->valor)) {
-            Storage::disk('public')->delete($configuracao->valor);
+        try {
+            // Remover arquivo se for imagem
+            if ($configuracao->tipo === 'imagem' && !empty($configuracao->valor)) {
+                $path = $configuracao->valor;
+                
+                // Verificar se é um caminho de storage
+                if (str_starts_with($path, 'configuracoes/')) {
+                    Storage::disk('public')->delete($path);
+                }
+            }
+
+            $configuracao->delete();
+
+            return redirect()->route('admin.configuracao-geral.index')
+                ->with('success', 'Configuração excluída com sucesso!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.configuracao-geral.index')
+                ->with('error', 'Erro ao excluir configuração: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Show the favicon configuration page.
+     */
+    public function favicon()
+    {
+        $faviconConfigs = [
+            'favicon_site' => ConfiguracaoGeral::obterValor('favicon_site', '/images/favicon.svg'),
+            'favicon_apple_touch' => ConfiguracaoGeral::obterValor('favicon_apple_touch', '/images/apple-touch-icon.svg'),
+            'favicon_32x32' => ConfiguracaoGeral::obterValor('favicon_32x32', '/images/favicon-32x32.svg'),
+            'favicon_16x16' => ConfiguracaoGeral::obterValor('favicon_16x16', '/images/favicon-16x16.svg'),
+        ];
+
+        return view('admin.configuracao-geral.favicon', compact('faviconConfigs'));
+    }
+
+    /**
+     * Update favicon configurations.
+     */
+    public function updateFavicon(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'favicon_site' => 'nullable|image|mimes:ico,png,svg|max:1024',
+            'favicon_apple_touch' => 'nullable|image|mimes:png,svg|max:1024',
+            'favicon_32x32' => 'nullable|image|mimes:ico,png,svg|max:1024',
+            'favicon_16x16' => 'nullable|image|mimes:ico,png,svg|max:1024',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
-        $configuracao->delete();
+        $faviconTypes = ['favicon_site', 'favicon_apple_touch', 'favicon_32x32', 'favicon_16x16'];
+        $uploadedFiles = [];
 
-        return redirect()->route('admin.configuracao-geral.index')
-            ->with('success', 'Configuração removida com sucesso!');
+        foreach ($faviconTypes as $type) {
+            if ($request->hasFile($type)) {
+                $arquivo = $request->file($type);
+                $nomeArquivo = $type . '_' . time() . '.' . $arquivo->getClientOriginalExtension();
+                $caminho = $arquivo->storeAs('favicons', $nomeArquivo, 'public');
+                
+                // Atualizar ou criar configuração
+                ConfiguracaoGeral::definirValor($type, 'storage/' . $caminho);
+                $uploadedFiles[] = $type;
+
+                // Registrar na biblioteca de mídia
+                try {
+                    Media::create([
+                        'file_name' => basename($caminho),
+                        'original_name' => $arquivo->getClientOriginalName(),
+                        'mime_type' => $arquivo->getMimeType(),
+                        'size' => $arquivo->getSize(),
+                        'path' => $caminho,
+                        'alt_text' => 'Favicon - ' . str_replace('_', ' ', $type),
+                        'title' => 'Favicon - ' . str_replace('_', ' ', $type),
+                        'category' => 'icone',
+                        'uploaded_by' => Auth::id(),
+                        'model_type' => ConfiguracaoGeral::class,
+                        'collection_name' => 'favicons',
+                        'disk' => 'public',
+                        'name' => $type,
+                    ]);
+                } catch (\Throwable $e) {
+                    Log::warning('Falha ao registrar favicon na biblioteca de mídia: ' . $e->getMessage(), [
+                        'type' => $type,
+                        'path' => $caminho,
+                    ]);
+                }
+            }
+        }
+
+        $message = count($uploadedFiles) > 0 
+            ? 'Favicon(s) atualizado(s) com sucesso: ' . implode(', ', $uploadedFiles)
+            : 'Nenhum arquivo foi enviado.';
+
+        return redirect()->route('admin.configuracao-geral.favicon')
+            ->with('success', $message);
     }
 }

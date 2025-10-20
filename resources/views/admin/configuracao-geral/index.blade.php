@@ -19,9 +19,14 @@
             <h1 class="h3 mb-0">Configurações Gerais</h1>
             <p class="text-muted">Gerencie as configurações do site (brasão, logo, contatos, etc.)</p>
         </div>
-        <a href="{{ route('admin.configuracao-geral.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Nova Configuração
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.configuracao-geral.favicon') }}" class="btn btn-outline-primary">
+                <i class="fas fa-image me-2"></i>Configurar Favicon
+            </a>
+            <a href="{{ route('admin.configuracao-geral.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Nova Configuração
+            </a>
+        </div>
     </div>
 
     <!-- Filtros -->

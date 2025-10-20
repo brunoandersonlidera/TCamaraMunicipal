@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="buildingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d6efd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0a58ca;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fundo -->
+  <rect width="32" height="32" rx="4" fill="url(#buildingGradient)"/>
+  
+  <!-- Prédio da Câmara -->
+  <rect x="6" y="12" width="20" height="16" fill="white" opacity="0.9"/>
+  
+  <!-- Colunas -->
+  <rect x="8" y="10" width="2" height="18" fill="white"/>
+  <rect x="11" y="10" width="2" height="18" fill="white"/>
+  <rect x="14" y="10" width="2" height="18" fill="white"/>
+  <rect x="17" y="10" width="2" height="18" fill="white"/>
+  <rect x="20" y="10" width="2" height="18" fill="white"/>
+  <rect x="23" y="10" width="2" height="18" fill="white"/>
+  
+  <!-- Telhado/Frontão -->
+  <polygon points="6,12 16,4 26,12" fill="white"/>
+  
+  <!-- Porta -->
+  <rect x="14" y="20" width="4" height="8" fill="url(#buildingGradient)"/>
+  
+  <!-- Degraus -->
+  <rect x="7" y="28" width="18" height="1" fill="white" opacity="0.7"/>
+  <rect x="8" y="29" width="16" height="1" fill="white" opacity="0.5"/>
+</svg>

@@ -6,6 +6,18 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Painel Administrativo') - Câmara Municipal</title>
     
+    <!-- Favicon -->
+    @php
+        $faviconSite = \App\Models\ConfiguracaoGeral::obterValor('favicon_site', '/images/favicon.ico');
+        $faviconApple = \App\Models\ConfiguracaoGeral::obterValor('favicon_apple_touch', '/images/apple-touch-icon.png');
+        $favicon32 = \App\Models\ConfiguracaoGeral::obterValor('favicon_32x32', '/images/favicon-32x32.png');
+        $favicon16 = \App\Models\ConfiguracaoGeral::obterValor('favicon_16x16', '/images/favicon-16x16.png');
+    @endphp
+    <link rel="icon" type="image/x-icon" href="{{ asset($faviconSite) }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset($faviconApple) }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset($favicon32) }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset($favicon16) }}">
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
