@@ -137,23 +137,61 @@ git commit -m "Descrição das alterações"
 git push origin main
 ```
 
+## 📚 Documentação Completa
+
+### 📖 **Documentação Técnica**
+Localizada em: `docs/technical/`
+
+- **[Guia de Instalação](docs/technical/INSTALLATION_GUIDE.md)** - Instalação completa e configuração
+- **[Guia de Deploy](docs/technical/DEPLOYMENT_GUIDE.md)** - Deploy em produção
+- **[Guia de Configuração](docs/technical/CONFIGURATION_GUIDE.md)** - Configurações avançadas
+- **[Guia de Desenvolvimento](docs/technical/DEVELOPMENT_GUIDE.md)** - Padrões e práticas
+- **[Guia de Testes](docs/technical/TESTING_GUIDE.md)** - Estratégias de teste
+- **[Guia de Segurança](docs/technical/SECURITY_GUIDE.md)** - Práticas de segurança
+- **[Documentação de Arquitetura](docs/technical/ARCHITECTURE.md)** - Arquitetura do sistema
+- **[Guia de Contribuição](docs/technical/CONTRIBUTING.md)** - Como contribuir
+- **[Documentação da API](docs/technical/API_DOCUMENTATION.md)** - Endpoints e uso da API
+
+### 👥 **Manuais de Usuário**
+Localizada em: `docs/user-manuals/`
+
+- **[Manual do Administrador](docs/user-manuals/MANUAL_ADMINISTRADOR.md)** - Guia completo para administradores
+- **[Manual do Cidadão](docs/user-manuals/MANUAL_CIDADAO.md)** - Orientações para cidadãos
+- **[Manual do Vereador](docs/user-manuals/MANUAL_VEREADOR.md)** - Instruções para vereadores
+
+### 📋 **Planejamento e Análise**
+Localizada em: `docs/`
+
+- **[Recursos Pendentes](docs/RECURSOS_PENDENTES.md)** - Lista completa de funcionalidades a desenvolver
+- **[Status do Projeto](docs/STATUS.MD)** - Status atual das funcionalidades
+- **[Documentação Completa](docs/README.md)** - Índice geral da documentação
+
+### 🔧 **Operações e Manutenção**
+Localizada em: `docs/technical/`
+
+- **[Guia de Backup](docs/technical/BACKUP_GUIDE.md)** - Estratégias de backup e recuperação
+
 ## 🎯 Funcionalidades Futuras
 
-### 📋 Roadmap
-- [ ] Sistema de votações eletrônicas
-- [ ] Integração com e-SIC
-- [ ] API REST para integração externa
-- [ ] Sistema de notificações
-- [ ] Relatórios avançados
-- [ ] Módulo de agenda pública
-- [ ] Sistema de protocolo digital
+### 📋 Roadmap Detalhado
+Para uma visão completa dos recursos pendentes, consulte: **[Recursos Pendentes](docs/RECURSOS_PENDENTES.md)**
 
-### 🔄 Melhorias Planejadas
-- [ ] Otimização de performance
-- [ ] Testes automatizados
-- [ ] Documentação da API
-- [ ] Interface mobile responsiva
-- [ ] Sistema de backup automatizado
+**Prioridade Crítica:**
+- [ ] Portal da Transparência - Dados Financeiros
+- [ ] Views Administrativas Ausentes
+- [ ] Melhorias E-SIC
+
+**Alta Prioridade:**
+- [ ] Sistema de Sessões Avançadas
+- [ ] Sistema de Permissões Completo
+- [ ] Melhorias na Ouvidoria
+
+**Funcionalidades Futuras:**
+- [ ] Sistema de votações eletrônicas
+- [ ] API REST completa
+- [ ] Aplicativo mobile
+- [ ] Participação cidadã online
+- [ ] Integrações externas
 
 ## 📊 Estatísticas do Projeto
 
