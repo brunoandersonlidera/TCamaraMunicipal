@@ -154,9 +154,8 @@
 
 .item-header {
     display: flex;
-    justify-content: between;
     align-items: center;
-    margin-bottom: 0.5rem;
+    justify-content: space-between;
 }
 
 .item-protocolo {
@@ -277,11 +276,23 @@
         <!-- Dashboard Header -->
         <div class="dashboard-header">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-6">
                     <h1 class="mb-2">Bem-vindo, {{ Auth::user()->name }}!</h1>
                     <p class="mb-0">Painel do Ouvidor - Gerencie manifestações e solicitações</p>
                 </div>
-                <div class="col-md-4 text-end">
+                <div class="col-md-3">
+                    <div class="mb-2">
+                        <label for="periodFilter" class="form-label text-white-50 small">Filtrar por período:</label>
+                        <select id="periodFilter" class="form-select form-select-sm">
+                            <option value="all">Todos os períodos</option>
+                            <option value="today">Hoje</option>
+                            <option value="7days">Últimos 7 dias</option>
+                            <option value="30days" selected>Últimos 30 dias</option>
+                            <option value="month">Este mês</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3 text-end">
                     <div class="text-white-50">
                         <i class="fas fa-calendar-alt me-2"></i>
                         {{ now()->format('d/m/Y - H:i') }}
@@ -297,20 +308,24 @@
                 <div class="stat-icon">
                     <i class="fas fa-comments"></i>
                 </div>
-                <div class="stat-number">{{ $stats['manifestacoes']['total'] }}</div>
+                <div class="stat-number" id="manifestacoesTotal">{{ $stats['manifestacoes']['total'] }}</div>
                 <div class="stat-label">Manifestações Atribuídas</div>
                 <div class="stat-details">
                     <div class="stat-detail">
-                        <div class="stat-detail-number">{{ $stats['manifestacoes']['pendentes'] }}</div>
+                        <div class="stat-detail-number" id="manifestacoesPendentes">{{ $stats['manifestacoes']['pendentes'] }}</div>
                         <div class="stat-detail-label">Pendentes</div>
                     </div>
                     <div class="stat-detail">
-                        <div class="stat-detail-number">{{ $stats['manifestacoes']['em_andamento'] }}</div>
+                        <div class="stat-detail-number" id="manifestacoesEmAndamento">{{ $stats['manifestacoes']['em_andamento'] }}</div>
                         <div class="stat-detail-label">Em Andamento</div>
                     </div>
                     <div class="stat-detail">
-                        <div class="stat-detail-number">{{ $stats['manifestacoes']['respondidas'] }}</div>
+                        <div class="stat-detail-number" id="manifestacoesRespondidas">{{ $stats['manifestacoes']['respondidas'] }}</div>
                         <div class="stat-detail-label">Respondidas</div>
+                    </div>
+                    <div class="stat-detail">
+                        <div class="stat-detail-number" id="manifestacoesEncerradas">{{ $stats['manifestacoes']['finalizadas'] ?? 0 }}</div>
+                        <div class="stat-detail-label">Encerradas</div>
                     </div>
                 </div>
             </div>
@@ -321,19 +336,19 @@
                 <div class="stat-icon">
                     <i class="fas fa-file-alt"></i>
                 </div>
-                <div class="stat-number">{{ $stats['esic']['total'] }}</div>
+                <div class="stat-number" id="esicTotal">{{ $stats['esic']['total'] }}</div>
                 <div class="stat-label">Solicitações E-SIC</div>
                 <div class="stat-details">
                     <div class="stat-detail">
-                        <div class="stat-detail-number">{{ $stats['esic']['pendentes'] }}</div>
+                        <div class="stat-detail-number" id="esicPendentes">{{ $stats['esic']['pendentes'] }}</div>
                         <div class="stat-detail-label">Pendentes</div>
                     </div>
                     <div class="stat-detail">
-                        <div class="stat-detail-number">{{ $stats['esic']['em_andamento'] }}</div>
+                        <div class="stat-detail-number" id="esicEmAndamento">{{ $stats['esic']['em_andamento'] }}</div>
                         <div class="stat-detail-label">Em Andamento</div>
                     </div>
                     <div class="stat-detail">
-                        <div class="stat-detail-number">{{ $stats['esic']['respondidas'] }}</div>
+                        <div class="stat-detail-number" id="esicRespondidas">{{ $stats['esic']['respondidas'] }}</div>
                         <div class="stat-detail-label">Respondidas</div>
                     </div>
                 </div>
@@ -345,15 +360,15 @@
                 <div class="stat-icon">
                     <i class="fas fa-chart-line"></i>
                 </div>
-                <div class="stat-number">{{ $stats['performance']['respondidas_mes'] }}</div>
+                <div class="stat-number" id="respondidasMes">{{ $stats['performance']['respondidas_mes'] }}</div>
                 <div class="stat-label">Respondidas este Mês</div>
                 <div class="stat-details">
                     <div class="stat-detail">
-                        <div class="stat-detail-number">{{ $stats['performance']['tempo_medio_resposta'] }}</div>
+                        <div class="stat-detail-number" id="tempoMedioResposta">{{ $stats['performance']['tempo_medio_resposta'] }}</div>
                         <div class="stat-detail-label">Dias Médios</div>
                     </div>
                     <div class="stat-detail">
-                        <div class="stat-detail-number">{{ $stats['performance']['prazo_vencido'] }}</div>
+                        <div class="stat-detail-number" id="prazoVencido">{{ $stats['performance']['prazo_vencido'] }}</div>
                         <div class="stat-detail-label">Vencidas</div>
                     </div>
                 </div>
@@ -364,15 +379,15 @@
                 <div class="stat-icon">
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
-                <div class="stat-number">{{ $alertasPrazo->count() }}</div>
+                <div class="stat-number" id="alertasTotal">{{ $alertasPrazo->count() }}</div>
                 <div class="stat-label">Alertas de Prazo</div>
                 <div class="stat-details">
                     <div class="stat-detail">
-                        <div class="stat-detail-number">{{ $stats['performance']['prazo_vencido'] }}</div>
+                        <div class="stat-detail-number" id="alertasVencidas">{{ $stats['performance']['prazo_vencido'] }}</div>
                         <div class="stat-detail-label">Vencidas</div>
                     </div>
                     <div class="stat-detail">
-                        <div class="stat-detail-number">{{ $stats['performance']['proximo_vencimento'] }}</div>
+                        <div class="stat-detail-number" id="alertasVencendo">{{ $stats['performance']['proximo_vencimento'] }}</div>
                         <div class="stat-detail-label">Vencendo</div>
                     </div>
                 </div>
@@ -519,50 +534,4 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Gráfico de Performance
-    const ctx = document.getElementById('performanceChart').getContext('2d');
-    const chartData = @json($chartData);
-    
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: chartData.meses,
-            datasets: [{
-                label: 'Manifestações Recebidas',
-                data: chartData.manifestacoes,
-                borderColor: '#3498db',
-                backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                tension: 0.4,
-                fill: true
-            }, {
-                label: 'Manifestações Respondidas',
-                data: chartData.respondidas,
-                borderColor: '#2ecc71',
-                backgroundColor: 'rgba(46, 204, 113, 0.1)',
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
-                }
-            }
-        }
-    });
-});
-</script>
 @endpush

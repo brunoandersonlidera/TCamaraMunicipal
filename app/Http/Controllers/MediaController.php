@@ -230,12 +230,6 @@ class MediaController extends Controller
         try {
             $media = Media::findOrFail($id);
             
-            // DEBUG: Log dos dados recebidos
-            \Log::info('=== DEBUG MEDIA UPDATE ===');
-            \Log::info('Media ID: ' . $media->id);
-            \Log::info('Dados recebidos:', $request->all());
-            \Log::info('Category ID antes da atualização: ' . $media->category_id);
-            
             // Validar os dados
             $request->validate([
                 'alt_text' => 'nullable|string|max:255',
@@ -243,10 +237,6 @@ class MediaController extends Controller
                 'description' => 'nullable|string|max:1000',
                 'category_id' => 'required|integer|exists:media_categories,id',
             ]);
-
-            // DEBUG: Log dos dados validados
-            \Log::info('Dados validados com sucesso');
-            \Log::info('Category ID a ser salvo: ' . $request->category_id);
 
             // Preparar dados validados
             $validatedData = [

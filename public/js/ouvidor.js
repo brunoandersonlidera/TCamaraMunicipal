@@ -5,9 +5,9 @@
 // Configurações globais
 const OuvidorApp = {
     config: {
-        refreshInterval: 30000, // 30 segundos
+        refreshInterval: 300000, // 5 minutos (era 30 segundos) - reduzido para evitar excesso de conexões
         notificationSound: true,
-        autoRefresh: true
+        autoRefresh: false // DESABILITADO TEMPORARIAMENTE para evitar excesso de conexões
     },
     
     charts: {},
@@ -33,6 +33,14 @@ const OuvidorApp = {
                 this.handleQuickAction(e.target.dataset.action, e.target);
             }
         });
+        
+        // Filtro de período
+        const periodFilter = document.getElementById('periodFilter');
+        if (periodFilter) {
+            periodFilter.addEventListener('change', () => {
+                this.updateDashboardData(periodFilter.value);
+            });
+        }
         
         // Filtros de manifestações
         const filtros = document.querySelectorAll('.filtro-manifestacao');
@@ -198,9 +206,10 @@ const OuvidorApp = {
     },
     
     // Carregar dados dos gráficos
-    async loadPerformanceData() {
+    async loadPerformanceData(period = null) {
         try {
-            const response = await fetch('/ouvidor/api/performance-data');
+            const url = period ? `/ouvidor/api/performance-data?period=${period}` : '/ouvidor/api/performance-data';
+            const response = await fetch(url);
             const data = await response.json();
             
             if (this.charts.performance) {
@@ -214,9 +223,10 @@ const OuvidorApp = {
         }
     },
     
-    async loadStatusData() {
+    async loadStatusData(period = null) {
         try {
-            const response = await fetch('/ouvidor/api/status-data');
+            const url = period ? `/ouvidor/api/status-data?period=${period}` : '/ouvidor/api/status-data';
+            const response = await fetch(url);
             const data = await response.json();
             
             if (this.charts.status) {
@@ -233,9 +243,10 @@ const OuvidorApp = {
         }
     },
     
-    async loadTipoData() {
+    async loadTipoData(period = null) {
         try {
-            const response = await fetch('/ouvidor/api/tipo-data');
+            const url = period ? `/ouvidor/api/tipo-data?period=${period}` : '/ouvidor/api/tipo-data';
+            const response = await fetch(url);
             const data = await response.json();
             
             if (this.charts.tipo) {
@@ -248,14 +259,76 @@ const OuvidorApp = {
         }
     },
     
+    // Atualizar dados do dashboard com filtro de período
+    async updateDashboardData(period) {
+        try {
+            // Atualizar estatísticas/KPIs
+            const url = period ? `/ouvidor/api/stats?period=${period}` : '/ouvidor/api/stats';
+            const response = await fetch(url);
+            const stats = await response.json();
+            
+            this.updateKPIs(stats);
+            
+            // Atualizar gráficos
+            this.loadPerformanceData(period);
+            this.loadStatusData(period);
+            this.loadTipoData(period);
+            
+            console.log(`Dashboard atualizado para o período: ${period}`);
+        } catch (error) {
+            console.error('Erro ao atualizar dados do dashboard:', error);
+            this.showAlert('Erro ao atualizar dados. Tente novamente.', 'danger');
+        }
+    },
+    
+    // Atualizar KPIs com mapeamento de objeto aninhado
+    updateKPIs(stats) {
+        const kpiMapping = {
+            // Manifestações
+            manifestacoesTotal: stats.manifestacoes?.total || 0,
+            manifestacoesPendentes: stats.manifestacoes?.pendentes || 0,
+            manifestacoesEmAndamento: stats.manifestacoes?.em_andamento || 0,
+            manifestacoesRespondidas: stats.manifestacoes?.respondidas || 0,
+            manifestacoesEncerradas: stats.manifestacoes?.encerradas || 0,
+            
+            // E-SIC
+            esicTotal: stats.esic?.total || 0,
+            esicPendentes: stats.esic?.pendentes || 0,
+            esicEmAndamento: stats.esic?.em_andamento || 0,
+            esicRespondidas: stats.esic?.respondidas || 0,
+            
+            // Performance
+            respondidasMes: stats.performance?.respondidas_mes || 0,
+            tempoMedioResposta: stats.performance?.tempo_medio_resposta || '0 dias',
+            prazoVencido: stats.performance?.prazo_vencido || 0,
+            
+            // Alertas
+            alertasTotal: stats.alertas?.total || 0,
+            alertasVencidas: stats.alertas?.vencidas || 0,
+            alertasVencendo: stats.alertas?.vencendo || 0
+        };
+        
+        Object.keys(kpiMapping).forEach(kpiId => {
+            const element = document.getElementById(kpiId);
+            if (element) {
+                element.textContent = kpiMapping[kpiId];
+                element.classList.add('pulse');
+                setTimeout(() => element.classList.remove('pulse'), 1000);
+            }
+        });
+    },
+    
     // Notificações
     initNotifications() {
         this.checkNotifications();
         
-        // Verificar notificações a cada 2 minutos
+        // TEMPORARIAMENTE DESABILITADO para evitar excesso de conexões
+        // Verificar notificações a cada 10 minutos (era 2 minutos)
+        /*
         this.intervals.notifications = setInterval(() => {
             this.checkNotifications();
-        }, 120000);
+        }, 600000); // 10 minutos (era 120000 = 2 minutos)
+        */
     },
     
     async checkNotifications() {

@@ -52,30 +52,59 @@ class DashboardController extends Controller
     /**
      * Get main statistics for the ouvidor
      */
-    private function getStatistics($user)
+    private function getStatistics($user, $period = null)
     {
         $stats = [];
 
+        // Helper para aplicar filtro de período
+        $applyPeriod = function ($query, $period, $dateField = 'created_at') {
+            if (!$period || $period === 'all') return $query;
+            $now = Carbon::now();
+            switch ($period) {
+                case 'today':
+                    $start = $now->copy()->startOfDay();
+                    $end = $now->copy()->endOfDay();
+                    break;
+                case '7d':
+                    $start = $now->copy()->subDays(7)->startOfDay();
+                    $end = $now->copy()->endOfDay();
+                    break;
+                case '30d':
+                    $start = $now->copy()->subDays(30)->startOfDay();
+                    $end = $now->copy()->endOfDay();
+                    break;
+                case 'month':
+                    $start = $now->copy()->startOfMonth();
+                    $end = $now->copy()->endOfMonth();
+                    break;
+                default:
+                    return $query;
+            }
+            return $query->whereBetween($dateField, [$start, $end]);
+        };
+
         // Manifestações de Ouvidoria
-        $manifestacoesQuery = OuvidoriaManifestacao::where('ouvidor_responsavel_id', $user->id);
+        $baseManifestacoes = OuvidoriaManifestacao::where('ouvidor_responsavel_id', $user->id);
+        $baseManifestacoes = $applyPeriod($baseManifestacoes, $period, 'created_at');
         
         $stats['manifestacoes'] = [
-            'total' => $manifestacoesQuery->count(),
-            'pendentes' => $manifestacoesQuery->where('status', 'pendente')->count(),
-            'em_andamento' => $manifestacoesQuery->where('status', 'em_andamento')->count(),
-            'respondidas' => $manifestacoesQuery->where('status', 'respondida')->count(),
-            'finalizadas' => $manifestacoesQuery->where('status', 'finalizada')->count(),
+            'total' => (clone $baseManifestacoes)->count(),
+            'pendentes' => (clone $baseManifestacoes)->where('status', 'pendente')->count(),
+            'em_andamento' => (clone $baseManifestacoes)->where('status', 'em_andamento')->count(),
+            'respondidas' => (clone $baseManifestacoes)->where('status', 'respondida')->count(),
+            'finalizadas' => (clone $baseManifestacoes)->where('status', 'finalizada')->count(),
         ];
 
         // Solicitações E-SIC (se tiver permissão)
         if ($user->canResponderEsic()) {
-            $esicQuery = EsicSolicitacao::where('responsavel_id', $user->id);
+            $baseEsic = EsicSolicitacao::where('responsavel_id', $user->id);
+            $baseEsic = $applyPeriod($baseEsic, $period, 'created_at');
             
             $stats['esic'] = [
-                'total' => $esicQuery->count(),
-                'pendentes' => $esicQuery->where('status', 'pendente')->count(),
-                'em_andamento' => $esicQuery->where('status', 'em_andamento')->count(),
-                'respondidas' => $esicQuery->where('status', 'respondida')->count(),
+                'total' => (clone $baseEsic)->count(),
+                'pendentes' => (clone $baseEsic)->where('status', 'pendente')->count(),
+                'em_andamento' => (clone $baseEsic)->where('status', 'em_andamento')->count(),
+                'respondidas' => (clone $baseEsic)->where('status', 'respondida')->count(),
             ];
         }
 
@@ -92,6 +121,16 @@ class DashboardController extends Controller
             'prazo_vencido' => $this->getPrazoVencido($user),
             'proximo_vencimento' => $this->getProximoVencimento($user),
         ];
+
+        // Adicionar performance E-SIC se tiver permissão
+        if ($user->canResponderEsic()) {
+            $stats['performance']['esic_respondidas_mes'] = EsicSolicitacao::where('responsavel_id', $user->id)
+                ->where('status', 'respondida')
+                ->whereBetween('updated_at', [$inicioMes, $fimMes])
+                ->count();
+            $stats['performance']['esic_prazo_vencido'] = $this->getEsicPrazoVencido($user);
+            $stats['performance']['esic_proximo_vencimento'] = $this->getEsicProximoVencimento($user);
+        }
 
         return $stats;
     }
@@ -166,6 +205,43 @@ class DashboardController extends Controller
                 'urgencia' => 'danger',
                 'link' => route('ouvidor.manifestacoes.show', $manifestacao->id)
             ];
+        }
+
+        // Solicitações E-SIC próximas ao vencimento (se tiver permissão)
+        if ($user->canResponderEsic()) {
+            $esicVencendo = EsicSolicitacao::where('responsavel_id', $user->id)
+                ->whereIn('status', ['pendente', 'em_analise', 'aguardando_informacoes'])
+                ->where('data_limite_resposta', '<=', $proximoVencimento)
+                ->where('data_limite_resposta', '>', Carbon::now())
+                ->get();
+
+            foreach ($esicVencendo as $solicitacao) {
+                $alertas[] = [
+                    'tipo' => 'esic',
+                    'titulo' => 'Solicitação E-SIC próxima ao vencimento',
+                    'descricao' => "Protocolo #{$solicitacao->protocolo} vence em " . 
+                                  Carbon::parse($solicitacao->data_limite_resposta)->diffForHumans(),
+                    'urgencia' => 'warning',
+                    'link' => route('ouvidor.esic.show', $solicitacao->id)
+                ];
+            }
+
+            // Solicitações E-SIC vencidas
+            $esicVencidas = EsicSolicitacao::where('responsavel_id', $user->id)
+                ->whereIn('status', ['pendente', 'em_analise', 'aguardando_informacoes'])
+                ->where('data_limite_resposta', '<', Carbon::now())
+                ->get();
+
+            foreach ($esicVencidas as $solicitacao) {
+                $alertas[] = [
+                    'tipo' => 'esic',
+                    'titulo' => 'Solicitação E-SIC vencida',
+                    'descricao' => "Protocolo #{$solicitacao->protocolo} venceu " . 
+                                  Carbon::parse($solicitacao->data_limite_resposta)->diffForHumans(),
+                    'urgencia' => 'danger',
+                    'link' => route('ouvidor.esic.show', $solicitacao->id)
+                ];
+            }
         }
 
         return collect($alertas);
@@ -258,23 +334,53 @@ class DashboardController extends Controller
     }
 
     /**
+     * Get count of overdue E-SIC solicitações
+     */
+    private function getEsicPrazoVencido($user)
+    {
+        return EsicSolicitacao::where('responsavel_id', $user->id)
+            ->whereIn('status', ['pendente', 'em_analise', 'aguardando_informacoes'])
+            ->where('data_limite_resposta', '<', Carbon::now())
+            ->count();
+    }
+
+    /**
+     * Get count of E-SIC solicitações expiring soon
+     */
+    private function getEsicProximoVencimento($user)
+    {
+        $proximoVencimento = Carbon::now()->addDays(3);
+        
+        return EsicSolicitacao::where('responsavel_id', $user->id)
+            ->whereIn('status', ['pendente', 'em_analise', 'aguardando_informacoes'])
+            ->where('data_limite_resposta', '<=', $proximoVencimento)
+            ->where('data_limite_resposta', '>', Carbon::now())
+            ->count();
+    }
+
+    /**
      * API: Obter estatísticas atualizadas
      */
-    public function getStats()
+    public function getStats(Request $request)
     {
         $user = Auth::user();
-        $stats = $this->getStatistics($user);
+        $stats = $this->getStatistics($user, $request->query('period'));
         return response()->json($stats);
     }
 
     /**
      * API: Obter dados de performance para gráfico
      */
-    public function getPerformanceData()
+    public function getPerformanceData(Request $request)
     {
         $user = Auth::user();
         $data = $this->getChartData($user);
-        return response()->json($data);
+        // Ajustar formato esperado pelo JS (labels/recebidas/respondidas)
+        return response()->json([
+            'labels' => $data['meses'] ?? [],
+            'recebidas' => $data['manifestacoes'] ?? [],
+            'respondidas' => $data['respondidas'] ?? [],
+        ]);
     }
 
     /**
@@ -302,13 +408,22 @@ class DashboardController extends Controller
             $data[] = $item->total;
         }
 
-        return response()->json([
+        // Também retornar métricas agregadas esperadas pelo JS antigo
+        $aggregates = [
+            'pendentes' => $statusData->where('status', 'pendente')->sum('total'),
+            'em_andamento' => $statusData->where('status', 'em_andamento')->sum('total'),
+            'respondidas' => $statusData->where('status', 'respondida')->sum('total'),
+            'finalizadas' => $statusData->where('status', 'finalizada')->sum('total'),
+            'vencidas' => $this->getPrazoVencido($user),
+        ];
+
+        return response()->json(array_merge($aggregates, [
             'labels' => $labels,
             'datasets' => [[
                 'data' => $data,
                 'backgroundColor' => array_values($colors)
             ]]
-        ]);
+        ]));
     }
 
     /**
@@ -382,6 +497,43 @@ class DashboardController extends Controller
                 'time' => 'Hoje',
                 'read' => false
             ];
+        }
+
+        // Solicitações E-SIC vencidas (se tiver permissão)
+        if ($user->canResponderEsic()) {
+            $esicVencidas = EsicSolicitacao::where('responsavel_id', $user->id)
+                ->whereIn('status', ['pendente', 'em_analise', 'aguardando_informacoes'])
+                ->where('data_limite_resposta', '<', Carbon::now())
+                ->count();
+
+            if ($esicVencidas > 0) {
+                $notifications[] = [
+                    'id' => 3,
+                    'title' => 'Solicitações E-SIC vencidas',
+                    'message' => "{$esicVencidas} solicitação(ões) E-SIC com prazo vencido",
+                    'type' => 'danger',
+                    'time' => 'Agora',
+                    'read' => false
+                ];
+            }
+
+            // Solicitações E-SIC próximas ao vencimento
+            $esicProximoVencimento = EsicSolicitacao::where('responsavel_id', $user->id)
+                ->whereIn('status', ['pendente', 'em_analise', 'aguardando_informacoes'])
+                ->where('data_limite_resposta', '<=', Carbon::now()->addDays(3))
+                ->where('data_limite_resposta', '>', Carbon::now())
+                ->count();
+
+            if ($esicProximoVencimento > 0) {
+                $notifications[] = [
+                    'id' => 4,
+                    'title' => 'E-SIC com prazo vencendo',
+                    'message' => "{$esicProximoVencimento} solicitação(ões) E-SIC com prazo vencendo em 3 dias",
+                    'type' => 'warning',
+                    'time' => 'Hoje',
+                    'read' => false
+                ];
+            }
         }
 
         return response()->json($notifications);

@@ -54,7 +54,7 @@ class ManifestacaoController extends Controller
                 $q->where('protocolo', 'like', "%{$busca}%")
                   ->orWhere('assunto', 'like', "%{$busca}%")
                   ->orWhere('descricao', 'like', "%{$busca}%")
-                  ->orWhereHas('cidadao', function ($q) use ($busca) {
+                  ->orWhereHas('user', function ($q) use ($busca) {
                       $q->where('name', 'like', "%{$busca}%")
                         ->orWhere('email', 'like', "%{$busca}%");
                   });

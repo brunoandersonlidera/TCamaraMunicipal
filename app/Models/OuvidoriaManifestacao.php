@@ -195,6 +195,42 @@ class OuvidoriaManifestacao extends Model
         return now()->diffInDays($prazo, false);
     }
 
+    public function diasParaVencimentoFormatado()
+    {
+        $prazo = $this->prazo_prorrogado ?? $this->prazo_resposta;
+        
+        if (!$prazo) {
+            return 'Não definido';
+        }
+
+        $agora = now();
+        $diffInMinutes = $agora->diffInMinutes($prazo, false);
+        
+        if ($diffInMinutes < 0) {
+            return 'Vencido';
+        }
+        
+        $dias = intval($diffInMinutes / (24 * 60));
+        $horas = intval(($diffInMinutes % (24 * 60)) / 60);
+        $minutos = $diffInMinutes % 60;
+        
+        $resultado = [];
+        
+        if ($dias > 0) {
+            $resultado[] = $dias . ($dias == 1 ? ' dia' : ' dias');
+        }
+        
+        if ($horas > 0) {
+            $resultado[] = $horas . ($horas == 1 ? ' hora' : ' horas');
+        }
+        
+        if ($minutos > 0 && $dias == 0) {
+            $resultado[] = $minutos . ($minutos == 1 ? ' minuto' : ' minutos');
+        }
+        
+        return empty($resultado) ? '0 minutos' : implode(' e ', $resultado);
+    }
+
     public function getStatusPrazoAttribute()
     {
         $dias = $this->dias_para_vencimento;

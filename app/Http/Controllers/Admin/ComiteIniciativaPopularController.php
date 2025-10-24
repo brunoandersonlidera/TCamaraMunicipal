@@ -146,17 +146,48 @@ class ComiteIniciativaPopularController extends Controller
     }
 
     /**
-     * Toggle status do comitê
+     * Aprovar comitê (aguardando_validacao -> ativo)
      */
-    public function toggleStatus(ComiteIniciativaPopular $comite)
+    public function aprovar(Request $request, ComiteIniciativaPopular $comite)
     {
-        $novoStatus = $comite->status === 'ativo' ? 'arquivado' : 'ativo';
-        $comite->update(['status' => $novoStatus]);
+        if (!$comite->isAguardandoValidacao()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Comitê não está aguardando validação.'
+            ], 400);
+        }
+
+        $comite->aprovar(auth()->id(), $request->observacoes);
 
         return response()->json([
             'success' => true,
-            'message' => 'Status alterado com sucesso!',
-            'status' => $novoStatus
+            'message' => 'Comitê aprovado com sucesso!',
+            'status' => $comite->status
+        ]);
+    }
+
+    /**
+     * Solicitar alterações no comitê
+     */
+    public function solicitarAlteracoes(Request $request, ComiteIniciativaPopular $comite)
+    {
+        $request->validate([
+            'motivo' => 'required|string|max:1000'
+        ]);
+
+        if (!in_array($comite->status, ['aguardando_validacao', 'ativo'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Não é possível solicitar alterações para este comitê.'
+            ], 400);
+        }
+
+        $comite->solicitarAlteracoes($request->motivo, auth()->id());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Solicitação de alterações enviada com sucesso!',
+            'status' => $comite->status
         ]);
     }
 
@@ -181,51 +212,71 @@ class ComiteIniciativaPopularController extends Controller
     }
 
     /**
-     * Validar comitê
+     * Validar comitê (ativo -> validado)
      */
-    public function validar(ComiteIniciativaPopular $comite)
+    public function validar(Request $request, ComiteIniciativaPopular $comite)
     {
         if (!$comite->atingiuMinimoAssinaturas()) {
-            return redirect()
-                ->back()
-                ->with('error', 'Comitê não atingiu o mínimo de assinaturas necessárias para validação.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Comitê não atingiu o mínimo de assinaturas necessárias para validação.'
+            ], 400);
         }
 
-        $comite->update(['status' => 'validado']);
+        if (!$comite->isAtivo()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Apenas comitês ativos podem ser validados.'
+            ], 400);
+        }
 
-        return redirect()
-            ->back()
-            ->with('success', 'Comitê validado com sucesso!');
+        $comite->validar(auth()->id(), $request->observacoes);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Comitê validado com sucesso!',
+            'status' => $comite->status
+        ]);
     }
 
     /**
-     * Rejeitar comitê
+     * Rejeitar comitê definitivamente
      */
     public function rejeitar(Request $request, ComiteIniciativaPopular $comite)
     {
         $request->validate([
-            'observacoes' => 'required|string|max:1000'
+            'motivo' => 'required|string|max:1000'
         ]);
 
-        $comite->update([
-            'status' => 'rejeitado',
-            'observacoes' => $request->observacoes
-        ]);
+        if (!in_array($comite->status, ['aguardando_validacao', 'aguardando_alteracoes', 'ativo'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Não é possível rejeitar este comitê no status atual.'
+            ], 400);
+        }
 
-        return redirect()
-            ->back()
-            ->with('success', 'Comitê rejeitado com sucesso!');
+        $comite->rejeitar($request->motivo, auth()->id());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Comitê rejeitado com sucesso!',
+            'status' => $comite->status
+        ]);
     }
 
     /**
      * Arquivar comitê
      */
-    public function arquivar(ComiteIniciativaPopular $comite)
+    public function arquivar(Request $request, ComiteIniciativaPopular $comite)
     {
-        $comite->update(['status' => 'arquivado']);
+        $motivo = $request->motivo ?? 'Arquivado pela administração';
+        
+        $comite->arquivar($motivo, auth()->id());
 
-        return redirect()
-            ->back()
-            ->with('success', 'Comitê arquivado com sucesso!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Comitê arquivado com sucesso!',
+            'status' => $comite->status
+        ]);
     }
 }

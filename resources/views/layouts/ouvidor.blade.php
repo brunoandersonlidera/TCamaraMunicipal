@@ -271,7 +271,7 @@
                                 <span class="notification-badge">{{ $totalNotificacoes }}</span>
                             @endif
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" style="width: 300px;">
+                        <ul class="dropdown-menu dropdown-menu-end" id="notificationList" style="width: 300px;">
                             <li><h6 class="dropdown-header">Notificações</h6></li>
                             <li><hr class="dropdown-divider"></li>
                             @if(isset($notificacoesRecentes) && $notificacoesRecentes->count() > 0)

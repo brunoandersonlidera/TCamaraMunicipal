@@ -41,7 +41,7 @@ class RelatorioController extends Controller
         $dataInicio = $request->data_inicio ? Carbon::parse($request->data_inicio) : Carbon::now()->subMonth();
         $dataFim = $request->data_fim ? Carbon::parse($request->data_fim) : Carbon::now();
 
-        $query = OuvidoriaManifestacao::with(['tipo', 'cidadao', 'ouvidorResponsavel'])
+        $query = OuvidoriaManifestacao::with(['tipo', 'user', 'ouvidorResponsavel'])
             ->where('ouvidor_responsavel_id', Auth::id())
             ->whereBetween('created_at', [$dataInicio, $dataFim]);
 
@@ -92,7 +92,7 @@ class RelatorioController extends Controller
         $dataInicio = $request->data_inicio ? Carbon::parse($request->data_inicio) : Carbon::now()->subMonth();
         $dataFim = $request->data_fim ? Carbon::parse($request->data_fim) : Carbon::now();
 
-        $query = EsicSolicitacao::with(['cidadao', 'responsavel'])
+        $query = EsicSolicitacao::with(['user', 'responsavel'])
             ->where('responsavel_id', Auth::id())
             ->whereBetween('created_at', [$dataInicio, $dataFim]);
 

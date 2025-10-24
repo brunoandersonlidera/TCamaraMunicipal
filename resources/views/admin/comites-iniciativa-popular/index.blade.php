@@ -48,10 +48,13 @@
                                 <input type="hidden" name="search" value="{{ request('search') }}">
                                 <select class="form-select" name="status" data-auto-submit="true">
                                     <option value="">Todos os status</option>
+                                    <option value="aguardando_validacao" {{ request('status') == 'aguardando_validacao' ? 'selected' : '' }}>Aguardando Validação</option>
                                     <option value="ativo" {{ request('status') == 'ativo' ? 'selected' : '' }}>Ativo</option>
+                                    <option value="aguardando_alteracoes" {{ request('status') == 'aguardando_alteracoes' ? 'selected' : '' }}>Aguardando Alterações</option>
                                     <option value="validado" {{ request('status') == 'validado' ? 'selected' : '' }}>Validado</option>
                                     <option value="rejeitado" {{ request('status') == 'rejeitado' ? 'selected' : '' }}>Rejeitado</option>
                                     <option value="arquivado" {{ request('status') == 'arquivado' ? 'selected' : '' }}>Arquivado</option>
+                                    <option value="expirado" {{ request('status') == 'expirado' ? 'selected' : '' }}>Expirado</option>
                                 </select>
                             </form>
                         </div>
@@ -138,8 +141,8 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="badge bg-{{ $comite->status == 'ativo' ? 'success' : ($comite->status == 'validado' ? 'primary' : ($comite->status == 'rejeitado' ? 'danger' : 'secondary')) }}">
-                                                {{ ucfirst($comite->status) }}
+                                            <span class="badge bg-{{ $comite->getStatusBadgeClass() }}">
+                                                {{ $comite->getStatusFormatado() }}
                                             </span>
                                         </td>
                                         <td>{{ $comite->created_at->format('d/m/Y H:i') }}</td>
@@ -149,19 +152,45 @@
                                                    class="btn btn-sm btn-info" title="Visualizar">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <a href="{{ route('admin.comites-iniciativa-popular.edit', $comite) }}" 
-                                                   class="btn btn-sm btn-warning" title="Editar">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <button type="button" class="btn btn-sm btn-{{ $comite->status == 'ativo' ? 'secondary' : 'success' }}" 
-                                                        data-action="toggle-status" data-id="{{ $comite->id }}" 
-                                                        title="{{ $comite->status == 'ativo' ? 'Desativar' : 'Ativar' }}">
-                                                    <i class="fas fa-{{ $comite->status == 'ativo' ? 'pause' : 'play' }}"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-danger" 
-                                                        onclick="confirmDelete({{ $comite->id }})" title="Excluir">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
+                                                
+                                                @if($comite->isAguardandoValidacao())
+                                                    <button type="button" class="btn btn-sm btn-success" 
+                                                            onclick="aprovarComite({{ $comite->id }})" title="Aprovar">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-warning" 
+                                                            onclick="solicitarAlteracoes({{ $comite->id }})" title="Solicitar alterações">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                @elseif($comite->status === 'ativo')
+                                                    <button type="button" class="btn btn-sm btn-success" 
+                                                            onclick="validarComite({{ $comite->id }})" title="Validar">
+                                                        <i class="fas fa-check-circle"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-warning" 
+                                                            onclick="solicitarAlteracoes({{ $comite->id }})" title="Solicitar alterações">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                @elseif($comite->isAguardandoAlteracoes())
+                                                    <button type="button" class="btn btn-sm btn-success" 
+                                                            onclick="aprovarComite({{ $comite->id }})" title="Aprovar">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                @endif
+                                                
+                                                @if(!in_array($comite->status, ['rejeitado', 'arquivado', 'expirado']))
+                                                    <button type="button" class="btn btn-sm btn-danger" 
+                                                            onclick="rejeitarComite({{ $comite->id }})" title="Rejeitar">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                @endif
+                                                
+                                                @if(!in_array($comite->status, ['arquivado', 'expirado']))
+                                                    <button type="button" class="btn btn-sm btn-secondary" 
+                                                            onclick="arquivarComite({{ $comite->id }})" title="Arquivar">
+                                                        <i class="fas fa-archive"></i>
+                                                    </button>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
@@ -223,6 +252,138 @@ function confirmDelete(id) {
     const form = document.getElementById('deleteForm');
     form.action = `/admin/comites-iniciativa-popular/${id}`;
     new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+function aprovarComite(id) {
+    if (confirm('Tem certeza que deseja aprovar este comitê?')) {
+        fetch(`/admin/comites-iniciativa-popular/${id}/aprovar`, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Erro ao aprovar comitê');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erro ao aprovar comitê');
+        });
+    }
+}
+
+function validarComite(id) {
+    const observacoes = prompt('Observações sobre a validação (opcional):');
+    if (observacoes !== null) {
+        fetch(`/admin/comites-iniciativa-popular/${id}/validar`, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ observacoes: observacoes })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Erro ao validar comitê');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erro ao validar comitê');
+        });
+    }
+}
+
+function solicitarAlteracoes(id) {
+    const motivo = prompt('Motivo para solicitar alterações (obrigatório):');
+    if (motivo && motivo.trim()) {
+        fetch(`/admin/comites-iniciativa-popular/${id}/solicitar-alteracoes`, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ motivo: motivo.trim() })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Erro ao solicitar alterações');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erro ao solicitar alterações');
+        });
+    } else if (motivo !== null) {
+        alert('O motivo é obrigatório para solicitar alterações.');
+    }
+}
+
+function rejeitarComite(id) {
+    const motivo = prompt('Motivo da rejeição (obrigatório):');
+    if (motivo && motivo.trim()) {
+        fetch(`/admin/comites-iniciativa-popular/${id}/rejeitar`, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ motivo: motivo.trim() })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Erro ao rejeitar comitê');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erro ao rejeitar comitê');
+        });
+    } else if (motivo !== null) {
+        alert('O motivo é obrigatório para rejeitar o comitê.');
+    }
+}
+
+function arquivarComite(id) {
+    const motivo = prompt('Motivo do arquivamento (opcional):');
+    if (motivo !== null) {
+        fetch(`/admin/comites-iniciativa-popular/${id}/arquivar`, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ motivo: motivo || '' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Erro ao arquivar comitê');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erro ao arquivar comitê');
+        });
+    }
 }
 
 function toggleStatus(id) {

@@ -137,18 +137,24 @@
                                                     $statusClass = match($solicitacao->status) {
                                                         'pendente' => 'warning',
                                                         'em_analise' => 'info',
+                                                        'aguardando_informacoes' => 'secondary',
+                                                        'informacoes_recebidas' => 'primary',
                                                         'respondida' => 'success',
-                                                        'finalizada' => 'primary',
+                                                        'finalizada' => 'dark',
+                                                        'arquivada' => 'secondary',
                                                         'negada' => 'danger',
-                                                        default => 'secondary'
+                                                        default => 'light'
                                                     };
                                                     $statusText = match($solicitacao->status) {
                                                         'pendente' => 'Pendente',
                                                         'em_analise' => 'Em Análise',
+                                                        'aguardando_informacoes' => 'Aguardando Informações',
+                                                        'informacoes_recebidas' => 'Informações Recebidas',
                                                         'respondida' => 'Respondida',
                                                         'finalizada' => 'Finalizada',
+                                                        'arquivada' => 'Arquivada',
                                                         'negada' => 'Negada',
-                                                        default => 'Desconhecido'
+                                                        default => ucfirst($solicitacao->status)
                                                     };
                                                 @endphp
                                                 <span class="badge bg-{{ $statusClass }}">{{ $statusText }}</span>

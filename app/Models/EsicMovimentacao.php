@@ -43,6 +43,7 @@ class EsicMovimentacao extends Model
     const STATUS_RECURSO_DEFERIDO = 'recurso_deferido';
     const STATUS_RECURSO_INDEFERIDO = 'recurso_indeferido';
     const STATUS_FINALIZADA = 'finalizada';
+    const STATUS_FINALIZACAO_SOLICITADA = 'finalizacao_solicitada';
     const STATUS_ARQUIVADA = 'arquivada';
 
     // Relacionamentos
@@ -92,6 +93,7 @@ class EsicMovimentacao extends Model
             self::STATUS_RECURSO_DEFERIDO => 'Recurso Deferido',
             self::STATUS_RECURSO_INDEFERIDO => 'Recurso Indeferido',
             self::STATUS_FINALIZADA => 'Finalizada',
+            self::STATUS_FINALIZACAO_SOLICITADA => 'Finalização Solicitada',
             self::STATUS_ARQUIVADA => 'Arquivada'
         ];
 
@@ -128,6 +130,7 @@ class EsicMovimentacao extends Model
             self::STATUS_RECURSO_DEFERIDO => 'Recurso Deferido',
             self::STATUS_RECURSO_INDEFERIDO => 'Recurso Indeferido',
             self::STATUS_FINALIZADA => 'Finalizada',
+            self::STATUS_FINALIZACAO_SOLICITADA => 'Finalização Solicitada',
             self::STATUS_ARQUIVADA => 'Arquivada'
         ];
     }

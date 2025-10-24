@@ -143,6 +143,58 @@ class ConfiguracaoGeral extends Model
         return \Illuminate\Support\Facades\Storage::url($path);
     }
 
+    /**
+     * Obter brasão com URL absoluta (para e-mails)
+     */
+    public static function obterBrasaoAbsoluto()
+    {
+        $config = self::where('chave', 'brasao_camara')
+                     ->where('ativo', true)
+                     ->first();
+
+        if (!$config || empty($config->valor)) {
+            return null;
+        }
+
+        $valor = $config->valor;
+
+        // Se já for URL absoluta, retorna
+        if (preg_match('#^https?://#', $valor)) {
+            return $valor;
+        }
+
+        // Obter URL base da aplicação
+        $baseUrl = config('app.url');
+        if (empty($baseUrl) || $baseUrl === 'auto') {
+            // Detectar automaticamente se APP_URL não estiver configurado
+            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
+            $baseUrl = $protocol . '://' . $host;
+        }
+
+        // Caminhos em public/images
+        if (str_starts_with($valor, '/images/')) {
+            return $baseUrl . $valor;
+        }
+        if (str_starts_with($valor, 'images/')) {
+            return $baseUrl . '/' . $valor;
+        }
+
+        // Caminhos via rota de mídia
+        if (str_starts_with($valor, '/media/')) {
+            return $baseUrl . '/media/' . basename($valor);
+        }
+        if (str_starts_with($valor, 'media/')) {
+            return $baseUrl . '/media/' . basename($valor);
+        }
+
+        // Caminhos armazenados em storage
+        $path = ltrim($valor, '/');
+        $path = preg_replace('#^storage/#', '', $path);
+        $path = preg_replace('#/+#', '/', $path);
+        return $baseUrl . '/storage/' . $path;
+    }
+
     public static function obterLogoFooter()
     {
         $config = self::where('chave', 'logo_footer')

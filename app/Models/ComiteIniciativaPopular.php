@@ -28,6 +28,11 @@ class ComiteIniciativaPopular extends Model
         'documentos',
         'ementa',
         'texto_projeto_html',
+        'motivo_rejeicao',
+        'observacoes_admin',
+        'data_validacao_admin',
+        'validado_por',
+        'data_ultima_alteracao',
     ];
 
     protected $casts = [
@@ -38,6 +43,8 @@ class ComiteIniciativaPopular extends Model
         'minimo_assinaturas' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'data_validacao_admin' => 'datetime',
+        'data_ultima_alteracao' => 'datetime',
     ];
 
     /**
@@ -64,6 +71,11 @@ class ComiteIniciativaPopular extends Model
         return $this->hasMany(AssinaturaEletronica::class, 'comite_iniciativa_popular_id');
     }
 
+    public function validadoPor()
+    {
+        return $this->belongsTo(User::class, 'validado_por');
+    }
+
     /**
      * Relacionamento com assinaturas válidas
      */
@@ -85,35 +97,91 @@ class ComiteIniciativaPopular extends Model
     }
 
     /**
-     * Accessor para verificar se o comitê está ativo
+     * Verifica se o comitê está ativo (pode coletar assinaturas)
      */
-    public function getIsAtivoAttribute(): bool
+    public function getIsAtivoAttribute()
     {
         return $this->status === 'ativo';
     }
 
     /**
-     * Verifica se o comitê está ativo
+     * Verifica se o comitê está ativo (pode coletar assinaturas)
      */
-    public function isAtivo(): bool
+    public function isAtivo()
     {
         return $this->status === 'ativo';
     }
 
     /**
-     * Verifica se o comitê está inativo (rejeitado ou arquivado)
+     * Verifica se o comitê está inativo (não pode coletar assinaturas)
      */
-    public function isInativo(): bool
+    public function isInativo()
     {
-        return in_array($this->status, ['rejeitado', 'arquivado']);
+        return !in_array($this->status, ['ativo']);
     }
 
     /**
-     * Verifica se o comitê foi validado
+     * Verifica se o comitê foi validado (atingiu meta e foi aprovado)
      */
-    public function isValidado(): bool
+    public function isValidado()
     {
         return $this->status === 'validado';
+    }
+
+    /**
+     * Verifica se está aguardando validação inicial
+     */
+    public function isAguardandoValidacao()
+    {
+        return $this->status === 'aguardando_validacao';
+    }
+
+    /**
+     * Verifica se está aguardando alterações do responsável
+     */
+    public function isAguardandoAlteracoes()
+    {
+        return $this->status === 'aguardando_alteracoes';
+    }
+
+    /**
+     * Verifica se foi rejeitado
+     */
+    public function isRejeitado()
+    {
+        return $this->status === 'rejeitado';
+    }
+
+    /**
+     * Verifica se foi arquivado
+     */
+    public function isArquivado()
+    {
+        return $this->status === 'arquivado';
+    }
+
+    /**
+     * Verifica se expirou
+     */
+    public function isExpirado()
+    {
+        return $this->status === 'expirado' || ($this->data_fim_coleta && $this->data_fim_coleta->isPast() && $this->status === 'ativo');
+    }
+
+    /**
+     * Verifica se pode coletar assinaturas
+     */
+    public function podeColetarAssinaturas()
+    {
+        return $this->status === 'ativo' && !$this->isExpirado();
+    }
+
+    /**
+     * Verifica se pode ser editado pelo responsável
+     */
+    public function podeSerEditado()
+    {
+        return in_array($this->status, ['aguardando_validacao', 'aguardando_alteracoes']);
     }
 
     /**
@@ -137,7 +205,7 @@ class ComiteIniciativaPopular extends Model
     }
 
     /**
-     * Scope para comitês ativos
+     * Scope para comitês ativos (podem coletar assinaturas)
      */
     public function scopeAtivo($query)
     {
@@ -145,11 +213,73 @@ class ComiteIniciativaPopular extends Model
     }
 
     /**
-     * Scope para comitês inativos (rejeitados ou arquivados)
+     * Scope para comitês inativos (não podem coletar assinaturas)
      */
     public function scopeInativo($query)
     {
-        return $query->whereIn('status', ['rejeitado', 'arquivado']);
+        return $query->where('status', '!=', 'ativo');
+    }
+
+    /**
+     * Scope para comitês validados
+     */
+    public function scopeValidados($query)
+    {
+        return $query->where('status', 'validado');
+    }
+
+    /**
+     * Scope para comitês aguardando validação
+     */
+    public function scopeAguardandoValidacao($query)
+    {
+        return $query->where('status', 'aguardando_validacao');
+    }
+
+    /**
+     * Scope para comitês aguardando alterações
+     */
+    public function scopeAguardandoAlteracoes($query)
+    {
+        return $query->where('status', 'aguardando_alteracoes');
+    }
+
+    /**
+     * Scope para comitês rejeitados
+     */
+    public function scopeRejeitados($query)
+    {
+        return $query->where('status', 'rejeitado');
+    }
+
+    /**
+     * Scope para comitês arquivados
+     */
+    public function scopeArquivados($query)
+    {
+        return $query->where('status', 'arquivado');
+    }
+
+    /**
+     * Scope para comitês expirados
+     */
+    public function scopeExpirados($query)
+    {
+        return $query->where(function($q) {
+            $q->where('status', 'expirado')
+              ->orWhere(function($subQ) {
+                  $subQ->where('status', 'ativo')
+                       ->where('data_fim_coleta', '<', now());
+              });
+        });
+    }
+
+    /**
+     * Scope para comitês com mínimo de assinaturas
+     */
+    public function scopeComMinimoAssinaturas($query)
+    {
+        return $query->where('numero_assinaturas', '>=', 1000);
     }
 
     /**
@@ -165,22 +295,136 @@ class ComiteIniciativaPopular extends Model
      */
     public function scopeInativos($query)
     {
-        return $query->whereIn('status', ['rejeitado', 'arquivado']);
+        return $query->where('status', '!=', 'ativo');
     }
 
     /**
-     * Scope para comitês validados
+     * Métodos para transições de status
      */
-    public function scopeValidados($query)
+    
+    /**
+     * Aprova o comitê (admin)
+     */
+    public function aprovar($adminId = null, $observacoes = null)
     {
-        return $query->where('status', 'validado');
+        $this->update([
+            'status' => 'ativo',
+            'data_validacao_admin' => now(),
+            'validado_por' => $adminId,
+            'observacoes_admin' => $observacoes,
+            'data_ultima_alteracao' => now()
+        ]);
     }
 
     /**
-     * Scope para comitês que atingiram o mínimo de assinaturas
+     * Solicita alterações no comitê (admin)
      */
-    public function scopeComMinimoAssinaturas($query)
+    public function solicitarAlteracoes($motivo, $adminId = null)
     {
-        return $query->whereRaw('numero_assinaturas >= minimo_assinaturas');
+        $this->update([
+            'status' => 'aguardando_alteracoes',
+            'motivo_rejeicao' => $motivo,
+            'validado_por' => $adminId,
+            'data_ultima_alteracao' => now()
+        ]);
+    }
+
+    /**
+     * Rejeita o comitê definitivamente (admin)
+     */
+    public function rejeitar($motivo, $adminId = null)
+    {
+        $this->update([
+            'status' => 'rejeitado',
+            'motivo_rejeicao' => $motivo,
+            'validado_por' => $adminId,
+            'data_ultima_alteracao' => now()
+        ]);
+    }
+
+    /**
+     * Arquiva o comitê (admin)
+     */
+    public function arquivar($motivo, $adminId = null)
+    {
+        $this->update([
+            'status' => 'arquivado',
+            'motivo_rejeicao' => $motivo,
+            'validado_por' => $adminId,
+            'data_ultima_alteracao' => now()
+        ]);
+    }
+
+    /**
+     * Valida o comitê após atingir meta (admin)
+     */
+    public function validar($adminId = null, $observacoes = null)
+    {
+        $this->update([
+            'status' => 'validado',
+            'data_validacao_admin' => now(),
+            'validado_por' => $adminId,
+            'observacoes_admin' => $observacoes,
+            'data_ultima_alteracao' => now()
+        ]);
+    }
+
+    /**
+     * Resubmete para validação após alterações (cidadão)
+     */
+    public function resubmeter()
+    {
+        $this->update([
+            'status' => 'aguardando_validacao',
+            'motivo_rejeicao' => null,
+            'data_ultima_alteracao' => now()
+        ]);
+    }
+
+    /**
+     * Marca como expirado
+     */
+    public function marcarComoExpirado()
+    {
+        $this->update([
+            'status' => 'expirado',
+            'data_ultima_alteracao' => now()
+        ]);
+    }
+
+    /**
+     * Retorna o status formatado para exibição
+     */
+    public function getStatusFormatado()
+    {
+        $statusMap = [
+            'aguardando_validacao' => 'Aguardando Validação',
+            'ativo' => 'Ativo',
+            'aguardando_alteracoes' => 'Aguardando Alterações',
+            'validado' => 'Validado',
+            'rejeitado' => 'Rejeitado',
+            'arquivado' => 'Arquivado',
+            'expirado' => 'Expirado'
+        ];
+
+        return $statusMap[$this->status] ?? $this->status;
+    }
+
+    /**
+     * Retorna a classe CSS para o badge do status
+     */
+    public function getStatusBadgeClass()
+    {
+        $classMap = [
+            'aguardando_validacao' => 'warning',
+            'ativo' => 'success',
+            'aguardando_alteracoes' => 'info',
+            'validado' => 'primary',
+            'rejeitado' => 'danger',
+            'arquivado' => 'secondary',
+            'expirado' => 'dark'
+        ];
+
+        return $classMap[$this->status] ?? 'secondary';
     }
 }

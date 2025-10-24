@@ -13,8 +13,8 @@
                         <h4 class="mb-0">
                             <i class="fas fa-users"></i> {{ $comite->nome }}
                         </h4>
-                        <span class="badge bg-{{ $comite->status === 'ativo' ? 'success' : 'secondary' }}">
-                            {{ ucfirst($comite->status) }}
+                        <span class="badge bg-{{ $comite->getStatusBadgeClass() }} fs-6">
+                            {{ $comite->getStatusFormatado() }}
                         </span>
                     </div>
                 </div>
@@ -95,14 +95,21 @@
                             <h4 class="text-primary">{{ $comite->data_fim_coleta ? $comite->data_fim_coleta->format('d/m/Y') : 'Não definida' }}</h4>
                             @if($comite->data_fim_coleta)
                                 @php
-                                    $diasRestantes = now()->diffInDays($comite->data_fim_coleta, false);
+                                    $diasRestantesDetalhado = calcularDiasRestantesDetalhado($comite->data_fim_coleta);
+                                    $diasRestantes = floor($diasRestantesDetalhado);
                                 @endphp
-                                @if($diasRestantes > 0)
-                                    <p class="text-success mb-0">{{ $diasRestantes }} dias restantes</p>
+                                @if($diasRestantesDetalhado > 0)
+                                    @php
+                                        $tempoFormatado = formatarTempoRestante($diasRestantesDetalhado);
+                                    @endphp
+                                    <p class="text-success mb-0">{{ $tempoFormatado }} restantes</p>
                                 @elseif($diasRestantes == 0)
                                     <p class="text-warning mb-0">Último dia!</p>
                                 @else
-                                    <p class="text-danger mb-0">Prazo expirado há {{ abs($diasRestantes) }} dias</p>
+                                    @php
+                                        $tempoExpirado = formatarTempoRestante(abs($diasRestantesDetalhado));
+                                    @endphp
+                                    <p class="text-danger mb-0">Prazo expirado há {{ $tempoExpirado ?? abs($diasRestantes) . ' dias' }}</p>
                                 @endif
                             @endif
                         </div>

@@ -21,6 +21,7 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/.ssh
 
 # Arquivo administrativo com credenciais sensíveis
 admin_users.php

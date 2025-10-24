@@ -176,30 +176,32 @@
                                         <td>
                                             @if($manifestacao->prazo_resposta)
                                                 @php
-                                                    $prazo = \Carbon\Carbon::parse($manifestacao->prazo_resposta);
-                                                    $hoje = \Carbon\Carbon::now();
-                                                    $diasRestantes = $hoje->diffInDays($prazo, false);
+                                                    $prazo = $manifestacao->prazo_prorrogado ?? $manifestacao->prazo_resposta;
+                                                    $diasRestantes = now()->diffInDays($prazo, false);
+                                                    $prazoFormatado = $manifestacao->diasParaVencimentoFormatado();
                                                 @endphp
+                                                
                                                 @if($diasRestantes < 0)
                                                     <span class="badge bg-danger">
                                                         <i class="fas fa-exclamation-triangle me-1"></i>
                                                         Vencido
                                                     </span>
+                                                    <br>
+                                                    <small class="text-muted">{{ $prazo->format('d/m/Y') }}</small>
                                                 @elseif($diasRestantes == 0)
                                                     <span class="badge bg-warning">
                                                         <i class="fas fa-clock me-1"></i>
                                                         Hoje
                                                     </span>
-                                                @elseif($diasRestantes <= 3)
-                                                    <span class="badge bg-warning">
-                                                        <i class="fas fa-clock me-1"></i>
-                                                        {{ $diasRestantes }} dia(s)
-                                                    </span>
+                                                    <br>
+                                                    <small class="text-muted">{{ $prazo->format('d/m/Y') }}</small>
                                                 @else
                                                     <span class="badge bg-success">
-                                                        <i class="fas fa-check me-1"></i>
-                                                        {{ $diasRestantes }} dia(s)
+                                                        <i class="fas fa-check-circle me-1"></i>
+                                                        {{ $prazoFormatado }}
                                                     </span>
+                                                    <br>
+                                                    <small class="text-muted">{{ $prazo->format('d/m/Y') }}</small>
                                                 @endif
                                             @else
                                                 <span class="text-muted">-</span>

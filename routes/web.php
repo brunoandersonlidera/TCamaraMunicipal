@@ -231,10 +231,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/upload/images/multiple', [ImageUploadController::class, 'uploadMultiple'])->name('upload.image.multiple');
     Route::post('/upload/images/delete', [ImageUploadController::class, 'delete'])->name('upload.image.delete');
     
-    // Página de teste do upload (apenas para desenvolvimento)
-    Route::get('/test-upload', function () {
-        return view('test-upload');
-    })->name('test.upload');
+
 });
 
 // Rotas da Ouvidoria (públicas)
@@ -262,6 +259,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/esic/nova-solicitacao', [App\Http\Controllers\EsicController::class, 'create'])->name('esic.create');
     Route::post('/esic/solicitacao', [App\Http\Controllers\EsicController::class, 'store'])->name('esic.store');
     Route::get('/esic/minhas-solicitacoes', [App\Http\Controllers\EsicController::class, 'minhasSolicitacoes'])->name('esic.minhas-solicitacoes');
+    
+    // Rotas para sistema de mensagens do E-SIC (cidadão)
+    Route::post('/esic/solicitacao/{protocolo}/mensagem', [App\Http\Controllers\EsicController::class, 'enviarMensagem'])->name('esic.enviar-mensagem');
+    Route::get('/esic/mensagem/{mensagem}/anexo', [App\Http\Controllers\EsicController::class, 'downloadAnexoMensagem'])->name('esic.download-anexo-mensagem');
+    
+    // Rota para finalização de solicitação pelo cidadão
+    Route::post('/esic/solicitacao/{protocolo}/finalizar', [App\Http\Controllers\EsicController::class, 'finalizar'])->name('esic.finalizar');
 });
 
 // Rotas para Cartas de Serviço
@@ -534,11 +538,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         'as' => 'admin',
         'parameters' => ['comites-iniciativa-popular' => 'comite']
     ]);
-    Route::patch('comites-iniciativa-popular/{comite}/toggle-status', [App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, 'toggleStatus'])->name('admin.comites-iniciativa-popular.toggle-status');
-    Route::get('comites-iniciativa-popular/{comite}/download/{documento}', [App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, 'download'])->name('admin.comites-iniciativa-popular.download');
+    Route::patch('comites-iniciativa-popular/{comite}/aprovar', [App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, 'aprovar'])->name('admin.comites-iniciativa-popular.aprovar');
+    Route::patch('comites-iniciativa-popular/{comite}/solicitar-alteracoes', [App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, 'solicitarAlteracoes'])->name('admin.comites-iniciativa-popular.solicitar-alteracoes');
     Route::patch('comites-iniciativa-popular/{comite}/validar', [App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, 'validar'])->name('admin.comites-iniciativa-popular.validar');
     Route::patch('comites-iniciativa-popular/{comite}/rejeitar', [App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, 'rejeitar'])->name('admin.comites-iniciativa-popular.rejeitar');
     Route::patch('comites-iniciativa-popular/{comite}/arquivar', [App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, 'arquivar'])->name('admin.comites-iniciativa-popular.arquivar');
+    Route::get('comites-iniciativa-popular/{comite}/download/{documento}', [App\Http\Controllers\Admin\ComiteIniciativaPopularController::class, 'download'])->name('admin.comites-iniciativa-popular.download');
 
     // Rotas administrativas para documentos
     Route::resource('documentos', App\Http\Controllers\Admin\DocumentoController::class, [
@@ -791,25 +796,7 @@ Route::get('/media/{filename}', [App\Http\Controllers\MediaController::class, 's
     ->name('media.serve')
     ->where('filename', '.*');
 
-// Rota de teste para debug do modal (TEMPORÁRIA)
-Route::get('/test-media-api/{id}', function($id) {
-    $media = App\Models\Media::with('uploader')->find($id);
-    if (!$media) {
-        return response()->json(['error' => 'Media not found'], 404);
-    }
-    
-    $mediaArray = $media->toArray();
-    return response()->json([
-        'success' => true,
-        'data' => $mediaArray,
-        'debug' => [
-            'url' => $media->url,
-            'public_url' => $media->public_url,
-            'formatted_size' => $media->formatted_size,
-            'is_image' => $media->is_image
-        ]
-    ]);
-});
+
 
 // Rota pública para download de PDF de fiscalização
 Route::get('/contratos/{contrato}/fiscalizacoes/{fiscalizacao}/pdf', [App\Http\Controllers\Admin\ContratoController::class, 'downloadFiscalizacaoPdfPublico'])->name('contratos.fiscalizacoes.pdf.publico');
@@ -824,26 +811,12 @@ Route::get('/sobre/regimento', [App\Http\Controllers\PaginaController::class, 'r
 Route::get('/sobre/missao', [App\Http\Controllers\PaginaController::class, 'missao'])->name('paginas.missao');
 Route::get('/contato', [App\Http\Controllers\PaginaController::class, 'contato'])->name('paginas.contato');
 
-// Rota temporária para testar estilos de paginação
-Route::get('/test-pagination', function () {
-    return view('test-pagination');
-});
+
 
 // SEO - Sitemap
 Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
-// Rota de teste para verificar status do usuário
-Route::get('/test-user-status', function () {
-    return response()->json([
-        'authenticated' => auth()->check(),
-        'user_id' => auth()->id(),
-        'user_email' => auth()->check() ? auth()->user()->email : null,
-        'csrf_token' => csrf_token(),
-        'session_id' => session()->getId(),
-        'app_url' => config('app.url'),
-        'current_url' => request()->url()
-    ]);
-})->name('test.user.status');
+
 
 // Rotas específicas do Ouvidor (protegidas por middleware de ouvidor)
 Route::middleware(['auth', 'ouvidor'])->prefix('ouvidor')->group(function () {
@@ -859,15 +832,18 @@ Route::middleware(['auth', 'ouvidor'])->prefix('ouvidor')->group(function () {
     Route::post('/manifestacoes/{manifestacao}/tramitacao', [App\Http\Controllers\Ouvidor\ManifestacaoController::class, 'adicionarTramitacao'])->name('ouvidor.manifestacoes.tramitacao');
     Route::post('/manifestacoes/{manifestacao}/arquivar', [App\Http\Controllers\Ouvidor\ManifestacaoController::class, 'arquivar'])->name('ouvidor.manifestacoes.arquivar');
     
-    // Solicitações E-SIC (apenas para ouvidores com permissão)
-    Route::middleware('can:responder-esic')->group(function () {
-        Route::get('/esic', [App\Http\Controllers\Ouvidor\EsicController::class, 'index'])->name('ouvidor.esic.index');
-        Route::get('/esic/{solicitacao}', [App\Http\Controllers\Ouvidor\EsicController::class, 'show'])->name('ouvidor.esic.show');
-        Route::patch('/esic/{solicitacao}/responder', [App\Http\Controllers\Ouvidor\EsicController::class, 'responder'])->name('ouvidor.esic.responder');
-        Route::patch('/esic/{solicitacao}/status', [App\Http\Controllers\Ouvidor\EsicController::class, 'alterarStatus'])->name('ouvidor.esic.alterar-status');
-        Route::post('/esic/{solicitacao}/tramitacao', [App\Http\Controllers\Ouvidor\EsicController::class, 'adicionarTramitacao'])->name('ouvidor.esic.tramitacao');
-        Route::post('/esic/{solicitacao}/arquivar', [App\Http\Controllers\Ouvidor\EsicController::class, 'arquivar'])->name('ouvidor.esic.arquivar');
-    });
+    // Solicitações E-SIC (para ouvidores)
+    Route::get('/esic', [App\Http\Controllers\Ouvidor\EsicController::class, 'index'])->name('ouvidor.esic.index');
+    Route::get('/esic/{solicitacao}', [App\Http\Controllers\Ouvidor\EsicController::class, 'show'])->name('ouvidor.esic.show');
+    Route::patch('/esic/{solicitacao}/responder', [App\Http\Controllers\Ouvidor\EsicController::class, 'responder'])->name('ouvidor.esic.responder');
+    Route::patch('/esic/{solicitacao}/status', [App\Http\Controllers\Ouvidor\EsicController::class, 'alterarStatus'])->name('ouvidor.esic.alterar-status');
+    Route::post('/esic/{solicitacao}/tramitacao', [App\Http\Controllers\Ouvidor\EsicController::class, 'adicionarTramitacao'])->name('ouvidor.esic.tramitacao');
+    Route::post('/esic/{solicitacao}/arquivar', [App\Http\Controllers\Ouvidor\EsicController::class, 'arquivar'])->name('ouvidor.esic.arquivar');
+    Route::patch('/esic/{solicitacao}/solicitar-finalizacao', [App\Http\Controllers\Ouvidor\EsicController::class, 'solicitarFinalizacao'])->name('ouvidor.esic.solicitar-finalizacao');
+    
+    // Rotas para sistema de mensagens do E-SIC (ouvidor)
+    Route::post('/esic/{solicitacao}/mensagem', [App\Http\Controllers\Ouvidor\EsicController::class, 'enviarMensagem'])->name('ouvidor.esic.enviar-mensagem');
+    Route::get('/esic/mensagem/{mensagem}/anexo', [App\Http\Controllers\Ouvidor\EsicController::class, 'downloadAnexoMensagem'])->name('ouvidor.esic.download-anexo-mensagem');
     
     // Relatórios (apenas para ouvidores com permissão)
     Route::middleware('can:visualizar-relatorios')->group(function () {
@@ -901,18 +877,8 @@ Route::middleware(['auth', 'ouvidor'])->prefix('ouvidor')->group(function () {
     });
 });
 
-// Debug - Rota para receber logs do JavaScript
-Route::post('/debug/log', function (Illuminate\Http\Request $request) {
-    $logData = $request->all();
-    $timestamp = now()->format('Y-m-d H:i:s');
-    $logEntry = "[{$timestamp}] " . json_encode($logData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
-    
-    // Salva no arquivo de log de debug
-    $logFile = storage_path('logs/debug-esic.log');
-    file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
-    
-    return response()->json(['status' => 'logged']);
-})->name('debug.log');
+
+
 
 // Rotas de autenticação para cidadãos
 // Rotas para cidadãos autenticados (apenas dashboard e logout específicos)
@@ -925,5 +891,8 @@ Route::middleware('cidadao.auth')->group(function () {
     Route::get('/cidadao/comites/criar', [App\Http\Controllers\CidadaoComiteController::class, 'create'])->name('cidadao.comites.create');
     Route::post('/cidadao/comites', [App\Http\Controllers\CidadaoComiteController::class, 'store'])->name('cidadao.comites.store');
     Route::get('/cidadao/comites/{comite}', [App\Http\Controllers\CidadaoComiteController::class, 'show'])->name('cidadao.comites.show');
+    Route::get('/cidadao/comites/{comite}/editar', [App\Http\Controllers\CidadaoComiteController::class, 'edit'])->name('cidadao.comites.edit');
+    Route::put('/cidadao/comites/{comite}', [App\Http\Controllers\CidadaoComiteController::class, 'update'])->name('cidadao.comites.update');
     Route::post('/cidadao/comites/{comite}/assinar', [App\Http\Controllers\CidadaoComiteController::class, 'assinar'])->name('cidadao.comites.assinar');
+    Route::patch('/cidadao/comites/{comite}/resubmeter', [App\Http\Controllers\CidadaoComiteController::class, 'resubmeter'])->name('cidadao.comites.resubmeter');
 });

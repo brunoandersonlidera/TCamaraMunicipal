@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\EsicSolicitacao;
 use App\Models\EsicMovimentacao;
+use App\Models\EsicMensagem;
+use App\Mail\EsicConfirmacao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class EsicController extends Controller
@@ -110,48 +113,12 @@ class EsicController extends Controller
      */
     public function store(Request $request)
     {
-        \Log::info('E-SIC Store: Método chamado', ['request_data' => $request->all()]);
-        
-        // DEBUG: Log detalhado da requisição
-        \Log::info('=== DEBUG ESIC STORE - INÍCIO ===');
-        \Log::info('Request method: ' . $request->method());
-        \Log::info('Request URL: ' . $request->fullUrl());
-        \Log::info('Request headers: ' . json_encode($request->headers->all()));
-        \Log::info('Request all data: ' . json_encode($request->all()));
-        \Log::info('User authenticated: ' . (auth()->check() ? 'YES' : 'NO'));
-        if (auth()->check()) {
-            \Log::info('User ID: ' . auth()->id());
-            \Log::info('User email: ' . auth()->user()->email);
-        }
-        \Log::info('CSRF token from request: ' . $request->input('_token'));
-        \Log::info('Session CSRF token: ' . session()->token());
-        
-        // Debug: Log de entrada
-        \Log::info('E-SIC Store: Método chamado', [
-            'method' => $request->method(),
-            'url' => $request->url(),
-            'data' => $request->all()
-        ]);
-        
-        // Debug direto em arquivo
-        file_put_contents(storage_path('logs/debug-esic.log'), 
-            "[" . now() . "] E-SIC Store: Método chamado\n", FILE_APPEND);
-        
         $user = auth()->user();
-        
-        // Debug: Log do usuário
-        file_put_contents(storage_path('logs/debug-esic.log'), 
-            "[" . now() . "] E-SIC Store: Usuário = " . ($user ? $user->id : 'NULL') . "\n", FILE_APPEND);
         
         // Verificar se o usuário está autenticado
         if (!$user) {
-            \Log::warning('E-SIC Store: Usuário não autenticado');
-            file_put_contents(storage_path('logs/debug-esic.log'), 
-                "[" . now() . "] E-SIC Store: ERRO - Usuário não autenticado\n", FILE_APPEND);
             return redirect()->route('login')->with('error', 'Você precisa estar logado para fazer uma solicitação.');
         }
-        
-        \Log::info('E-SIC Store: Usuário autenticado', ['user_id' => $user->id]);
         
         $validator = Validator::make($request->all(), [
             'telefone_solicitante' => 'nullable|string|max:20',
@@ -172,37 +139,15 @@ class EsicController extends Controller
             'aceita_termos.accepted' => 'Você deve aceitar os termos de uso.'
         ]);
 
-        // Debug: Log da validação
-        file_put_contents(storage_path('logs/debug-esic.log'), 
-            "[" . now() . "] E-SIC Store: Iniciando validação\n", FILE_APPEND);
-
         if ($validator->fails()) {
-            file_put_contents(storage_path('logs/debug-esic.log'), 
-                "[" . now() . "] E-SIC Store: ERRO - Validação falhou: " . json_encode($validator->errors()) . "\n", FILE_APPEND);
             return back()->withErrors($validator)->withInput();
         }
-
-        file_put_contents(storage_path('logs/debug-esic.log'), 
-            "[" . now() . "] E-SIC Store: Validação passou - iniciando criação\n", FILE_APPEND);
 
         try {
             // Gerar protocolo
             $ano = now()->year;
             $sequencial = EsicSolicitacao::whereYear('created_at', $ano)->count() + 1;
             $protocolo = sprintf('ESIC%d%06d', $ano, $sequencial);
-            
-            file_put_contents(storage_path('logs/debug-esic.log'), 
-                "[" . now() . "] E-SIC Store: Protocolo gerado: $protocolo\n", FILE_APPEND);
-            
-            // Criar solicitação usando dados do usuário autenticado
-            \Log::info('Tentando criar solicitação e-SIC', [
-                'protocolo' => $protocolo,
-                'user_id' => $user->id,
-                'assunto' => $request->assunto
-            ]);
-            
-            file_put_contents(storage_path('logs/debug-esic.log'), 
-                "[" . now() . "] E-SIC Store: Tentando criar solicitação no banco\n", FILE_APPEND);
 
             $solicitacao = EsicSolicitacao::create([
                 'protocolo' => $protocolo,
@@ -219,14 +164,6 @@ class EsicController extends Controller
                 'status' => EsicSolicitacao::STATUS_PENDENTE,
                 'data_limite_resposta' => now()->addDays(20), // 20 dias úteis conforme LAI
                 'user_id' => $user->id
-            ]);
-            
-            file_put_contents(storage_path('logs/debug-esic.log'), 
-                "[" . now() . "] E-SIC Store: SUCESSO - Solicitação criada ID: " . $solicitacao->id . "\n", FILE_APPEND);
-            
-            \Log::info('Solicitação e-SIC criada com sucesso', [
-                'id' => $solicitacao->id,
-                'protocolo' => $solicitacao->protocolo
             ]);
 
             // Upload de anexos
@@ -258,27 +195,18 @@ class EsicController extends Controller
             ]);
 
             // Enviar e-mail de confirmação
-            $this->enviarEmailConfirmacao($solicitacao);
-
-            \Log::info('=== DEBUG ESIC STORE - SUCESSO ===');
-            \Log::info('Solicitação criada com ID: ' . $solicitacao->id);
-            \Log::info('Protocolo gerado: ' . $solicitacao->protocolo);
-            \Log::info('Redirecionando para dashboard...');
+            try {
+                Mail::to($solicitacao->email_solicitante)->send(new EsicConfirmacao($solicitacao));
+            } catch (\Exception $e) {
+                \Log::error('Erro ao enviar email de confirmação E-SIC: ' . $e->getMessage());
+            }
 
             return redirect()->route('esic.dashboard')
                 ->with('success', 'Solicitação registrada com sucesso! Protocolo: ' . $solicitacao->protocolo)
                 ->with('protocolo', $solicitacao->protocolo);
 
         } catch (\Exception $e) {
-            file_put_contents(storage_path('logs/debug-esic.log'), 
-                "[" . now() . "] E-SIC Store: EXCEPTION - " . $e->getMessage() . "\n", FILE_APPEND);
-            file_put_contents(storage_path('logs/debug-esic.log'), 
-                "[" . now() . "] E-SIC Store: STACK - " . $e->getTraceAsString() . "\n", FILE_APPEND);
-                
-            \Log::error('=== DEBUG ESIC STORE - ERRO ===');
-            \Log::error('Exception: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
-            
+            \Log::error('Erro ao registrar solicitação E-SIC: ' . $e->getMessage());
             return back()->with('error', 'Erro ao registrar solicitação. Tente novamente.')->withInput();
         }
     }
@@ -313,9 +241,24 @@ class EsicController extends Controller
     public function show($protocolo)
     {
         // Manter o protocolo no formato original (ex: ESIC2025000005)
-        $solicitacao = EsicSolicitacao::with(['responsavel', 'movimentacoes.usuario'])
+        $solicitacao = EsicSolicitacao::with([
+            'responsavel', 
+            'movimentacoes.usuario',
+            'mensagens' => function($query) {
+                $query->where('interna', false)->orderBy('created_at', 'asc');
+            },
+            'mensagens.usuario'
+        ])
             ->where('protocolo', $protocolo)
             ->firstOrFail();
+
+        // Marcar mensagens do ouvidor como lidas pelo cidadão
+        if (auth()->check() && auth()->user()->email === $solicitacao->email_solicitante) {
+            $solicitacao->mensagens()
+                ->where('tipo_remetente', 'ouvidor')
+                ->where('lida', false)
+                ->update(['lida' => true, 'data_leitura' => now()]);
+        }
 
         return view('esic.show', compact('solicitacao'));
     }
@@ -590,5 +533,177 @@ class EsicController extends Controller
         ];
 
         return view('esic.faq', compact('faqs'));
+    }
+
+    /**
+     * Enviar mensagem no chat da solicitação
+     */
+    public function enviarMensagem(Request $request, $protocolo)
+    {
+        $validator = Validator::make($request->all(), [
+            'mensagem' => 'required|string|min:1|max:2000',
+            'anexos.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png,txt'
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        try {
+            $solicitacao = EsicSolicitacao::where('protocolo', $protocolo)->firstOrFail();
+            
+            // Verificar se o usuário pode enviar mensagem para esta solicitação
+            if (!auth()->check() || auth()->user()->email !== $solicitacao->email_solicitante) {
+                return back()->with('error', 'Você não tem permissão para enviar mensagens nesta solicitação.');
+            }
+
+            // Processar anexos se houver
+            $anexos = [];
+            if ($request->hasFile('anexos')) {
+                foreach ($request->file('anexos') as $arquivo) {
+                    $nomeArquivo = time() . '_' . $arquivo->getClientOriginalName();
+                    $caminhoArquivo = $arquivo->storeAs('esic/mensagens', $nomeArquivo, 'public');
+                    
+                    $anexos[] = [
+                        'nome_original' => $arquivo->getClientOriginalName(),
+                        'nome_arquivo' => $nomeArquivo,
+                        'caminho' => $caminhoArquivo,
+                        'tamanho' => $arquivo->getSize(),
+                        'tipo' => $arquivo->getMimeType()
+                    ];
+                }
+            }
+
+            // Criar a mensagem
+            $mensagem = EsicMensagem::create([
+                'esic_solicitacao_id' => $solicitacao->id,
+                'usuario_id' => auth()->id(),
+                'tipo_remetente' => EsicMensagem::TIPO_CIDADAO,
+                'mensagem' => $request->mensagem,
+                'canal_comunicacao' => EsicMensagem::CANAL_SISTEMA,
+                'anexos' => $anexos,
+                'lida' => false,
+                'interna' => false,
+                'ip_usuario' => $request->ip()
+            ]);
+
+            // Verificar se deve alterar o status automaticamente
+            $statusAnterior = $solicitacao->status;
+            $novoStatus = null;
+            $descricaoMovimentacao = 'Nova mensagem enviada pelo cidadão: ' . Str::limit($request->mensagem, 100);
+
+            // Se o status atual for "Aguardando Informações", alterar para "Informações Recebidas"
+            if ($solicitacao->status === EsicSolicitacao::STATUS_AGUARDANDO_INFORMACOES) {
+                $novoStatus = EsicSolicitacao::STATUS_INFORMACOES_RECEBIDAS;
+                $solicitacao->update(['status' => $novoStatus]);
+                $descricaoMovimentacao = 'Informações recebidas do cidadão. Status alterado automaticamente para "Informações Recebidas". Mensagem: ' . Str::limit($request->mensagem, 100);
+            }
+
+            // Criar movimentação para histórico
+            EsicMovimentacao::create([
+                'esic_solicitacao_id' => $solicitacao->id,
+                'usuario_id' => auth()->id(),
+                'status' => $novoStatus ?? $solicitacao->status,
+                'descricao' => $descricaoMovimentacao,
+                'data_movimentacao' => now(),
+                'ip_usuario' => $request->ip()
+            ]);
+
+            return back()->with('success', 'Mensagem enviada com sucesso!');
+
+        } catch (\Exception $e) {
+            \Log::error('Erro ao enviar mensagem E-SIC: ' . $e->getMessage());
+            return back()->with('error', 'Erro ao enviar mensagem. Tente novamente.');
+        }
+    }
+
+    /**
+     * Download de anexo de mensagem
+     */
+    public function downloadAnexoMensagem($mensagemId)
+    {
+        try {
+            $mensagem = EsicMensagem::with('solicitacao')->findOrFail($mensagemId);
+            $solicitacao = $mensagem->solicitacao;
+            
+            // Verificar se o usuário pode acessar esta solicitação
+            if (!auth()->check() || auth()->user()->email !== $solicitacao->email_solicitante) {
+                abort(403, 'Acesso negado.');
+            }
+
+            $anexos = $mensagem->anexos ?? [];
+            $nomeArquivo = request()->get('arquivo');
+            
+            if (!$nomeArquivo) {
+                abort(400, 'Nome do arquivo não especificado.');
+            }
+            
+            // Procurar o anexo pelo nome original
+            $anexoEncontrado = null;
+            foreach ($anexos as $anexo) {
+                if ($anexo['nome_original'] === $nomeArquivo) {
+                    $anexoEncontrado = $anexo;
+                    break;
+                }
+            }
+            
+            if (!$anexoEncontrado) {
+                abort(404, 'Anexo não encontrado.');
+            }
+
+            $caminhoCompleto = storage_path('app/public/' . $anexoEncontrado['caminho']);
+
+            if (!file_exists($caminhoCompleto)) {
+                abort(404, 'Arquivo não encontrado no sistema de arquivos.');
+            }
+
+            return response()->download($caminhoCompleto, $anexoEncontrado['nome_original']);
+
+        } catch (\Exception $e) {
+            \Log::error('Erro ao fazer download de anexo: ' . $e->getMessage());
+            abort(404, 'Arquivo não encontrado.');
+        }
+    }
+
+    /**
+     * Finalizar uma solicitação pelo cidadão
+     */
+    public function finalizar($protocolo)
+    {
+        $solicitacao = EsicSolicitacao::where('protocolo', $protocolo)->firstOrFail();
+        
+        // Verificar se o usuário pode finalizar esta solicitação
+        if (!auth()->check() || auth()->user()->email !== $solicitacao->email_solicitante) {
+            abort(403, 'Você não tem permissão para finalizar esta solicitação.');
+        }
+
+        // Verificar se a solicitação está aguardando encerramento
+        if (!$solicitacao->aguardandoEncerramento()) {
+            return back()->with('error', 'Esta solicitação não está aguardando encerramento.');
+        }
+
+        try {
+            DB::transaction(function () use ($solicitacao) {
+                // Finalizar a solicitação
+                $solicitacao->finalizar();
+
+                // Adicionar movimentação
+                EsicMovimentacao::create([
+                    'esic_solicitacao_id' => $solicitacao->id,
+                    'usuario_id' => auth()->id(),
+                    'status' => 'finalizada',
+                    'descricao' => 'Solicitação finalizada pelo cidadão',
+                    'data_movimentacao' => now(),
+                    'ip_usuario' => request()->ip()
+                ]);
+            });
+
+            return redirect()->route('esic.show', $protocolo)
+                ->with('success', 'Solicitação finalizada com sucesso!');
+
+        } catch (\Exception $e) {
+            \Log::error('Erro ao finalizar solicitação E-SIC: ' . $e->getMessage());
+            return back()->with('error', 'Erro ao finalizar solicitação. Tente novamente.');
+        }
     }
 }

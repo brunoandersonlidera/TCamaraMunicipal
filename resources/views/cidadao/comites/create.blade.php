@@ -166,12 +166,21 @@
                         <!-- Termos e Condições -->
                         <div class="mb-3">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="aceito_termos" required>
-                                <label class="form-check-label" for="aceito_termos">
+                                <input class="form-check-input @error('aceite_termos') is-invalid @enderror" 
+                                       type="checkbox" 
+                                       id="aceite_termos" 
+                                       name="aceite_termos" 
+                                       value="1"
+                                       {{ old('aceite_termos') ? 'checked' : '' }}
+                                       required>
+                                <label class="form-check-label" for="aceite_termos">
                                     Declaro que as informações fornecidas são verdadeiras e aceito os 
                                     <a href="#" data-bs-toggle="modal" data-bs-target="#termosModal">termos e condições</a> 
                                     para criação de comitê de iniciativa popular.
                                 </label>
+                                @error('aceite_termos')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 

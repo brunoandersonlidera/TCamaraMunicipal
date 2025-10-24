@@ -409,8 +409,7 @@ class User extends Authenticatable
      */
     public function canResponderEsic(): bool
     {
-        return $this->isAdmin() || $this->isSecretario() || $this->isFuncionario() || 
-               ($this->isOuvidor() && $this->pode_gerenciar_esic);
+        return $this->isAdmin() || $this->isSecretario() || $this->isFuncionario() || $this->isOuvidor();
     }
 
     /**

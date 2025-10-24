@@ -20,6 +20,15 @@ return Application::configure(basePath: dirname(__DIR__))
             'ouvidor' => \App\Http\Middleware\OuvidorMiddleware::class,
         ]);
     })
+    ->withSchedule(function ($schedule) {
+        // Processar encerramentos automáticos de solicitações E-SIC
+        // Executa diariamente às 08:00
+        $schedule->command('esic:processar-encerramentos')
+                 ->dailyAt('08:00')
+                 ->withoutOverlapping()
+                 ->runInBackground()
+                 ->appendOutputTo(storage_path('logs/esic-encerramentos.log'));
+    })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

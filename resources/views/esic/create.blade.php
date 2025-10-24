@@ -37,25 +37,6 @@
                     </div>
                 @endif
 
-                <!-- DEBUG: Status do usuário -->
-                <div class="alert alert-info">
-                    <h5>DEBUG - Status do Usuário:</h5>
-                    <ul>
-                        <li><strong>Usuário logado:</strong> {{ $user ? 'SIM' : 'NÃO' }}</li>
-                        @if($user)
-                            <li><strong>Nome:</strong> {{ $user->name }}</li>
-                            <li><strong>Email:</strong> {{ $user->email }}</li>
-                            <li><strong>Email verificado:</strong> {{ $user->email_verified_at ? 'SIM (' . $user->email_verified_at . ')' : 'NÃO' }}</li>
-                            <li><strong>Role:</strong> {{ $user->role ?? 'N/A' }}</li>
-                            <li><strong>Ativo:</strong> {{ $user->active ? 'SIM' : 'NÃO' }}</li>
-                            @if($user->role === 'cidadao')
-                                <li><strong>Cidadão:</strong> {{ $user->nome_completo ?? $user->name }}</li>
-                                <li><strong>Status Verificação:</strong> {{ $user->status_verificacao ?? 'Não verificado' }}</li>
-                            @endif
-                        @endif
-                    </ul>
-                </div>
-
                 <!-- Formulário -->
                 <div class="form-card">
                     <form action="{{ route('esic.store') }}" method="POST" id="esicForm">

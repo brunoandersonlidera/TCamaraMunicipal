@@ -130,8 +130,8 @@ function initDashboard() {
     initTypeChart();
     animateCards();
     
-    // Atualizar a cada 30 segundos
-    setInterval(updateDashboard, 30000);
+    // Atualizar a cada 5 minutos (era 30 segundos) - reduzido para evitar excesso de conexões
+    setInterval(updateDashboard, 300000); // 5 minutos
 }
 
 // Executar quando a página carregar

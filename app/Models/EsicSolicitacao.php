@@ -39,6 +39,7 @@ class EsicSolicitacao extends Model
         'responsavel_id',
         'observacoes_internas',
         'anexos',
+        'anexos_resposta',
         'metadata',
         'user_agent',
         'origem',
@@ -51,7 +52,10 @@ class EsicSolicitacao extends Model
         'resposta_recurso_segunda',
         'classificacao_informacao',
         'fundamentacao_legal',
-        'tags'
+        'tags',
+        'data_finalizacao_solicitada',
+        'data_limite_encerramento',
+        'encerrada_automaticamente'
     ];
 
     protected $casts = [
@@ -61,13 +65,17 @@ class EsicSolicitacao extends Model
         'data_recurso_primeira' => 'datetime',
         'data_recurso_segunda' => 'datetime',
         'arquivada_em' => 'datetime',
+        'data_finalizacao_solicitada' => 'datetime',
+        'data_limite_encerramento' => 'datetime',
         'anexos' => 'array',
+        'anexos_resposta' => 'array',
         'metadata' => 'array',
         'tags' => 'array',
         'anonima' => 'boolean',
         'arquivada' => 'boolean',
         'recurso_primeira_instancia' => 'boolean',
-        'recurso_segunda_instancia' => 'boolean'
+        'recurso_segunda_instancia' => 'boolean',
+        'encerrada_automaticamente' => 'boolean'
     ];
 
     protected $dates = [
@@ -77,6 +85,8 @@ class EsicSolicitacao extends Model
         'data_recurso_primeira',
         'data_recurso_segunda',
         'arquivada_em',
+        'data_finalizacao_solicitada',
+        'data_limite_encerramento',
         'deleted_at'
     ];
 
@@ -84,12 +94,13 @@ class EsicSolicitacao extends Model
     const STATUS_PENDENTE = 'pendente';
     const STATUS_EM_ANALISE = 'em_analise';
     const STATUS_AGUARDANDO_INFORMACOES = 'aguardando_informacoes';
+    const STATUS_INFORMACOES_RECEBIDAS = 'informacoes_recebidas';
     const STATUS_RESPONDIDA = 'respondida';
     const STATUS_NEGADA = 'negada';
     const STATUS_PARCIALMENTE_ATENDIDA = 'parcialmente_atendida';
     const STATUS_FINALIZADA = 'finalizada';
+    const STATUS_ARQUIVADA = 'arquivada';
     const STATUS_CANCELADA = 'cancelada';
-    const STATUS_EXPIRADA = 'expirada';
 
     // Constantes para prioridade
     const PRIORIDADE_BAIXA = 'baixa';
@@ -134,6 +145,21 @@ class EsicSolicitacao extends Model
         return $this->hasOne(EsicMovimentacao::class, 'esic_solicitacao_id')->latest('data_movimentacao');
     }
 
+    public function mensagens()
+    {
+        return $this->hasMany(EsicMensagem::class, 'esic_solicitacao_id');
+    }
+
+    public function ultimaMensagem()
+    {
+        return $this->hasOne(EsicMensagem::class, 'esic_solicitacao_id')->latest('created_at');
+    }
+
+    public function mensagensNaoLidas()
+    {
+        return $this->hasMany(EsicMensagem::class, 'esic_solicitacao_id')->where('lida', false);
+    }
+
     // Scopes
     public function scopeStatus($query, $status)
     {
@@ -160,10 +186,7 @@ class EsicSolicitacao extends Model
         return $query->where('status', self::STATUS_NEGADA);
     }
 
-    public function scopeExpiradas($query)
-    {
-        return $query->where('status', self::STATUS_EXPIRADA);
-    }
+
 
     public function scopeVencidas($query)
     {
@@ -237,12 +260,13 @@ class EsicSolicitacao extends Model
                 self::STATUS_PENDENTE => 'Pendente',
                 self::STATUS_EM_ANALISE => 'Em Análise',
                 self::STATUS_AGUARDANDO_INFORMACOES => 'Aguardando Informações',
+                self::STATUS_INFORMACOES_RECEBIDAS => 'Informações Recebidas',
                 self::STATUS_RESPONDIDA => 'Respondida',
                 self::STATUS_NEGADA => 'Negada',
                 self::STATUS_PARCIALMENTE_ATENDIDA => 'Parcialmente Atendida',
                 self::STATUS_FINALIZADA => 'Finalizada',
+                self::STATUS_ARQUIVADA => 'Arquivada',
                 self::STATUS_CANCELADA => 'Cancelada',
-                self::STATUS_EXPIRADA => 'Expirada',
                 default => 'Indefinido'
             },
         );
@@ -394,10 +418,7 @@ class EsicSolicitacao extends Model
         return $this->status === self::STATUS_CANCELADA;
     }
 
-    public function isExpirada()
-    {
-        return $this->status === self::STATUS_EXPIRADA;
-    }
+
 
     public function isVencida()
     {
@@ -427,16 +448,17 @@ class EsicSolicitacao extends Model
         return in_array($this->status, [
             self::STATUS_PENDENTE,
             self::STATUS_EM_ANALISE,
-            self::STATUS_AGUARDANDO_INFORMACOES
-        ]);
+            self::STATUS_AGUARDANDO_INFORMACOES,
+            self::STATUS_RESPONDIDA,
+            self::STATUS_PARCIALMENTE_ATENDIDA
+        ]) && $this->status !== self::STATUS_FINALIZADA;
     }
 
     public function podeSerCancelada()
     {
         return !in_array($this->status, [
             self::STATUS_RESPONDIDA,
-            self::STATUS_CANCELADA,
-            self::STATUS_EXPIRADA
+            self::STATUS_CANCELADA
         ]);
     }
 
@@ -491,6 +513,119 @@ class EsicSolicitacao extends Model
             'resposta_recurso_primeira' => $recurso,
             'status' => self::STATUS_EM_ANALISE
         ]);
+    }
+
+    public function solicitarFinalizacao()
+    {
+        $this->update([
+            'data_finalizacao_solicitada' => now(),
+            'data_limite_encerramento' => now()->addDays(10)
+        ]);
+    }
+
+    public function finalizar($encerradaAutomaticamente = false)
+    {
+        $this->update([
+            'status' => self::STATUS_FINALIZADA,
+            'encerrada_automaticamente' => $encerradaAutomaticamente
+        ]);
+    }
+
+    public function podeSerFinalizada()
+    {
+        return in_array($this->status, [
+            self::STATUS_RESPONDIDA,
+            self::STATUS_PARCIALMENTE_ATENDIDA
+        ]);
+    }
+
+    public function aguardandoEncerramento()
+    {
+        return $this->data_finalizacao_solicitada !== null && 
+               $this->status !== self::STATUS_FINALIZADA;
+    }
+
+    public function venceuPrazoEncerramento()
+    {
+        return $this->data_limite_encerramento !== null && 
+               $this->data_limite_encerramento <= now() &&
+               $this->status !== self::STATUS_FINALIZADA;
+    }
+
+    public function diasParaEncerramento()
+    {
+        if (!$this->data_limite_encerramento) {
+            return null;
+        }
+        
+        return max(0, now()->diffInDays($this->data_limite_encerramento, false));
+    }
+
+    public function diasParaEncerramentoFormatado()
+    {
+        if (!$this->data_limite_encerramento) {
+            return null;
+        }
+        
+        $totalMinutos = max(0, now()->diffInMinutes($this->data_limite_encerramento, false));
+        
+        if ($totalMinutos <= 0) {
+            return '0 dias';
+        }
+        
+        $dias = intval($totalMinutos / (24 * 60));
+        $horas = intval(($totalMinutos % (24 * 60)) / 60);
+        $minutos = $totalMinutos % 60;
+        
+        $resultado = [];
+        
+        if ($dias > 0) {
+            $resultado[] = $dias . ($dias == 1 ? ' dia' : ' dias');
+        }
+        
+        if ($horas > 0) {
+            $resultado[] = $horas . ($horas == 1 ? ' hora' : ' horas');
+        }
+        
+        if ($dias == 0 && $horas == 0 && $minutos > 0) {
+            $resultado[] = $minutos . ($minutos == 1 ? ' minuto' : ' minutos');
+        }
+        
+        return implode(' e ', $resultado);
+    }
+
+    public function diasParaRespostaFormatado()
+    {
+        if (!$this->data_limite_resposta) {
+            return 'Não definido';
+        }
+
+        $agora = now();
+        $diffInMinutes = $agora->diffInMinutes($this->data_limite_resposta, false);
+        
+        if ($diffInMinutes < 0) {
+            return 'Vencida';
+        }
+        
+        $dias = intval($diffInMinutes / (24 * 60));
+        $horas = intval(($diffInMinutes % (24 * 60)) / 60);
+        $minutos = $diffInMinutes % 60;
+        
+        $resultado = [];
+        
+        if ($dias > 0) {
+            $resultado[] = $dias . ($dias == 1 ? ' dia' : ' dias');
+        }
+        
+        if ($horas > 0) {
+            $resultado[] = $horas . ($horas == 1 ? ' hora' : ' horas');
+        }
+        
+        if ($minutos > 0 && $dias == 0) {
+            $resultado[] = $minutos . ($minutos == 1 ? ' minuto' : ' minutos');
+        }
+        
+        return empty($resultado) ? '0 minutos' : implode(' e ', $resultado);
     }
 
     public function adicionarRecursoSegundaInstancia($recurso)
@@ -556,9 +691,9 @@ class EsicSolicitacao extends Model
 
     public function verificarVencimento()
     {
-        if ($this->isVencida() && !$this->isExpirada()) {
-            $this->update(['status' => self::STATUS_EXPIRADA]);
-        }
+        // Método mantido para compatibilidade, mas não altera mais o status
+        // Solicitações vencidas mantêm o último status válido
+        return $this->isVencida();
     }
 
     private function formatarCpf($cpf)
@@ -602,8 +737,8 @@ class EsicSolicitacao extends Model
         });
 
         static::updating(function ($solicitacao) {
-            // Auto-verificar vencimento ao atualizar
-            $solicitacao->verificarVencimento();
+            // Método mantido para compatibilidade
+            // Não altera mais o status automaticamente
         });
     }
 
@@ -640,11 +775,11 @@ class EsicSolicitacao extends Model
                 self::STATUS_PENDENTE,
                 self::STATUS_EM_ANALISE,
                 self::STATUS_AGUARDANDO_INFORMACOES,
+                self::STATUS_INFORMACOES_RECEBIDAS,
                 self::STATUS_RESPONDIDA,
                 self::STATUS_NEGADA,
                 self::STATUS_PARCIALMENTE_ATENDIDA,
                 self::STATUS_CANCELADA,
-                self::STATUS_EXPIRADA,
                 self::STATUS_FINALIZADA
             ]),
             'prioridade' => 'nullable|in:' . implode(',', [
@@ -754,12 +889,13 @@ class EsicSolicitacao extends Model
             self::STATUS_PENDENTE => 'Pendente',
             self::STATUS_EM_ANALISE => 'Em Análise',
             self::STATUS_AGUARDANDO_INFORMACOES => 'Aguardando Informações',
+            self::STATUS_INFORMACOES_RECEBIDAS => 'Informações Recebidas',
             self::STATUS_RESPONDIDA => 'Respondida',
             self::STATUS_NEGADA => 'Negada',
             self::STATUS_PARCIALMENTE_ATENDIDA => 'Parcialmente Atendida',
             self::STATUS_CANCELADA => 'Cancelada',
-            self::STATUS_EXPIRADA => 'Expirada',
-            self::STATUS_FINALIZADA => 'Finalizada'
+            self::STATUS_FINALIZADA => 'Finalizada',
+            self::STATUS_ARQUIVADA => 'Arquivada'
         ];
     }
 }
