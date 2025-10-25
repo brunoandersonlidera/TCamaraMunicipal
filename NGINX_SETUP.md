@@ -39,6 +39,10 @@
 - 🔗 http://localhost
 - 🔗 http://127.0.0.1
 
+### **Domínio Público**
+- 🔗 http://camara.lidera.app.br
+- ⚠️ Requer configuração DNS (veja `docs/CONFIGURACAO_DNS.md`)
+
 ### **Rede Local**
 - 🔗 http://[IP_DA_MAQUINA]
 - Exemplo: http://192.168.1.100
@@ -52,6 +56,7 @@ ipconfig | findstr "IPv4"
 
 ### **Nginx**
 - **Porta:** 80 (IP público 0.0.0.0)
+- **Domínio:** camara.lidera.app.br
 - **Configuração:** `nginx-laravel.conf`
 - **Logs:** `C:\nginx-1.28.0\logs\`
 
@@ -145,10 +150,19 @@ Get-Content "C:\nginx-1.28.0\logs\laravel-access.log" -Wait
 Get-Content "C:\nginx-1.28.0\logs\laravel-error.log" -Wait
 ```
 
+## 🌐 Configuração DNS
+
+Para usar o domínio `camara.lidera.app.br`, você precisa configurar o DNS:
+
+1. **Consulte:** `docs/CONFIGURACAO_DNS.md` para instruções detalhadas
+2. **Configure:** Registro A no provedor do domínio `lidera.app.br`
+3. **Aponte:** Para o IP público do servidor
+4. **Aguarde:** Propagação DNS (até 48 horas)
+
 ## 🎯 Próximos Passos
 
-1. **SSL/HTTPS:** Configurar certificado SSL
-2. **Domínio:** Configurar domínio personalizado
+1. **DNS:** Configurar subdomínio camara.lidera.app.br (veja `docs/CONFIGURACAO_DNS.md`)
+2. **SSL/HTTPS:** Configurar certificado SSL para o domínio
 3. **Load Balancer:** Para múltiplas instâncias
 4. **Backup:** Automatizar backup das configurações
 

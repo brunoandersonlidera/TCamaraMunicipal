@@ -112,8 +112,10 @@ try {
     $port80Running = netstat -an | findstr ":80"
     
     if ($nginxRunning -and $port80Running) {
-        Write-Host "Nginx iniciado com sucesso!" -ForegroundColor Green
-        Write-Host "Acesse: http://localhost" -ForegroundColor Cyan
+        Write-Host "✅ Nginx iniciado com sucesso!" -ForegroundColor Green
+        Write-Host "🌐 Servidor rodando na porta 80 (IP público 0.0.0.0)" -ForegroundColor Cyan
+        Write-Host "🔗 Acesso local: http://localhost" -ForegroundColor White
+        Write-Host "🌍 Domínio configurado: http://camara.lidera.app.br" -ForegroundColor Yellow
         Write-Host "Ou pelo IP da máquina na rede local" -ForegroundColor Cyan
         Write-Host "Para parar tudo: .\stop-laravel-nginx.ps1" -ForegroundColor Yellow
     } else {
